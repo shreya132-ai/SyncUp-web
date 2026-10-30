@@ -1,49 +1,60 @@
 # SyncUp — Peer-to-Peer Project Collaboration & Teammate Discovery Platform
 
-A modern, production-grade collaboration platform for student developers, hackathon teams, and creator communities.
+> A modern, production-grade collaboration platform for student developers, hackathon teams, and creator communities.
+
+🌐 **Live Web Application:** [https://shreya132-ai.github.io/SyncUp-web/](https://shreya132-ai.github.io/SyncUp-web/)  
+💻 **Repository:** [https://github.com/shreya132-ai/SyncUp-web](https://github.com/shreya132-ai/SyncUp-web)
 
 ---
 
-## 🎨 Frontend Redesign Highlights (Matching Official Storyboard)
+## 🌟 Key Features & Storyboard Architecture
 
-1. **Landing & Splash Page (Panel 1 & 9)**
-   - Dark forest green hero with modern typography and badge highlights.
-   - Vector developer collaboration illustration.
-   - "Why SyncUp?" 6-card feature grid.
-   - Comprehensive footer with social connectivity.
+### 1. 🎨 Modern UI/UX Matching Official Storyboard
+- **Forest & Emerald Theme:** Custom palette (`#064E3B`, `#087F5B`, `#10B981`, `#D1FAE5`, `#F8FAFC`).
+- **Split-Screen Authentication:** Modern login/register tabs, Google Sign-In, password toggle, and 1-click Demo mode.
+- **Fixed Dark-Green Sidebar:** Quick navigation between Home, Global Feed, My Uploads, Collaborator Chat, and Profile.
+- **Mobile Responsive:** Adaptive layouts for Desktop, Tablet, and Mobile with fluid flex grids and bottom navigation bar.
 
-2. **Split-Screen Authentication (Panel 2)**
-   - Left side: Clean login/register tabs, full name, username, college, password visibility toggle, and instant demo access.
-   - Right side: Soft mint illustration banner and platform highlights.
+### 2. 🔒 Security & Privacy Protection
+- **Zero Email Leakage:** Sensitive user emails are never displayed in the public feed, profile cards, or chat headers. Users interact via public usernames and display names.
+- **Client-Side XSS Sanitization:** All text inputs (titles, descriptions, comments, chat messages) are escaped before rendering.
+- **Anti-Spam & Rate Limiting:** Enforces cooldowns on posting, commenting, and rapid messaging to prevent spam floods.
+- **Safety & Moderation Controls:**
+  - **🚩 Report Post:** Community members can report inappropriate or spam posts.
+  - **🚫 Block User:** Instantly block abusive users and hide all their posts and messages from your view.
 
-3. **Dashboard with Fixed Dark-Green Sidebar (Panel 4)**
-   - Navigation: Home, Global Feed, My Uploads, Collaborator Chat, My Profile, and Logout.
-   - Category filtering: *All Posts*, *Hackathons*, *College Projects*, *Portfolio*, *Learning*.
-   - Live search input by skills, title, author, or keywords.
+### 3. 💬 1-on-1 Direct Messaging & Real-Time Chat
+- **Private 1-on-1 DMs:** Secure direct message conversations between any two collaborators.
+- **Global Community Room:** An open channel for platform-wide announcements and hackathon team rallying.
+- **Smart "🤝 Collaborate" Button:** Clicking "Collaborate" on any project feed card immediately initiates a direct conversation with the author.
+- **Instant Search:** Filter conversations in real time by name.
 
-4. **Dedicated Profile View (Panel 3)**
-   - Profile hero card, live skill cloud with dynamic add/remove tags, bio editor, and social links (GitHub, LinkedIn).
+### 4. 🤝 Team Application & Review Workflow
+- **"Apply to Join Team" Button:** Developers can apply to open projects specifying their intended role (Frontend, Backend, AI/ML, UI/UX, etc.) and a custom pitch.
+- **Project Lead Application Review:** Post authors can view all pending applications directly on their post with **Accept** and **Decline** actions.
+- **Project Status Tags:**
+  - 🟢 `Recruiting` — Actively accepting new teammates.
+  - 🟡 `Team Full` — Roster complete, development underway.
+  - 🟣 `Completed` — Project finished; showcase demo and code.
 
-5. **2-Column Create Post Modal with Live Preview (Panel 5)**
-   - Live 100-word limit counter.
-   - Real-time card preview updating as you type.
-   - Automatic HTML5 Canvas image compression keeping uploads <70 KB.
-
-6. **Real-Time Collaborator Chat (Panel 6)**
-   - Left panel: searchable conversation threads with online indicators.
-   - Right panel: synchronized message bubble stream with timestamps and enter-key sending.
-   - "🤝 Collaborate" button on any feed card opens chat with that author pre-selected.
-
-7. **My Uploads Dashboard (Panel 7)**
-   - Grid layout of user's published posts with engagement metrics and safe delete confirmation.
-
-8. **Full Mobile Responsiveness (Panel 8)**
-   - Responsive layouts across Desktop, Tablet, and Mobile with fixed bottom navigation bar on mobile viewports.
+### 5. 🚀 Developer Project Cards
+- **Live Tech Tags:** Searchable by languages and frameworks (React, Python, Node, Flutter, etc.).
+- **Live Demo & GitHub Links:** Direct one-click access to source code and hosted web demos.
+- **Real-Time Likes & Comments:** Interactive community engagement.
+- **Canvas Image Compression:** Automatic client-side compression keeps all uploaded screenshots and avatars under 70 KB for lightning-fast loads.
 
 ---
 
-## 🚀 How to Run
+## 🛠️ Tech Stack
 
-1. **Desktop Direct:** Double-click `syncup.html` on your Desktop.
-2. **Project Folder:** Double-click `start.bat` inside this folder.
+- **Frontend:** HTML5, CSS3, Modern ES6+ JavaScript, Tailwind CSS, FontAwesome 6, Google Fonts (Plus Jakarta Sans).
+- **Backend & Real-Time DB:** Firebase Authentication, Cloud Firestore (Real-Time Listeners `onSnapshot`), Firebase Storage.
+- **Deployment:** GitHub Pages.
+
+---
+
+## 🚀 How to Run Locally
+
+1. **Option 1 (Direct Open):** Double-click `index.html` or `syncup.html` in any browser.
+2. **Option 2 (Windows Batch Script):** Double-click `start.bat`.
 3. **Instant Preview (No Sign-Up Needed):** Click **"🚀 Preview Demo"** on the landing screen to test all features instantly as an authorized developer!

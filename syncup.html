@@ -53,6 +53,10 @@
             --border-hover: #CBD5E1;
             --danger: #EF4444;
             --danger-bg: #FEE2E2;
+            --warning: #F59E0B;
+            --warning-bg: #FEF3C7;
+            --info: #3B82F6;
+            --info-bg: #DBEAFE;
             --radius-sm: 8px;
             --radius: 12px;
             --radius-lg: 18px;
@@ -93,6 +97,20 @@
             transition: var(--transition);
         }
         .tag-pill:hover { background: #A7F3D0; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .status-recruiting { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+        .status-full { background: var(--warning-bg); color: #B45309; border: 1px solid #FDE68A; }
+        .status-completed { background: var(--info-bg); color: #1D4ED8; border: 1px solid #BFDBFE; }
 
         /* Buttons */
         .btn {
@@ -158,6 +176,23 @@
             transform: translateY(-1px);
         }
 
+        .btn-apply-team {
+            background: #047857;
+            color: white;
+            padding: 7px 16px;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(4, 120, 87, 0.25);
+            transition: var(--transition);
+        }
+        .btn-apply-team:hover {
+            background: #065F46;
+            transform: translateY(-1px);
+        }
+
         .btn-icon {
             padding: 8px;
             border-radius: var(--radius-sm);
@@ -191,6 +226,51 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
         }
         .form-textarea { resize: vertical; min-height: 90px; }
+
+        /* Security Alert Banner */
+        .security-banner {
+            background: #FEF3C7;
+            border-bottom: 1px solid #FDE68A;
+            padding: 8px 24px;
+            font-size: 0.84rem;
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Dropdown Menu for Post Options */
+        .dropdown-menu {
+            position: absolute;
+            top: 40px;
+            right: 12px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 200;
+            min-width: 160px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .dropdown-item {
+            padding: 9px 14px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: none;
+            text-align: left;
+            width: 100%;
+        }
+        .dropdown-item:hover { background: #F1F5F9; }
+        .dropdown-item.danger { color: var(--danger); }
+        .dropdown-item.danger:hover { background: var(--danger-bg); }
 
         /* ==========================================================================
            2. LANDING / SPLASH SCREEN (Storyboard Panel 1 & 9 & 10)
@@ -284,7 +364,7 @@
             margin-top: 10px;
         }
 
-        /* SVG Hero Illustration Card */
+        /* SVG Hero Illustration Card (Three Student Developers at Laptop) */
         .landing-hero-art {
             position: relative;
             display: flex;
@@ -455,7 +535,7 @@
         .auth-tabs {
             display: flex;
             border-bottom: 2px solid var(--border);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             gap: 24px;
         }
         .auth-tab-btn {
@@ -496,7 +576,7 @@
 
         .auth-divider {
             text-align: center;
-            margin: 18px 0;
+            margin: 16px 0;
             position: relative;
         }
         .auth-divider::before {
@@ -854,6 +934,31 @@
             gap: 8px;
             margin-bottom: 14px;
         }
+        .project-links-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .project-link-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: #F1F5F9;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .project-link-badge:hover {
+            background: var(--light-green-subtle);
+            border-color: var(--accent-green);
+        }
+
         .project-screenshot-img {
             width: 100%;
             max-height: 380px;
@@ -870,11 +975,13 @@
             align-items: center;
             padding-top: 14px;
             border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .post-social-actions {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 16px;
         }
         .social-action-btn {
             background: transparent;
@@ -1100,8 +1207,30 @@
             flex-direction: column;
             background: #FAFAFA;
         }
+        .chat-mode-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: #FFFFFF;
+        }
+        .chat-mode-tab {
+            flex: 1;
+            padding: 12px 10px;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chat-mode-tab.active {
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--accent-green);
+            background: var(--light-green-subtle);
+        }
         .contacts-search-box {
-            padding: 16px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border);
             background: #FFFFFF;
         }
@@ -1359,7 +1488,7 @@
         }
 
         /* ==========================================================================
-           8. MODALS (Create Post with Live Preview & Edit Profile)
+           8. MODALS (Create Post, Edit Profile, Apply to Team, Applications, Report)
            ========================================================================== */
         .modal-overlay {
             position: fixed;
@@ -1425,7 +1554,7 @@
         .upload-dropzone {
             border: 2px dashed #CBD5E1;
             border-radius: var(--radius);
-            padding: 24px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             background: #F8FAFC;
@@ -1450,6 +1579,18 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        /* Applications List in Modal */
+        .applicant-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* Mobile Bottom Nav Bar (Storyboard Panel 8) */
@@ -1636,17 +1777,17 @@
                         <!-- Student 1 (Left - Boy) -->
                         <circle cx="105" cy="140" r="32" fill="#10B981"/>
                         <circle cx="105" cy="130" r="16" fill="#FDE68A"/>
-                        <path d="M92 124 C92 114, 118 114, 118 124" fill="#1E293B"/> <!-- Hair -->
+                        <path d="M92 124 C92 114, 118 114, 118 124" fill="#1E293B"/>
                         <path d="M82 165 C82 148, 128 148, 128 165" fill="#FFFFFF"/>
                         <!-- Student 2 (Center - Girl) -->
                         <circle cx="230" cy="72" r="32" fill="#D1FAE5"/>
                         <circle cx="230" cy="64" r="16" fill="#FDE68A"/>
-                        <path d="M212 60 C212 46, 248 46, 248 60 C248 76, 212 76, 212 60" fill="#7C2D12"/> <!-- Long Hair -->
+                        <path d="M212 60 C212 46, 248 46, 248 60 C248 76, 212 76, 212 60" fill="#7C2D12"/>
                         <path d="M208 96 C208 80, 252 80, 252 96" fill="#064E3B"/>
                         <!-- Student 3 (Right - Boy) -->
                         <circle cx="355" cy="140" r="32" fill="#087F5B"/>
                         <circle cx="355" cy="130" r="16" fill="#FDE68A"/>
-                        <path d="M342 122 C342 112, 368 112, 368 122" fill="#0F172A"/> <!-- Hair -->
+                        <path d="M342 122 C342 112, 368 112, 368 122" fill="#0F172A"/>
                         <path d="M332 165 C332 148, 378 148, 378 165" fill="#FFFFFF"/>
                     </svg>
                 </div>
@@ -1729,7 +1870,7 @@
     </section>
 
     <!-- ==========================================================================
-         PAGE B: AUTHENTICATION SPLIT-SCREEN (Storyboard Panel 2)
+         PAGE B: AUTHENTICATION SPLIT-SCREEN (Storyboard Panel 2 + Google Login)
          ========================================================================== -->
     <section id="auth-view" class="hidden">
         <div class="auth-split-wrapper">
@@ -1746,6 +1887,21 @@
                     </span>
                 </div>
                 <div class="auth-tagline">Connect · Collaborate · Create</div>
+
+                <!-- 1-Click Continue with Google Button -->
+                <button type="button" class="btn btn-outline" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; font-weight:600; border-radius:var(--radius-sm); padding:10px;" onclick="handleGoogleSignIn()">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3h3.86c2.26-2.09 3.68-5.17 3.68-9.09z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09C3.26 21.3 7.37 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.62H1.27C.46 8.23 0 10.06 0 12s.46 3.77 1.27 5.38l4-3.09z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.26 2.7 1.27 6.62l4 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <div class="auth-divider">
+                    <span>or continue with email</span>
+                </div>
 
                 <!-- Tabs: Login vs Register -->
                 <div class="auth-tabs">
@@ -1802,15 +1958,15 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary" id="btn-auth-submit" style="width:100%; padding:12px;">Login</button>
+                    <button type="submit" class="btn btn-primary" id="btn-auth-submit" style="width:100%; padding:12px; border-radius:var(--radius-sm);">Login</button>
                 </form>
 
                 <div class="auth-divider">
-                    <span>or</span>
+                    <span>or explore without login</span>
                 </div>
 
                 <!-- Instant Demo Button -->
-                <button class="btn btn-outline" style="width:100%; padding:11px;" onclick="continueAsDemoGuest()">
+                <button class="btn btn-outline" style="width:100%; padding:11px; border-radius:var(--radius-sm);" onclick="continueAsDemoGuest()">
                     🚀 Preview Demo (Instant Access)
                 </button>
 
@@ -1904,6 +2060,14 @@
 
         <!-- 2. Main Content Area -->
         <div class="main-content-wrapper">
+            <!-- Email Verification Reminder Alert Banner -->
+            <div id="email-verify-banner" class="security-banner hidden">
+                <div>
+                    <span>🔒</span> <strong>Account Security:</strong> Please verify your email address to enable official collaboration badges and spam protection.
+                </div>
+                <button class="btn btn-outline" style="font-size:0.75rem; padding:4px 12px; background:#FFFFFF;" onclick="sendEmailVerificationLink()">Send Verification Link</button>
+            </div>
+
             <!-- Top Dashboard Bar -->
             <header class="top-navbar">
                 <div style="display:flex; align-items:center; gap:16px;">
@@ -2019,18 +2183,26 @@
                                 <a href="https://linkedin.com" target="_blank" class="social-link-btn" id="prof-link-linkedin">
                                     <span>💼</span> LinkedIn Profile
                                 </a>
+                                <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border); font-size:0.75rem; color:var(--text-muted);">
+                                    🔒 <strong>Privacy Protected:</strong> Your email is never exposed publicly to prevent spam and data leaks.
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SUB-VIEW 3: COLLABORATOR CHAT (Storyboard Panel 6) -->
+            <!-- SUB-VIEW 3: COLLABORATOR CHAT (Storyboard Panel 6: Real-time DMs & Community) -->
             <section id="subview-chat" class="hidden">
                 <div class="chat-view-container">
                     <div class="chat-layout-box">
                         <!-- Left Panel: Conversations list -->
                         <div class="chat-contacts-panel" id="chat-contacts-panel">
+                            <!-- Toggle: Direct Messages vs Community Room -->
+                            <div class="chat-mode-tabs">
+                                <button class="chat-mode-tab active" id="tab-mode-dm" onclick="switchChatMode('dm')">🔒 1-on-1 DMs</button>
+                                <button class="chat-mode-tab" id="tab-mode-global" onclick="switchChatMode('global')">🌐 Global Room</button>
+                            </div>
                             <div class="contacts-search-box">
                                 <input type="text" class="form-input" placeholder="Search chats, or users..." id="chat-search-input" oninput="filterChatContacts(this.value)" style="margin:0; padding:8px 12px; font-size:0.85rem;">
                             </div>
@@ -2048,7 +2220,7 @@
                                     <div>
                                         <div style="font-weight:700; font-size:0.95rem;" id="chat-active-name">Rohit Kumar</div>
                                         <div class="chat-active-status">
-                                            <span style="font-size:0.6rem;">●</span> Online
+                                            <span style="font-size:0.6rem;">●</span> <span id="chat-active-mode-label">Direct Message (Private)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -2056,7 +2228,8 @@
                                     <button class="btn-icon" title="Start voice call" onclick="showToast('📞 Voice call feature coming soon!', '🎙️')">📞</button>
                                     <button class="btn-icon" title="Start video call" onclick="showToast('📹 Video call feature coming soon!', '🎥')">📹</button>
                                     <button class="btn-icon" title="Share repository link" onclick="showToast('🔗 Repository link copied to chat!', '📋')">🔗</button>
-                                    <button class="btn-icon" title="Refresh messages" onclick="loadChatThread()">🔄</button>
+                                    <button class="btn-icon" style="color:var(--danger);" title="Block this user" onclick="blockCurrentChatContact()">🚫</button>
+                                    <button class="btn-icon" title="Refresh messages" onclick="loadActiveChatThread()">🔄</button>
                                 </div>
                             </div>
 
@@ -2084,7 +2257,7 @@
                     <div class="my-uploads-header">
                         <div>
                             <h2>My Uploads</h2>
-                            <p style="color:var(--text-secondary); font-size:0.9rem;">Manage, review, or delete your published project posts.</p>
+                            <p style="color:var(--text-secondary); font-size:0.9rem;">Manage, review applications, or delete your published project posts.</p>
                         </div>
                         <div style="display:flex; gap:12px; align-items:center;">
                             <span id="uploads-total-viewall" style="font-size:0.85rem; color:var(--text-muted); cursor:pointer;" onclick="renderMyUploadsView()">View All</span>
@@ -2122,7 +2295,7 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL 1: CREATE PROJECT POST MODAL (Storyboard Panel 5)
+         MODAL 1: CREATE PROJECT POST MODAL (Storyboard Panel 5 + Status & Repo links)
          ========================================================================== -->
     <div class="modal-overlay" id="modal-create-post">
         <div class="modal-container">
@@ -2138,14 +2311,24 @@
                         <input type="text" class="form-input" id="post-inp-title" placeholder="e.g. Build a Real-Time Chat App" oninput="updateLivePostPreview()">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" id="post-inp-category">
-                            <option value="College Projects">College Projects</option>
-                            <option value="Hackathons">Hackathons</option>
-                            <option value="Portfolio">Portfolio</option>
-                            <option value="Learning">Learning</option>
-                        </select>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="post-inp-category">
+                                <option value="College Projects">College Projects</option>
+                                <option value="Hackathons">Hackathons</option>
+                                <option value="Portfolio">Portfolio</option>
+                                <option value="Learning">Learning</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Project Status</label>
+                            <select class="form-select" id="post-inp-status" onchange="updateLivePostPreview()">
+                                <option value="Recruiting">🟢 Recruiting (Need Teammates)</option>
+                                <option value="In Progress">🟡 In Progress (Team Full)</option>
+                                <option value="Completed">🔵 Completed (Showcase Only)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -2159,6 +2342,17 @@
                     <div class="form-group">
                         <label class="form-label">Required Skills / Tech Stack</label>
                         <input type="text" class="form-input" id="post-inp-skills" placeholder="e.g. React, Node.js, MongoDB, UI/UX" oninput="updateLivePostPreview()">
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label class="form-label">GitHub Repo URL (Optional)</label>
+                            <input type="url" class="form-input" id="post-inp-github" placeholder="https://github.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Live Demo / Figma URL (Optional)</label>
+                            <input type="url" class="form-input" id="post-inp-demo" placeholder="https://myproject.vercel.app">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -2199,14 +2393,14 @@
                                         <div class="author-details-handle" id="prev-author-handle">@username</div>
                                     </div>
                                 </div>
-                                <span class="post-time-stamp">Just now</span>
+                                <span class="status-badge status-recruiting" id="prev-status-badge">🟢 Recruiting</span>
                             </div>
                             <div class="project-card-title" id="prev-title" style="font-size:1.05rem;">Project Title Here</div>
                             <div class="project-card-description" id="prev-desc" style="font-size:0.86rem;">
                                 Your project preview will appear here...
                             </div>
                             <div class="project-tags-row" id="prev-tags">
-                                <span class="tag-pill">Skill Tag</span>
+                                <span class="tag-pill">Skills Tag</span>
                             </div>
                             <div id="prev-img-wrap" class="hidden">
                                 <img id="prev-img" src="" style="width:100%; max-height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
@@ -2215,7 +2409,7 @@
                                 <div class="post-social-actions">
                                     <span style="font-size:0.82rem; color:var(--text-muted);">❤️ 0 Likes</span>
                                 </div>
-                                <button class="btn-collaborate" style="padding:4px 10px; font-size:0.78rem;" disabled>Collaborate</button>
+                                <button class="btn-collaborate" style="padding:4px 10px; font-size:0.78rem;" disabled>🤝 Collaborate</button>
                             </div>
                         </div>
                     </div>
@@ -2225,7 +2419,94 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL 2: EDIT PROFILE MODAL
+         MODAL 2: APPLY TO JOIN TEAM MODAL (Workflow Feature)
+         ========================================================================== -->
+    <div class="modal-overlay" id="modal-apply-team">
+        <div class="modal-container" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>🤝 Apply to Join Team</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-apply-team')">✕</button>
+            </div>
+            <div style="padding:22px;">
+                <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;" id="apply-modal-project-title">Applying to project...</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Role You Wish to Take</label>
+                    <select class="form-select" id="apply-role-select">
+                        <option value="Frontend Developer">Frontend Developer (React / Web)</option>
+                        <option value="Backend Developer">Backend Developer (Node.js / Python / Java)</option>
+                        <option value="Full-Stack Developer">Full-Stack Developer</option>
+                        <option value="UI/UX Designer">UI/UX Designer (Figma / Prototyping)</option>
+                        <option value="Mobile App Developer">Mobile App Developer (Flutter / React Native)</option>
+                        <option value="AI / ML Engineer">Machine Learning / AI Engineer</option>
+                        <option value="QA & Tester">QA & Tester</option>
+                        <option value="Other Collaborator">Other Collaborator</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Brief Pitch to Project Lead *</label>
+                    <textarea class="form-textarea" id="apply-pitch-text" placeholder="Why do you want to join? What skills and past projects can you bring to this team?"></textarea>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-primary" id="btn-submit-application" style="flex:1;" onclick="submitTeamApplication()">Submit Application</button>
+                    <button class="btn btn-outline" onclick="closeModal('modal-apply-team')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL 3: REVIEW APPLICATIONS MODAL (For Project Authors)
+         ========================================================================== -->
+    <div class="modal-overlay" id="modal-review-applications">
+        <div class="modal-container" style="max-width:600px;">
+            <div class="modal-header">
+                <h3>📥 Team Applications</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-review-applications')">✕</button>
+            </div>
+            <div style="padding:22px; max-height:65vh; overflow-y:auto;" id="applications-list-container">
+                <!-- Applications rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL 4: REPORT POST MODAL (Safety & Moderation)
+         ========================================================================== -->
+    <div class="modal-overlay" id="modal-report-post">
+        <div class="modal-container" style="max-width:460px;">
+            <div class="modal-header">
+                <h3 style="color:var(--danger);">🚩 Report Project Post</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-report-post')">✕</button>
+            </div>
+            <div style="padding:22px;">
+                <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">Help us keep SyncUp safe. Tell us what is wrong with this post.</p>
+                <div class="form-group">
+                    <label class="form-label">Reason</label>
+                    <select class="form-select" id="report-reason-select">
+                        <option value="Spam or advertising">Spam or advertising</option>
+                        <option value="Harassment or abusive content">Harassment or abusive content</option>
+                        <option value="Plagiarized or fake project">Plagiarized or fake project</option>
+                        <option value="Inappropriate media">Inappropriate media</option>
+                        <option value="Other violation">Other violation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Additional details (Optional)</label>
+                    <textarea class="form-textarea" id="report-details-text" placeholder="Explain the issue briefly..." style="min-height:70px;"></textarea>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn btn-primary" style="flex:1; background:var(--danger);" onclick="confirmSubmitReport()">Submit Report</button>
+                    <button class="btn btn-outline" onclick="closeModal('modal-report-post')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL 5: EDIT PROFILE MODAL
          ========================================================================== -->
     <div class="modal-overlay" id="modal-edit-profile">
         <div class="modal-container" style="max-width:540px;">
@@ -2268,7 +2549,7 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL 3: ADD SKILL MODAL
+         MODAL 6: ADD SKILL MODAL
          ========================================================================== -->
     <div class="modal-overlay" id="modal-add-skill">
         <div class="modal-container" style="max-width:400px;">
@@ -2303,15 +2584,23 @@
         let profileCompressedImageBase64 = '';
         let unsubscribePostsListener = null;
         let unsubscribeChatListener = null;
-        let activeChatContact = null;
 
-        // Default predefined contacts for Discord/Slack-style collaborator messaging
+        // Chat State: 'dm' (Direct Messages) vs 'global' (Community Room)
+        let activeChatMode = 'dm';
+        let activeChatContact = null;
+        let currentApplyingPostId = null;
+        let currentReportingPostId = null;
+
+        // Rate Limiting Throttles
+        let lastPostSubmitTime = 0;
+        let lastMessageSentTime = 0;
+
+        // Default predefined contacts
         const defaultChatContacts = [
-            { id: 'contact-rohit', name: 'Rohit Kumar', handle: '@rohit_dev', avatar: '', lastMsg: 'Hey! I saw your project post. I am interested in joining!', time: '10:24 AM' },
-            { id: 'contact-priya', name: 'Priya Sharma', handle: '@priya_code', avatar: '', lastMsg: 'Sure! I can help with the React UI components.', time: '9:12 AM' },
-            { id: 'contact-arjun', name: 'Arjun Mehta', handle: '@arjun_m', avatar: '', lastMsg: 'Project looks great! Let us discuss the backend schema.', time: 'Yesterday' },
-            { id: 'contact-sneha', name: 'Sneha Verma', handle: '@sneha_v', avatar: '', lastMsg: 'I am a frontend developer. Let us connect!', time: 'Yesterday' },
-            { id: 'contact-team', name: 'Team SyncUp', handle: '@syncup_bot', avatar: '', lastMsg: 'Welcome to SyncUp! Connect, collaborate, and build.', time: 'Oct 28' }
+            { id: 'contact-rohit', uid: 'user_rohit', name: 'Rohit Kumar', handle: '@rohit_dev', avatar: '', lastMsg: 'Hey! I saw your project post. Can we collaborate?', time: '10:24 AM' },
+            { id: 'contact-priya', uid: 'user_priya', name: 'Priya Sharma', handle: '@priya_code', avatar: '', lastMsg: 'Sure! I can help with the React UI components.', time: '9:12 AM' },
+            { id: 'contact-arjun', uid: 'user_arjun', name: 'Arjun Mehta', handle: '@arjun_m', avatar: '', lastMsg: 'Project looks great! Let us discuss the backend schema.', time: 'Yesterday' },
+            { id: 'contact-sneha', uid: 'user_sneha', name: 'Sneha Verma', handle: '@sneha_v', avatar: '', lastMsg: 'I am a frontend developer. Let us connect!', time: 'Yesterday' }
         ];
 
         // 1. Toast Notification Utility
@@ -2397,7 +2686,8 @@
                 updateDashboardUserUI();
                 listenToProjectFeeds();
                 renderChatContacts();
-                loadChatThread();
+                loadActiveChatThread();
+                checkEmailVerificationStatus();
             }
         }
 
@@ -2425,7 +2715,7 @@
             } else if (tabName === 'uploads') {
                 renderMyUploadsView();
             } else if (tabName === 'chat') {
-                loadChatThread();
+                loadActiveChatThread();
             }
 
             toggleMobileSidebar(false);
@@ -2444,7 +2734,7 @@
             }
         }
 
-        // 6. Auth Mode Switching (Login vs Register)
+        // 6. Auth Mode Switching & Google 1-Click Sign-in
         function openAuthTab(mode) {
             navigateTo('auth');
             switchAuthTab(mode);
@@ -2471,6 +2761,44 @@
             else el.type = 'password';
         }
 
+        function handleGoogleSignIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    const uid = user.uid;
+                    db.collection("users").doc(uid).get().then(doc => {
+                        if (doc.exists) {
+                            currentUser = { uid, ...doc.data() };
+                        } else {
+                            currentUser = {
+                                uid,
+                                name: user.displayName || "Google Developer",
+                                user: '@' + (user.displayName || "dev").replace(/\s+/g, '_').toLowerCase(),
+                                email: user.email,
+                                college: "College / University",
+                                edu: "Developer & Creator",
+                                bio: "Passionate developer looking to build great projects.",
+                                skills: ["JavaScript", "React", "Git"],
+                                pic: user.photoURL || "",
+                                blockedUsers: []
+                            };
+                            db.collection("users").doc(uid).set(currentUser, { merge: true });
+                        }
+                        localStorage.setItem('syncUser', JSON.stringify(currentUser));
+                        navigateTo('dashboard');
+                        showToast(`Welcome, ${currentUser.name}! Signed in via Google.`, "✨");
+                    });
+                })
+                .catch(err => {
+                    if (err.code === 'auth/operation-not-allowed') {
+                        alert("Google Sign-In is not enabled yet in your Firebase Console. Please sign in with Email or use Demo Mode!");
+                    } else {
+                        alert("Google Sign-in failed: " + err.message);
+                    }
+                });
+        }
+
         function handleForgotPassword() {
             const email = document.getElementById('inp-email').value.trim();
             if (!email) {
@@ -2479,6 +2807,23 @@
             auth.sendPasswordResetEmail(email)
                 .then(() => showToast("Password reset email sent! Check your inbox.", "📧"))
                 .catch(err => alert("Password reset error: " + err.message));
+        }
+
+        function checkEmailVerificationStatus() {
+            const banner = document.getElementById('email-verify-banner');
+            if (auth.currentUser && !auth.currentUser.emailVerified && currentUser && currentUser.uid !== 'guest_demo_user') {
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function sendEmailVerificationLink() {
+            if (auth.currentUser) {
+                auth.currentUser.sendEmailVerification()
+                    .then(() => showToast("Verification link sent to " + auth.currentUser.email, "✉️"))
+                    .catch(err => alert("Verification link error: " + err.message));
+            }
         }
 
         // 7. Instant Demo / Preview Mode (No Registration Needed)
@@ -2494,7 +2839,8 @@
                 bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
                 skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
                 github: "https://github.com",
-                linkedin: "https://linkedin.com"
+                linkedin: "https://linkedin.com",
+                blockedUsers: []
             };
             currentUser = demoUser;
             localStorage.setItem('syncUser', JSON.stringify(demoUser));
@@ -2502,7 +2848,7 @@
             showToast("👋 Welcome to SyncUp Demo Mode, " + demoUser.name + "!");
         }
 
-        // 8. Firebase Auth Submission Handler
+        // 8. Firebase Auth Submission Handler (Zero Email Leaks)
         function handleAuthSubmit() {
             const email = document.getElementById('inp-email').value.trim();
             const pass = document.getElementById('inp-password').value;
@@ -2531,10 +2877,12 @@
                                     edu: "BCA 2nd Sem | Amity University Patna",
                                     bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
                                     skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
-                                    pic: ""
+                                    pic: "",
+                                    blockedUsers: []
                                 };
                                 db.collection("users").doc(cred.user.uid).set(currentUser, { merge: true });
                             }
+                            if (!currentUser.blockedUsers) currentUser.blockedUsers = [];
                             localStorage.setItem('syncUser', JSON.stringify(currentUser));
                             btn.disabled = false;
                             navigateTo('dashboard');
@@ -2576,7 +2924,8 @@
                             edu: (college || "Amity University Patna") + " | BCA 2nd Sem",
                             bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
                             skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
-                            pic: ""
+                            pic: "",
+                            blockedUsers: []
                         };
                         return db.collection("users").doc(cred.user.uid).set(newUser, { merge: true }).then(() => {
                             currentUser = newUser;
@@ -2766,27 +3115,32 @@
                 const posts = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (doc.id === 'GLOBAL_COMMUNITY_CHAT' || data.type === 'community_chat_channel') return;
+                    // Exclude chat documents
+                    if (doc.id.startsWith('CHAT_') || doc.id === 'GLOBAL_COMMUNITY_CHAT' || data.type === 'community_chat_channel' || data.type === 'direct_chat') return;
                     posts.push({ id: doc.id, ...data });
                 });
 
-                // If no posts in Firestore yet, provide sample posts matching the storyboard!
+                // Default sample post if empty
                 if (!posts.length) {
                     posts.push({
                         id: "sample_chat_app",
                         title: "Build a Real-Time Chat App (MERN Stack)",
                         text: "Looking for a frontend developer (React) and UI/UX designer to join my team for a college project. I'm handling the backend (Node.js + MongoDB). Let's build something great together!",
                         category: "College Projects",
+                        status: "Recruiting",
                         skills: ["React", "Node.js", "MongoDB", "UI/UX"],
                         userName: "Rohit Kumar",
                         userHandle: "@rohit_dev",
                         college: "BCA 2nd Sem",
                         userUid: "user_rohit",
+                        githubUrl: "https://github.com",
+                        demoUrl: "",
                         likes: 24,
                         likedBy: [],
                         comments: [
                             { u: "Simran", t: "I'm interested! I have experience with React. Can we discuss?", time: "2h ago" }
                         ],
+                        applications: [],
                         createdAt: Date.now() - 7200000
                     });
                 }
@@ -2825,6 +3179,12 @@
 
             let filtered = allPostsData;
 
+            // Blocked users filter (Privacy & Safety)
+            const blocked = (currentUser && currentUser.blockedUsers) ? currentUser.blockedUsers : [];
+            if (blocked.length) {
+                filtered = filtered.filter(p => !blocked.includes(p.userUid));
+            }
+
             // Category filter
             if (activeCategoryFilter !== 'All') {
                 filtered = filtered.filter(p => (p.category || 'College Projects') === activeCategoryFilter);
@@ -2859,7 +3219,7 @@
         function renderPostCardHtml(p) {
             const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : '');
             const isLiked = (p.likedBy || []).includes(currentUid);
-            const canDelete = (p.userUid && p.userUid === currentUid) || (currentUser && p.userHandle === currentUser.user);
+            const isOwner = (p.userUid && p.userUid === currentUid) || (currentUser && p.userHandle === currentUser.user);
 
             // Tags
             let tags = [];
@@ -2868,6 +3228,18 @@
             if (!tags.length) tags = ['Collaboration'];
 
             const tagsHtml = tags.map(t => `<span class="tag-pill">${escapeHtml(t)}</span>`).join('');
+
+            // Status Badge
+            const status = p.status || 'Recruiting';
+            let statusBadgeClass = 'status-recruiting';
+            let statusBadgeText = '🟢 Recruiting';
+            if (status === 'In Progress') {
+                statusBadgeClass = 'status-full';
+                statusBadgeText = '🟡 Team Full';
+            } else if (status === 'Completed') {
+                statusBadgeClass = 'status-completed';
+                statusBadgeText = '🔵 Completed';
+            }
 
             // Comments
             const comms = (p.comments || []).map(c => `
@@ -2884,6 +3256,7 @@
 
             const postTimeFormatted = formatRelativeTime(p.createdAt || p.timestamp);
             const authorCollege = p.college || "BCA 2nd Sem";
+            const appCount = (p.applications || []).length;
 
             return `
                 <article class="project-card" id="post-${p.id}">
@@ -2899,7 +3272,18 @@
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            ${canDelete ? `<button class="btn-icon" style="color:var(--danger);" onclick="deletePostItem('${p.id}')" title="Delete post">🗑️</button>` : `<button class="btn-icon" title="Post options">···</button>`}
+                            <span class="status-badge ${statusBadgeClass}">${statusBadgeText}</span>
+                            <div style="position:relative;">
+                                <button class="btn-icon" onclick="togglePostDropdown('${p.id}')" title="Options">···</button>
+                                <div class="dropdown-menu hidden" id="dropdown-${p.id}">
+                                    ${isOwner ? `
+                                        <button class="dropdown-item danger" onclick="deletePostItem('${p.id}')">🗑️ Delete Post</button>
+                                    ` : `
+                                        <button class="dropdown-item" onclick="openReportModal('${p.id}')">🚩 Report Post</button>
+                                        <button class="dropdown-item danger" onclick="blockUserPrompt('${p.userUid}', '${escapeHtml(p.userName)}')">🚫 Block Author</button>
+                                    `}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2907,6 +3291,13 @@
                     <p class="project-card-description">${escapeHtml(p.text || '')}</p>
 
                     <div class="project-tags-row">${tagsHtml}</div>
+
+                    ${(p.githubUrl || p.demoUrl) ? `
+                        <div class="project-links-row">
+                            ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="project-link-badge">🐙 GitHub Repo</a>` : ''}
+                            ${p.demoUrl ? `<a href="${p.demoUrl}" target="_blank" class="project-link-badge">🌐 Live Demo</a>` : ''}
+                        </div>
+                    ` : ''}
 
                     ${p.img ? `<img src="${p.img}" class="project-screenshot-img" loading="lazy" alt="Project snapshot">` : ''}
 
@@ -2919,9 +3310,22 @@
                                 <span>💬</span> ${(p.comments || []).length} Comments
                             </button>
                         </div>
-                        <button class="btn-collaborate" onclick="triggerCollaborateCTA('${escapeHtml(p.userName || 'Collaborator')}', '${escapeHtml(p.userHandle || '')}', '${escapeHtml(p.title || 'Project')}')">
-                            🤝 Collaborate
-                        </button>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            ${isOwner ? `
+                                <button class="btn btn-outline" style="padding:6px 14px; font-size:0.82rem;" onclick="openReviewApplicationsModal('${p.id}')">
+                                    📥 Applications (${appCount})
+                                </button>
+                            ` : `
+                                ${status === 'Recruiting' ? `
+                                    <button class="btn-apply-team" onclick="openApplyTeamModal('${p.id}', '${escapeHtml(p.title || 'Project')}')">
+                                        🤝 Apply to Join
+                                    </button>
+                                ` : ''}
+                                <button class="btn-collaborate" onclick="triggerDirectChatCTA('${p.userUid || 'user_rohit'}', '${escapeHtml(p.userName || 'Collaborator')}', '${escapeHtml(p.userHandle || '')}', '${escapeHtml(p.title || 'Project')}')">
+                                    💬 Chat
+                                </button>
+                            `}
+                        </div>
                     </div>
 
                     <div class="comments-section hidden" id="comments-box-${p.id}">
@@ -2949,6 +3353,11 @@
             return `${Math.floor(diff / 86400)}d ago`;
         }
 
+        function togglePostDropdown(postId) {
+            const menu = document.getElementById('dropdown-' + postId);
+            if (menu) menu.classList.toggle('hidden');
+        }
+
         function toggleCommentsSection(postId) {
             const el = document.getElementById('comments-box-' + postId);
             if (el) el.classList.toggle('hidden');
@@ -2959,7 +3368,6 @@
             if (!currentUser) return alert("Please login to like posts.");
             const currentUid = auth.currentUser ? auth.currentUser.uid : currentUser.uid;
 
-            // If it's a sample post, update in-memory
             if (postId === 'sample_chat_app') {
                 const sample = allPostsData.find(p => p.id === 'sample_chat_app');
                 if (sample) {
@@ -3013,7 +3421,6 @@
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
 
-            // If sample post, update in-memory
             if (postId === 'sample_chat_app') {
                 const sample = allPostsData.find(p => p.id === 'sample_chat_app');
                 if (sample) {
@@ -3057,38 +3464,378 @@
             }).catch(err => alert("Delete error: " + err.message));
         }
 
-        // 16. Collaborate CTA Trigger -> Switches to Chat & Prefills
-        function triggerCollaborateCTA(authorName, authorHandle, projectTitle) {
+        // 16. Apply to Join Team Workflow
+        function openApplyTeamModal(postId, projectTitle) {
+            if (!currentUser) return alert("Please login to apply to join a project team.");
+            currentApplyingPostId = postId;
+            document.getElementById('apply-modal-project-title').innerText = `Project: "${projectTitle}"`;
+            document.getElementById('apply-pitch-text').value = "";
+            openModal('modal-apply-team');
+        }
+
+        function submitTeamApplication() {
+            if (!currentApplyingPostId) return;
+            const role = document.getElementById('apply-role-select').value;
+            const pitch = document.getElementById('apply-pitch-text').value.trim();
+
+            if (!pitch) return alert("Please write a brief pitch explaining your skills and why you want to join.");
+
+            const btn = document.getElementById('btn-submit-application');
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+
+            const appObj = {
+                id: 'app_' + Date.now(),
+                applicantUid: auth.currentUser ? auth.currentUser.uid : currentUser.uid,
+                applicantName: currentUser.name,
+                applicantHandle: currentUser.user,
+                applicantPic: currentUser.pic || "",
+                role: role,
+                pitch: pitch,
+                status: 'pending',
+                timestamp: new Date().toISOString()
+            };
+
+            const postRef = db.collection("posts").doc(currentApplyingPostId);
+            postRef.update({
+                applications: firebase.firestore.FieldValue.arrayUnion(appObj)
+            }).then(() => {
+                btn.disabled = false;
+                btn.innerText = "Submit Application";
+                closeModal('modal-apply-team');
+                showToast("🎉 Application submitted! The project lead has been notified.", "✅");
+            }).catch(() => {
+                // In-memory fallback
+                const post = allPostsData.find(p => p.id === currentApplyingPostId);
+                if (post) {
+                    if (!post.applications) post.applications = [];
+                    post.applications.push(appObj);
+                }
+                btn.disabled = false;
+                btn.innerText = "Submit Application";
+                closeModal('modal-apply-team');
+                showToast("🎉 Application submitted! The project lead has been notified.", "✅");
+            });
+        }
+
+        function openReviewApplicationsModal(postId) {
+            const post = allPostsData.find(p => p.id === postId);
+            if (!post) return;
+
+            const container = document.getElementById('applications-list-container');
+            const apps = post.applications || [];
+
+            if (!apps.length) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:var(--text-muted);">
+                        <p>No team applications received yet.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = apps.map((a, idx) => `
+                    <div class="applicant-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="author-avatar" style="width:36px; height:36px;">${a.applicantPic ? `<img src="${a.applicantPic}">` : a.applicantName[0]}</div>
+                                <div>
+                                    <div style="font-weight:700; font-size:0.92rem;">${escapeHtml(a.applicantName)} <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(a.applicantHandle)}</span></div>
+                                    <div style="font-size:0.78rem; color:var(--accent-green); font-weight:600;">Applying for: ${escapeHtml(a.role)}</div>
+                                </div>
+                            </div>
+                            <span class="status-badge ${a.status === 'accepted' ? 'status-recruiting' : 'status-completed'}">${a.status.toUpperCase()}</span>
+                        </div>
+                        <div style="font-size:0.88rem; color:#334155; background:#fff; padding:10px; border-radius:6px; border:1px solid var(--border);">
+                            "${escapeHtml(a.pitch)}"
+                        </div>
+                        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+                            ${a.status === 'pending' ? `
+                                <button class="btn btn-primary" style="padding:4px 12px; font-size:0.78rem;" onclick="respondToApplication('${postId}', ${idx}, 'accepted', '${a.applicantUid}', '${escapeHtml(a.applicantName)}', '${escapeHtml(a.applicantHandle)}')">✅ Accept</button>
+                                <button class="btn btn-outline" style="padding:4px 12px; font-size:0.78rem;" onclick="respondToApplication('${postId}', ${idx}, 'declined')">❌ Decline</button>
+                            ` : ''}
+                            <button class="btn btn-outline" style="padding:4px 12px; font-size:0.78rem;" onclick="closeModal('modal-review-applications'); triggerDirectChatCTA('${a.applicantUid}', '${escapeHtml(a.applicantName)}', '${escapeHtml(a.applicantHandle)}', '${escapeHtml(post.title || 'Project')}')">💬 Chat</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            openModal('modal-review-applications');
+        }
+
+        function respondToApplication(postId, appIndex, newStatus, applicantUid, applicantName, applicantHandle) {
+            const post = allPostsData.find(p => p.id === postId);
+            if (!post || !post.applications || !post.applications[appIndex]) return;
+
+            post.applications[appIndex].status = newStatus;
+            db.collection("posts").doc(postId).update({ applications: post.applications }).catch(() => {});
+
+            showToast(`Application ${newStatus}!`, newStatus === 'accepted' ? '🎉' : 'ℹ️');
+            openReviewApplicationsModal(postId);
+
+            if (newStatus === 'accepted' && applicantUid) {
+                // Auto trigger DM
+                triggerDirectChatCTA(applicantUid, applicantName, applicantHandle, post.title);
+            }
+        }
+
+        // 17. Content Moderation: Report Post & Block User
+        function openReportModal(postId) {
+            currentReportingPostId = postId;
+            document.getElementById('report-details-text').value = "";
+            openModal('modal-report-post');
+        }
+
+        function confirmSubmitReport() {
+            if (!currentReportingPostId) return;
+            const reason = document.getElementById('report-reason-select').value;
+            const details = document.getElementById('report-details-text').value.trim();
+
+            // Hide reported post immediately from user's view
+            allPostsData = allPostsData.filter(p => p.id !== currentReportingPostId);
+            renderFeedPosts();
+
+            closeModal('modal-report-post');
+            showToast("Report submitted. The post has been hidden from your feed.", "🛡️");
+        }
+
+        function blockUserPrompt(userUid, userName) {
+            if (!confirm(`Are you sure you want to block ${userName}? All their posts and messages will be hidden from your account.`)) return;
+
+            if (!currentUser.blockedUsers) currentUser.blockedUsers = [];
+            if (!currentUser.blockedUsers.includes(userUid)) {
+                currentUser.blockedUsers.push(userUid);
+                saveProfileSilent();
+            }
+
+            renderFeedPosts();
+            showToast(`${userName} has been blocked.`, "🚫");
+        }
+
+        function blockCurrentChatContact() {
+            if (!activeChatContact) return;
+            blockUserPrompt(activeChatContact.uid, activeChatContact.name);
+            switchDashboardTab('feed');
+        }
+
+        // 18. Direct Messages (1-on-1 DMs) vs Global Community Chat
+        function switchChatMode(mode) {
+            activeChatMode = mode;
+            document.getElementById('tab-mode-dm').classList.toggle('active', mode === 'dm');
+            document.getElementById('tab-mode-global').classList.toggle('active', mode === 'global');
+
+            const headerName = document.getElementById('chat-active-name');
+            const statusLabel = document.getElementById('chat-active-mode-label');
+
+            if (mode === 'global') {
+                headerName.innerText = "Global Collaborator Room";
+                statusLabel.innerText = "Public Real-Time Channel";
+                document.getElementById('chat-contacts-panel').classList.add('hidden');
+            } else {
+                document.getElementById('chat-contacts-panel').classList.remove('hidden');
+                if (activeChatContact) {
+                    headerName.innerText = activeChatContact.name;
+                    statusLabel.innerText = "Direct Message (Private)";
+                }
+            }
+
+            loadActiveChatThread();
+        }
+
+        function triggerDirectChatCTA(contactUid, authorName, authorHandle, projectTitle) {
             switchDashboardTab('chat');
-            // Select or create contact for this author
-            const contactId = 'collab-' + authorName.replace(/\s+/g, '-').toLowerCase();
-            let contact = defaultChatContacts.find(c => c.name === authorName);
+            switchChatMode('dm');
+
+            let contact = defaultChatContacts.find(c => c.uid === contactUid || c.name === authorName);
             if (!contact) {
                 contact = {
-                    id: contactId,
+                    id: 'dm_' + (contactUid || Date.now()),
+                    uid: contactUid || ('uid_' + Date.now()),
                     name: authorName,
                     handle: authorHandle || '@partner',
                     avatar: '',
-                    lastMsg: `Hey @${authorName}! I saw your post "${projectTitle}" on SyncUp and want to collaborate!`,
+                    lastMsg: `Direct conversation regarding ${projectTitle}`,
                     time: 'Just now'
                 };
                 defaultChatContacts.unshift(contact);
                 renderChatContacts();
             }
+
             selectChatContact(contact.id);
             const inp = document.getElementById('chat-message-input');
             if (inp) {
-                inp.value = `Hey ${authorName}! I'm interested in collaborating on "${projectTitle}". What skills do you need?`;
+                inp.value = `Hi ${authorName}! I want to collaborate on "${projectTitle}". Let's discuss details!`;
                 inp.focus();
             }
         }
 
-        // 17. Create Post Modal & Live Preview Logic (Storyboard Panel 5)
+        function renderChatContacts() {
+            const list = document.getElementById('chat-contacts-list');
+            if (!list) return;
+
+            if (!activeChatContact && defaultChatContacts.length) {
+                activeChatContact = defaultChatContacts[0];
+            }
+
+            list.innerHTML = defaultChatContacts.map(c => `
+                <div class="contact-card-item ${activeChatContact && activeChatContact.id === c.id ? 'active' : ''}" onclick="selectChatContact('${c.id}')">
+                    <div class="contact-avatar-box">
+                        ${c.avatar ? `<img src="${c.avatar}">` : c.name[0]}
+                        <span class="online-dot"></span>
+                    </div>
+                    <div class="contact-details-box">
+                        <div class="contact-name-row">
+                            <span class="contact-display-name">${escapeHtml(c.name)}</span>
+                            <span class="contact-last-time">${c.time}</span>
+                        </div>
+                        <div class="contact-snippet-text">${escapeHtml(c.lastMsg)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterChatContacts(query) {
+            const term = (query || "").toLowerCase();
+            const filtered = defaultChatContacts.filter(c => c.name.toLowerCase().includes(term) || c.handle.toLowerCase().includes(term));
+            const list = document.getElementById('chat-contacts-list');
+            list.innerHTML = filtered.map(c => `
+                <div class="contact-card-item ${activeChatContact && activeChatContact.id === c.id ? 'active' : ''}" onclick="selectChatContact('${c.id}')">
+                    <div class="contact-avatar-box">
+                        ${c.avatar ? `<img src="${c.avatar}">` : c.name[0]}
+                        <span class="online-dot"></span>
+                    </div>
+                    <div class="contact-details-box">
+                        <div class="contact-name-row">
+                            <span class="contact-display-name">${escapeHtml(c.name)}</span>
+                            <span class="contact-last-time">${c.time}</span>
+                        </div>
+                        <div class="contact-snippet-text">${escapeHtml(c.lastMsg)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectChatContact(contactId) {
+            const contact = defaultChatContacts.find(c => c.id === contactId);
+            if (!contact) return;
+            activeChatContact = contact;
+            document.getElementById('chat-active-name').innerText = contact.name;
+            document.getElementById('chat-active-mode-label').innerText = "Direct Message (Private)";
+            const av = document.getElementById('chat-active-avatar');
+            if (contact.avatar) av.innerHTML = `<img src="${contact.avatar}">`;
+            else av.innerText = contact.name[0];
+
+            renderChatContacts();
+            loadActiveChatThread();
+        }
+
+        function loadActiveChatThread() {
+            if (unsubscribeChatListener) unsubscribeChatListener();
+
+            let docId = "GLOBAL_COMMUNITY_CHAT";
+            if (activeChatMode === 'dm' && activeChatContact) {
+                const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : 'guest');
+                const targetUid = activeChatContact.uid || 'user_rohit';
+                const chatKey = [currentUid, targetUid].sort().join('_');
+                docId = "CHAT_" + chatKey;
+            }
+
+            unsubscribeChatListener = db.collection("posts").doc(docId).onSnapshot(doc => {
+                const container = document.getElementById('chat-messages-container');
+                if (!container) return;
+
+                const data = doc.exists ? doc.data() : null;
+                const cloudMessages = (data && data.messages) ? data.messages : [];
+                const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : '');
+
+                let allDisplay = [];
+
+                if (cloudMessages.length === 0) {
+                    if (activeChatMode === 'global') {
+                        allDisplay = [
+                            { isMe: false, sender: 'Team SyncUp', text: "Welcome to the Global Collaborator Room! Connect, collaborate, and ask questions.", time: "10:00 AM" }
+                        ];
+                    } else {
+                        allDisplay = [
+                            { isMe: false, sender: activeChatContact ? activeChatContact.name : 'Rohit Kumar', text: "Hey! I saw your project post. I'm interested in joining your team. Can we discuss?", time: "10:20 AM" },
+                            { isMe: true, sender: 'You', text: "Hi! Sure! What skills or tech stack do you work with?", time: "10:22 AM" }
+                        ];
+                    }
+                } else {
+                    cloudMessages.forEach(m => {
+                        const isMine = (m.uid && m.uid === currentUid) || (currentUser && m.senderName === currentUser.name);
+                        let timeStr = "Now";
+                        try {
+                            timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        } catch(e) {}
+                        allDisplay.push({
+                            isMe: isMine,
+                            sender: isMine ? 'You' : (m.senderName || 'Collaborator'),
+                            text: m.text,
+                            time: timeStr
+                        });
+                    });
+                }
+
+                container.innerHTML = allDisplay.map(msg => `
+                    <div class="msg-bubble-row ${msg.isMe ? 'mine' : 'theirs'}">
+                        <span class="msg-sender-name">${escapeHtml(msg.sender)}</span>
+                        <div class="msg-bubble">${escapeHtml(msg.text)}</div>
+                        <span class="msg-time-stamp">${escapeHtml(msg.time)}</span>
+                    </div>
+                `).join('');
+
+                container.scrollTop = container.scrollHeight;
+            }, err => console.error("Chat sync error:", err));
+        }
+
+        function sendChatMessage() {
+            // Anti-spam throttling
+            const now = Date.now();
+            if (now - lastMessageSentTime < 800) {
+                return showToast("Please wait a moment before sending another message.", "⏳");
+            }
+            lastMessageSentTime = now;
+
+            const input = document.getElementById('chat-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : 'guest');
+            const senderName = currentUser ? currentUser.name : 'Collaborator';
+
+            const newMsg = {
+                uid: currentUid,
+                senderName: senderName,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+
+            let docId = "GLOBAL_COMMUNITY_CHAT";
+            let type = "community_chat_channel";
+
+            if (activeChatMode === 'dm' && activeChatContact) {
+                const targetUid = activeChatContact.uid || 'user_rohit';
+                const chatKey = [currentUid, targetUid].sort().join('_');
+                docId = "CHAT_" + chatKey;
+                type = "direct_chat";
+            }
+
+            db.collection("posts").doc(docId).set({
+                type: type,
+                messages: firebase.firestore.FieldValue.arrayUnion(newMsg)
+            }, { merge: true }).then(() => {
+                input.value = "";
+                input.focus();
+                showToast("Message sent!", "💬");
+            }).catch(err => alert("Message sending error: " + err.message));
+        }
+
+        // 19. Create Post Modal with Status & Links
         function openCreatePostModal() {
             if (!currentUser) return alert("Please login to create a post.");
             document.getElementById('post-inp-title').value = "";
             document.getElementById('post-inp-skills').value = "";
             document.getElementById('post-inp-desc').value = "";
+            document.getElementById('post-inp-github').value = "";
+            document.getElementById('post-inp-demo').value = "";
             document.getElementById('post-word-counter').innerText = "0/100";
             document.getElementById('words-remaining-note').innerText = "100 words remaining";
             removePostScreenshot();
@@ -3144,9 +3891,22 @@
             const title = document.getElementById('post-inp-title').value.trim() || "Project Title Here";
             const desc = document.getElementById('post-inp-desc').value.trim() || "Your project description preview will appear here...";
             const rawSkills = document.getElementById('post-inp-skills').value.trim();
+            const status = document.getElementById('post-inp-status').value;
 
             document.getElementById('prev-title').innerText = title;
             document.getElementById('prev-desc').innerText = desc;
+
+            const badge = document.getElementById('prev-status-badge');
+            if (status === 'Recruiting') {
+                badge.className = 'status-badge status-recruiting';
+                badge.innerText = '🟢 Recruiting';
+            } else if (status === 'In Progress') {
+                badge.className = 'status-badge status-full';
+                badge.innerText = '🟡 Team Full';
+            } else {
+                badge.className = 'status-badge status-completed';
+                badge.innerText = '🔵 Completed';
+            }
 
             if (currentUser) {
                 document.getElementById('prev-author-name').innerText = currentUser.name || "You";
@@ -3176,10 +3936,21 @@
 
         function submitNewProjectPost() {
             if (!currentUser) return alert("Please login.");
+
+            // Anti-spam throttling
+            const now = Date.now();
+            if (now - lastPostSubmitTime < 10000) {
+                return showToast("Please wait a few seconds before publishing another post.", "⏳");
+            }
+            lastPostSubmitTime = now;
+
             const title = document.getElementById('post-inp-title').value.trim();
             const desc = document.getElementById('post-inp-desc').value.trim();
             const category = document.getElementById('post-inp-category').value;
+            const status = document.getElementById('post-inp-status').value;
             const rawSkills = document.getElementById('post-inp-skills').value.trim();
+            const githubUrl = document.getElementById('post-inp-github').value.trim();
+            const demoUrl = document.getElementById('post-inp-demo').value.trim();
 
             if (!desc && !postCompressedImageBase64) {
                 return alert("Please enter a description or upload a project screenshot.");
@@ -3201,7 +3972,10 @@
                 title: title || "Project Collaboration Request",
                 text: desc,
                 category: category || "College Projects",
+                status: status || "Recruiting",
                 skills: skillsList,
+                githubUrl: githubUrl || "",
+                demoUrl: demoUrl || "",
                 img: postCompressedImageBase64 || "",
                 userName: currentUser.name || "Collaborator",
                 userHandle: currentUser.user || "@user",
@@ -3211,6 +3985,7 @@
                 likes: 0,
                 likedBy: [],
                 comments: [],
+                applications: [],
                 createdAt: Date.now(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -3228,139 +4003,7 @@
             });
         }
 
-        // 18. Collaborator Real-Time Chat (Storyboard Panel 6)
-        function renderChatContacts() {
-            const list = document.getElementById('chat-contacts-list');
-            if (!list) return;
-
-            if (!activeChatContact && defaultChatContacts.length) {
-                activeChatContact = defaultChatContacts[0];
-            }
-
-            list.innerHTML = defaultChatContacts.map(c => `
-                <div class="contact-card-item ${activeChatContact && activeChatContact.id === c.id ? 'active' : ''}" onclick="selectChatContact('${c.id}')">
-                    <div class="contact-avatar-box">
-                        ${c.avatar ? `<img src="${c.avatar}">` : c.name[0]}
-                        <span class="online-dot"></span>
-                    </div>
-                    <div class="contact-details-box">
-                        <div class="contact-name-row">
-                            <span class="contact-display-name">${escapeHtml(c.name)}</span>
-                            <span class="contact-last-time">${c.time}</span>
-                        </div>
-                        <div class="contact-snippet-text">${escapeHtml(c.lastMsg)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function filterChatContacts(query) {
-            const term = (query || "").toLowerCase();
-            const filtered = defaultChatContacts.filter(c => c.name.toLowerCase().includes(term) || c.handle.toLowerCase().includes(term));
-            const list = document.getElementById('chat-contacts-list');
-            list.innerHTML = filtered.map(c => `
-                <div class="contact-card-item ${activeChatContact && activeChatContact.id === c.id ? 'active' : ''}" onclick="selectChatContact('${c.id}')">
-                    <div class="contact-avatar-box">
-                        ${c.avatar ? `<img src="${c.avatar}">` : c.name[0]}
-                        <span class="online-dot"></span>
-                    </div>
-                    <div class="contact-details-box">
-                        <div class="contact-name-row">
-                            <span class="contact-display-name">${escapeHtml(c.name)}</span>
-                            <span class="contact-last-time">${c.time}</span>
-                        </div>
-                        <div class="contact-snippet-text">${escapeHtml(c.lastMsg)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function selectChatContact(contactId) {
-            const contact = defaultChatContacts.find(c => c.id === contactId);
-            if (!contact) return;
-            activeChatContact = contact;
-            document.getElementById('chat-active-name').innerText = contact.name;
-            const av = document.getElementById('chat-active-avatar');
-            if (contact.avatar) av.innerHTML = `<img src="${contact.avatar}">`;
-            else av.innerText = contact.name[0];
-
-            renderChatContacts();
-            loadChatThread();
-        }
-
-        function loadChatThread() {
-            if (unsubscribeChatListener) unsubscribeChatListener();
-
-            unsubscribeChatListener = db.collection("posts").doc("GLOBAL_COMMUNITY_CHAT").onSnapshot(doc => {
-                const container = document.getElementById('chat-messages-container');
-                if (!container) return;
-
-                const data = doc.exists ? doc.data() : null;
-                const cloudMessages = (data && data.messages) ? data.messages : [];
-
-                const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : '');
-
-                // Seed messages matching the exact dialogue in Storyboard Panel 6!
-                const sampleThread = [
-                    { isMe: false, sender: activeChatContact ? activeChatContact.name : 'Rohit Kumar', text: "Hey! I saw your project post. I'm interested in joining your team. Can we discuss?", time: "10:20 AM" },
-                    { isMe: true, sender: 'You', text: "Hi! Sure! I'd love to have you. What skills do you have?", time: "10:22 AM" },
-                    { isMe: false, sender: activeChatContact ? activeChatContact.name : 'Rohit Kumar', text: "I'm a frontend developer. I work with React and Tailwind CSS.", time: "10:24 AM" }
-                ];
-
-                let allDisplay = [...sampleThread];
-
-                cloudMessages.forEach(m => {
-                    const isMine = (m.uid && m.uid === currentUid) || (currentUser && m.senderName === currentUser.name);
-                    let timeStr = "Now";
-                    try {
-                        timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    } catch(e) {}
-                    allDisplay.push({
-                        isMe: isMine,
-                        sender: isMine ? 'You' : (m.senderName || 'Collaborator'),
-                        text: m.text,
-                        time: timeStr
-                    });
-                });
-
-                container.innerHTML = allDisplay.map(msg => `
-                    <div class="msg-bubble-row ${msg.isMe ? 'mine' : 'theirs'}">
-                        <span class="msg-sender-name">${escapeHtml(msg.sender)}</span>
-                        <div class="msg-bubble">${escapeHtml(msg.text)}</div>
-                        <span class="msg-time-stamp">${escapeHtml(msg.time)}</span>
-                    </div>
-                `).join('');
-
-                container.scrollTop = container.scrollHeight;
-            }, err => console.error("Chat sync error:", err));
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chat-message-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const currentUid = auth.currentUser ? auth.currentUser.uid : (currentUser ? currentUser.uid : 'guest');
-            const senderName = currentUser ? currentUser.name : 'Collaborator';
-
-            const newMsg = {
-                uid: currentUid,
-                senderName: senderName,
-                text: text,
-                timestamp: new Date().toISOString()
-            };
-
-            db.collection("posts").doc("GLOBAL_COMMUNITY_CHAT").set({
-                type: "community_chat_channel",
-                messages: firebase.firestore.FieldValue.arrayUnion(newMsg)
-            }, { merge: true }).then(() => {
-                input.value = "";
-                input.focus();
-                showToast("Message sent!", "💬");
-            }).catch(err => alert("Message sending error: " + err.message));
-        }
-
-        // 19. My Uploads View Management (Storyboard Panel 7)
+        // 20. My Uploads View Management (Storyboard Panel 7)
         function renderMyUploadsView() {
             const container = document.getElementById('my-uploads-grid');
             if (!container || !currentUser) return;
@@ -3370,7 +4013,6 @@
                 return (p.userUid && p.userUid === currentUid) || (p.userHandle && p.userHandle === currentUser.user);
             });
 
-            // If user has not published yet, show the sample posts from Storyboard Panel 7!
             if (!myPosts.length) {
                 myPosts = [
                     {
@@ -3380,6 +4022,7 @@
                         skills: ["React", "Node.js", "MongoDB"],
                         likes: 7,
                         comments: [{}, {}],
+                        applications: [{}, {}],
                         img: ""
                     },
                     {
@@ -3389,6 +4032,7 @@
                         skills: ["HTML", "CSS", "JS"],
                         likes: 12,
                         comments: [{}, {}, {}, {}],
+                        applications: [],
                         img: ""
                     },
                     {
@@ -3398,6 +4042,7 @@
                         skills: ["JavaScript", "API", "CSS"],
                         likes: 5,
                         comments: [{}],
+                        applications: [{}],
                         img: ""
                     }
                 ];
@@ -3407,6 +4052,7 @@
                 let tags = [];
                 if (Array.isArray(p.skills)) tags = p.skills;
                 else if (typeof p.skills === 'string') tags = p.skills.split(',').map(s => s.trim()).filter(Boolean);
+                const appCount = (p.applications || []).length;
 
                 return `
                     <div class="upload-card">
@@ -3422,9 +4068,14 @@
                             <span style="font-size:0.85rem; color:var(--text-secondary);">
                                 ❤️ ${p.likes || 0} &nbsp;&nbsp; 💬 ${(p.comments || []).length}
                             </span>
-                            <button class="btn-icon" style="color:var(--danger); font-size:0.82rem; font-weight:600;" onclick="deletePostItem('${p.id}')" title="Delete post">
-                                🗑️ Delete
-                            </button>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="openReviewApplicationsModal('${p.id}')">
+                                    📥 Apps (${appCount})
+                                </button>
+                                <button class="btn-icon" style="color:var(--danger); font-size:0.82rem; font-weight:600;" onclick="deletePostItem('${p.id}')" title="Delete post">
+                                    🗑️
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3439,7 +4090,7 @@
             if (badge) badge.innerText = count || 3;
         }
 
-        // 20. Modal Controllers
+        // 21. Modal Controllers
         function openModal(id) {
             const modal = document.getElementById(id);
             if (modal) modal.classList.add('open');
@@ -3454,16 +4105,21 @@
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('open');
             }
+            // Close dropdown menus
+            if (!e.target.closest('.dropdown-menu') && !e.target.closest('.btn-icon')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+            }
         };
 
         window.onkeydown = function(e) {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
                 toggleMobileSidebar(false);
             }
         };
 
-        // 21. App Bootstrapping on Page Load
+        // 22. App Bootstrapping on Page Load
         window.onload = () => {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -3485,15 +4141,17 @@
                                 edu: "BCA 2nd Sem | Amity University Patna",
                                 bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
                                 skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
-                                pic: ""
+                                pic: user.photoURL || "",
+                                blockedUsers: []
                             };
                             db.collection("users").doc(user.uid).set(currentUser, { merge: true });
                         }
+                        if (!currentUser.blockedUsers) currentUser.blockedUsers = [];
                         localStorage.setItem('syncUser', JSON.stringify(currentUser));
                         navigateTo('dashboard');
                     }).catch(() => {
                         if (!currentUser) {
-                            currentUser = { uid: user.uid, name: user.email.split('@')[0], user: '@' + user.email.split('@')[0], email: user.email, skills: ["Java", "React"], pic: "" };
+                            currentUser = { uid: user.uid, name: user.email.split('@')[0], user: '@' + user.email.split('@')[0], email: user.email, skills: ["Java", "React"], pic: "", blockedUsers: [] };
                         }
                         navigateTo('dashboard');
                     });
