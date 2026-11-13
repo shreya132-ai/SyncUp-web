@@ -186,5 +186,45 @@ select:focus-visible,
   background: linear-gradient(90deg, #E2E8F0 25%, #F8FAFC 50%, #E2E8F0 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+.skeleton-feed-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.skeleton-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-sm);
+}
+.skeleton-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.skeleton-meta {
+  display: flex;
+  flex-direction: column;
+}
+.skeleton-line {
+  border-radius: 4px;
+}
+.skeleton-tags-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.skeleton-pill {
+  width: 72px;
+  height: 24px;
+  border-radius: var(--radius-chip);
 }
