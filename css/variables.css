@@ -1,0 +1,383 @@
+/* ==========================================================================
+   SYNCUP DESIGN SYSTEM (Phase 4: Design Tokens & System Standards)
+   Single Source of Truth for Tokens, Grid, Typography, Breakpoints & WCAG AA
+   ========================================================================== */
+
+:root {
+    /* ======================================================================
+       1. COLOR TOKENS
+       - Primary button #087F5B (white text, passes WCAG AA at 5.05:1 contrast)
+       - Accent #10B981 (fills/icons ONLY, never text on white: 2.54:1 fails WCAG AA)
+       - Text #0F172A (high contrast slate 900: 16.2:1 passes WCAG AAA)
+       - Background #F8FAFC (clean modern soft slate)
+       - Sidebar #064E3B (deep forest green: 9.5:1 passes WCAG AAA)
+       ====================================================================== */
+
+    /* Primary Action Button (#087F5B with #FFFFFF text) */
+    --color-primary-btn: #087F5B;
+    --color-primary-btn-hover: #066C4D;
+    --color-primary-btn-active: #044E37;
+    --color-primary-btn-text: #FFFFFF;
+    
+    /* Primary Brand Palette */
+    --color-primary: #087F5B;
+    --secondary-green: #087F5B;             /* Backward-compatible alias */
+    --color-sidebar: #064E3B;
+    --sidebar-bg: #064E3B;
+    --primary-dark: #064E3B;                /* Deep forest green alias */
+
+    /* Accent Palette (Fills and Icons ONLY - NEVER text on white) */
+    --color-accent: #10B981;
+    --accent-green: #10B981;                /* Backward-compatible alias for fills/icons */
+    --accent-hover: #059669;
+
+    /* WCAG AA Compliant Text Greens (Contrast on white: 5.05:1 & 9.5:1) */
+    --color-text-brand: #087F5B;            /* Use for green text on light surfaces (5.05:1) */
+    --color-text-brand-dark: #064E3B;       /* High-emphasis brand text (9.5:1) */
+
+    /* Typography & Text Contrast Tokens */
+    --color-text: #0F172A;                  /* Slate 900 primary text (#0F172A) */
+    --text-main: #0F172A;                   /* Alias */
+    --color-text-secondary: #475569;        /* Slate 600 passes WCAG AA (5.6:1 on white) */
+    --text-secondary: #475569;              /* Alias */
+    --color-text-muted: #64748B;            /* Slate 500 for captions and metadata */
+    --text-muted: #64748B;                  /* Alias */
+    --color-text-inverse: #FFFFFF;
+
+    /* Surface & Background Tokens */
+    --color-bg: #F8FAFC;                    /* App background (#F8FAFC) */
+    --bg: #F8FAFC;                          /* Alias */
+    --color-card-bg: #FFFFFF;
+    --card-bg: #FFFFFF;                     /* Alias */
+    --color-surface-subtle: #F1F5F9;
+
+    /* Subtle Fills & Borders */
+    --light-green: #D1FAE5;                 /* Soft mint pill backgrounds & icon fills */
+    --light-green-subtle: #ECFDF5;
+    --border: #E2E8F0;
+    --border-hover: #CBD5E1;
+    --border-focus: #087F5B;
+
+    /* System Feedback & States */
+    --danger: #EF4444;
+    --danger-bg: #FEE2E2;
+    --danger-text: #991B1B;
+    --warning: #F59E0B;
+    --warning-bg: #FEF3C7;
+    --warning-text: #92400E;
+    --info: #3B82F6;
+    --info-bg: #DBEAFE;
+    --info-text: #1E40AF;
+
+    /* ======================================================================
+       2. SPACING TOKENS (Strict 8px Grid: 4, 8, 16, 24, 32)
+       ====================================================================== */
+    --space-4: 4px;
+    --space-8: 8px;
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-32: 32px;
+
+    /* Semantic Aliases */
+    --spacing-4: 4px;
+    --spacing-8: 8px;
+    --spacing-16: 16px;
+    --spacing-24: 24px;
+    --spacing-32: 32px;
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* ======================================================================
+       3. TYPOGRAPHY TOKENS (One font: Inter; Sizes: 12, 14, 16, 20, 28)
+       ====================================================================== */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-main: var(--font-family);
+
+    --font-size-12: 12px;
+    --font-size-14: 14px;
+    --font-size-16: 16px;
+    --font-size-20: 20px;
+    --font-size-28: 28px;
+
+    /* Semantic Font Aliases */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 20px;
+    --text-xl: 28px;
+
+    /* Line Heights */
+    --leading-tight: 1.2;
+    --leading-snug: 1.35;
+    --leading-normal: 1.5;
+
+    /* ======================================================================
+       4. RADIUS TOKENS (12px cards, 999px chips/buttons)
+       ====================================================================== */
+    --radius-card: 12px;                    /* All cards strictly 12px */
+    --radius-chip: 999px;                   /* Chips strictly 999px */
+    --radius-button: 999px;                 /* Buttons strictly 999px */
+    --radius-btn: 999px;                    /* Alias */
+    --radius-full: 999px;                   /* 999px pill/circular */
+    --radius: 12px;                         /* Default radius 12px */
+    --radius-lg: 12px;                      /* Aligned to 12px for cards */
+    --radius-sm: 8px;
+
+    /* ======================================================================
+       5. TOUCH TARGET TOKENS (≥ 44×44px)
+       ====================================================================== */
+    --touch-target-min: 44px;
+    --touch-min-height: 44px;
+    --touch-min-width: 44px;
+
+    /* ======================================================================
+       6. RESPONSIVE BREAKPOINT TOKENS
+       - Mobile: < 768px
+       - Tablet: 768px ≤ width < 1024px
+       - Desktop: ≥ 1024px
+       ====================================================================== */
+    --breakpoint-mobile-max: 767px;
+    --breakpoint-tablet-min: 768px;
+    --breakpoint-tablet-max: 1023px;
+    --breakpoint-desktop-min: 1024px;
+
+    --sidebar-width: 240px;
+    --sidebar-width-tablet: 200px;
+    --right-rail-width: 300px;
+
+    /* Elevation & Transitions */
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   GLOBAL RESET & BASE TYPOGRAPHY (Single Font: Inter)
+   ========================================================================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    font-size: var(--font-size-16);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography scale mapped strictly to 5 sizes: 12, 14, 16, 20, 28 */
+h1 {
+    font-size: var(--font-size-28);
+    font-weight: 800;
+    color: var(--color-text);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: var(--font-size-20);
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: var(--font-size-16);
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: var(--leading-snug);
+}
+
+h4 {
+    font-size: var(--font-size-14);
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: var(--leading-snug);
+}
+
+h5, small, .caption, .timestamp {
+    font-size: var(--font-size-12);
+    font-weight: 500;
+    line-height: var(--leading-snug);
+    color: var(--color-text-muted);
+}
+
+/* Brand styling using unified Inter font */
+.font-brand {
+    font-family: var(--font-family) !important;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+/* ==========================================================================
+   SPACING UTILITY CLASSES (Strict 8px Grid: 4, 8, 16, 24, 32)
+   ========================================================================== */
+.p-4  { padding: var(--space-4) !important; }
+.p-8  { padding: var(--space-8) !important; }
+.p-16 { padding: var(--space-16) !important; }
+.p-24 { padding: var(--space-24) !important; }
+.p-32 { padding: var(--space-32) !important; }
+
+.m-4  { margin: var(--space-4) !important; }
+.m-8  { margin: var(--space-8) !important; }
+.m-16 { margin: var(--space-16) !important; }
+.m-24 { margin: var(--space-24) !important; }
+.m-32 { margin: var(--space-32) !important; }
+
+.gap-4  { gap: var(--space-4) !important; }
+.gap-8  { gap: var(--space-8) !important; }
+.gap-16 { gap: var(--space-16) !important; }
+.gap-24 { gap: var(--space-24) !important; }
+.gap-32 { gap: var(--space-32) !important; }
+
+.hidden { display: none !important; }
+
+/* Accessible Touch Targets Minimum Enforcement */
+.touch-target {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: VISIBLE FOCUS RINGS & KEYBOARD NAVIGATION (WCAG 2.4.7)
+   ========================================================================== */
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2.5px solid var(--color-primary-btn) !important;
+    outline-offset: 2px !important;
+}
+
+/* Buttons, Chips, and Links Focus Ring */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+.btn:focus-visible,
+.category-pill:focus-visible,
+.filter-chip-btn:focus-visible,
+.social-action-btn:focus-visible,
+.sidebar-link:focus-visible,
+.mobile-nav-item:focus-visible,
+.mobile-create-fab:focus-visible,
+.sheet-close-btn:focus-visible,
+.modal-close-btn:focus-visible {
+    outline: 2.5px solid var(--color-primary-btn) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.25) !important;
+}
+
+/* Input Fields Focus Ring */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.form-input:focus-visible,
+.form-textarea:focus-visible,
+.form-select:focus-visible,
+.search-input:focus-visible,
+.comment-input:focus-visible,
+.chat-text-input:focus-visible {
+    outline: 2px solid var(--color-primary-btn) !important;
+    border-color: var(--color-primary-btn) !important;
+    box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.2) !important;
+}
+
+/* Skip to Content Link (Keyboard Screen Reader Accessibility) */
+.skip-to-content {
+    position: absolute;
+    top: -50px;
+    left: 16px;
+    background: var(--color-primary-btn);
+    color: #FFFFFF !important;
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-14);
+    font-weight: 700;
+    z-index: 9999;
+    text-decoration: none;
+    box-shadow: var(--shadow-lg);
+    transition: top 0.2s ease-in-out;
+}
+.skip-to-content:focus {
+    top: 16px;
+    outline: 2.5px solid #FFFFFF !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Spinners & Loaders */
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(16, 185, 129, 0.2);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: var(--space-24) auto;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Skeleton Loaders (Shimmer effect for Async States) */
+@keyframes skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg, #E2E8F0 25%, #F8FAFC 50%, #E2E8F0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: var(--radius-card);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-32) var(--space-16);
+    background: var(--color-card-bg);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+}
+.empty-state h3 {
+    font-size: var(--font-size-20);
+    margin-bottom: var(--space-8);
+}
+.empty-state p {
+    font-size: var(--font-size-14);
+    color: var(--color-text-secondary);
+}
+
+.error-banner {
+    background: var(--danger-bg);
+    border: 1px solid #FCA5A5;
+    color: var(--danger-text);
+    padding: var(--space-16);
+    border-radius: var(--radius-card);
+    margin-bottom: var(--space-16);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--font-size-14);
+}

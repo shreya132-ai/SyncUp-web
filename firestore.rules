@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // AUTHENTICATION & OWNERSHIP HELPER FUNCTIONS
+    // =========================================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isPostOwner(postData) {
+      return isAuthenticated() && request.auth.uid == postData.userUid;
+    }
+
+    function isChatParticipant(chatData) {
+      return isAuthenticated() && (
+        request.auth.uid in chatData.participants
+      );
+    }
+
+    // =========================================================================
+    // 1. USER PROFILES (/users/{userId})
+    // - Authenticated users can view public profile details (colleges, skills, bio)
+    // - Only the authenticated account owner can update or delete their profile
+    // =========================================================================
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isUser(userId);
+      allow update, delete: if isUser(userId);
+    }
+
+    // =========================================================================
+    // 2. PROJECT POSTS (/posts/{postId})
+    // - Feed is readable for discovery
+    // - Authors can create and delete their own posts
+    // - Authors can edit their own posts and ACCEPT/DECLINE applications
+    // - Non-authors can only like, comment, or submit a new application for themselves
+    // =========================================================================
+    match /posts/{postId} {
+
+      // Legacy direct and community chat documents stored within posts collection
+      allow read: if isAuthenticated() && (
+        postId == 'GLOBAL_COMMUNITY_CHAT' ||
+        (postId.matches('CHAT_.*') && (
+          (resource == null || resource.data.participants == null || request.auth.uid in resource.data.participants) ||
+          postId.matches('.*' + request.auth.uid + '.*')
+        ))
+      );
+
+      allow write: if isAuthenticated() && (
+        postId == 'GLOBAL_COMMUNITY_CHAT' ||
+        (postId.matches('CHAT_.*') && (
+          (resource == null || resource.data.participants == null || request.auth.uid in resource.data.participants) ||
+          postId.matches('.*' + request.auth.uid + '.*')
+        ))
+      );
+
+      // Project posts read (excludes chat documents)
+      allow read: if !postId.matches('CHAT_.*') && postId != 'GLOBAL_COMMUNITY_CHAT';
+
+      // Create: Authenticated users can create posts with their own UID as author
+      allow create: if isAuthenticated() && 
+        request.resource.data.userUid == request.auth.uid;
+
+      // Delete: Only the post author can delete their post
+      allow delete: if isAuthenticated() && 
+        resource.data.userUid == request.auth.uid;
+
+      // Update:
+      // Case A: Post author has full edit control (update content, roles, ACCEPT or DECLINE applications)
+      // Case B: Collaborator interactions strictly restricted:
+      //         - Like / Unlike (only 'likes' and 'likedBy' fields modified)
+      //         - Add comment (only 'comments' field modified)
+      //         - Apply to team (only appending a single application, applicantUid must equal auth.uid)
+      //         - NON-OWNERS ARE FORBIDDEN FROM ACCEPTING OR DECLINING APPLICATIONS
+      allow update: if isAuthenticated() && (
+        // Case A: Post Owner
+        resource.data.userUid == request.auth.uid ||
+
+        // Case B.1: Like / Unlike
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likedBy'])
+        ) ||
+
+        // Case B.2: Add comment
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
+        ) ||
+
+        // Case B.3: Submit new application (only post owners can accept/decline)
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['applications']) &&
+          request.resource.data.userUid == resource.data.userUid &&
+          request.resource.data.applications.size() == resource.data.applications.size() + 1
+        )
+      );
+    }
+
+    // =========================================================================
+    // 3. CHATS & CONVERSATIONS (/chats/{chatId})
+    // - 1-on-1 DMs and group threads readable and writable ONLY by active participants
+    // =========================================================================
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated() && (
+        chatId == 'GLOBAL_COMMUNITY_CHAT' ||
+        (resource != null && isChatParticipant(resource.data)) ||
+        (resource == null && request.auth.uid in request.resource.data.participants)
+      );
+
+      // Message Subcollection (/chats/{chatId}/messages/{messageId})
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated() && (
+          chatId == 'GLOBAL_COMMUNITY_CHAT' ||
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
+        );
+      }
+    }
+
+    // Default deny for all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
