@@ -733,25 +733,41 @@
 }
 .chat-text-input:focus { border-color: var(--color-primary-btn); }
 
+/* Read receipt indicator */
+.read-receipt {
+  font-size: 0.72rem;
+  color: var(--color-accent);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
 /* Typing indicator */
-.typing-indicator-bubble {
+.typing-bubble-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+.typing-indicator, .typing-indicator-bubble {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 8px 14px;
-  background: #FFFFFF;
+  background: #F1F5F9;
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
 }
-.typing-dot {
+.typing-indicator span, .typing-dot {
   width: 6px;
   height: 6px;
-  background: #94A3B8;
+  background: #64748B;
   border-radius: 50%;
   animation: typingBounce 1.2s infinite ease-in-out;
+  display: inline-block;
 }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(2), .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3), .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typingBounce {
   0%, 80%, 100% { transform: translateY(0); }
   40% { transform: translateY(-5px); }

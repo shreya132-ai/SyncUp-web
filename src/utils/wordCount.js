@@ -2,7 +2,7 @@
  * src/utils/wordCount.js
  * 
  * Live word counter utility for post creation and team applications.
- * Enforces ≤ 100 words limit, calculates remaining words, and updates aria-live.
+ * Enforces <= 100 words limit, calculates remaining words, and manages aria-live warnings.
  */
 
 export function countWords(text) {
@@ -11,15 +11,41 @@ export function countWords(text) {
   return words ? words.length : 0;
 }
 
-export function updateWordCounterDisplay(text, elements = {}) {
-  const count = countWords(text);
-  const { counterEl, remainingEl, nextBtn, submitBtn } = elements;
+/**
+ * Updates word counter DOM elements with color states and warning thresholds.
+ * Thresholds:
+ * - < 90 words: default muted color
+ * - 90 - 100 words: warning orange color
+ * - > 100 words: danger red color
+ */
+export function updateWordCounterDisplay(param1, param2, param3, param4) {
+  let count = 0;
+  let counterEl = null;
+  let remainingEl = null;
+  let nextBtn = null;
+  let submitBtn = null;
+  let max = 100;
 
-  const isOverLimit = count > 100;
-  const isWarning = count >= 90 && count <= 100;
+  if (typeof param1 === 'string') {
+    count = countWords(param1);
+    const elements = param2 || {};
+    counterEl = elements.counterEl;
+    remainingEl = elements.remainingEl;
+    nextBtn = elements.nextBtn;
+    submitBtn = elements.submitBtn;
+    max = elements.max || 100;
+  } else {
+    counterEl = param1;
+    remainingEl = param2;
+    count = typeof param3 === 'number' ? param3 : 0;
+    max = typeof param4 === 'number' ? param4 : 100;
+  }
+
+  const isOverLimit = count > max;
+  const isWarning = count >= Math.floor(max * 0.9) && count <= max;
 
   if (counterEl) {
-    counterEl.textContent = `${count} / 100 words`;
+    counterEl.textContent = `${count} / ${max}`;
     counterEl.classList.remove('word-counter-warning', 'word-counter-limit');
 
     if (isOverLimit) {
@@ -35,10 +61,10 @@ export function updateWordCounterDisplay(text, elements = {}) {
 
   if (remainingEl) {
     if (isOverLimit) {
-      remainingEl.textContent = `Exceeded limit by ${count - 100} word${count - 100 > 1 ? 's' : ''}`;
+      remainingEl.textContent = `Exceeded limit by ${count - max} word${count - max > 1 ? 's' : ''}`;
       remainingEl.style.color = "var(--danger)";
     } else {
-      remainingEl.textContent = `${100 - count} words remaining`;
+      remainingEl.textContent = `${max - count} words remaining`;
       remainingEl.style.color = isWarning ? "var(--warning)" : "var(--color-text-muted)";
     }
   }

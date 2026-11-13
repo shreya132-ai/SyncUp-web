@@ -36,6 +36,13 @@ export function renderModals(state) {
     renderApplicationsModal(state);
   } else if (activeSheet && activeSheet.includes('create-post')) {
     updateLivePostPreview();
+  } else if (activeSheet && activeSheet.includes('apply-team')) {
+    const applyingPostId = state.ui && state.ui.currentApplyingPostId;
+    const post = (state.posts || []).find(p => p.id === applyingPostId);
+    const titleEl = document.getElementById('apply-modal-project-title');
+    if (titleEl && post) {
+      titleEl.innerText = `Applying to "${post.title || 'Project'}" (Lead: ${post.userName || 'Author'})`;
+    }
   }
 }
 
