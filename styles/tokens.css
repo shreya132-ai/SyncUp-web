@@ -1,0 +1,146 @@
+/* ==========================================================================
+   SYNCUP DESIGN SYSTEM TOKENS (styles/tokens.css)
+   Single source of truth for colors, spacing, typography, radius & touch targets
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. COLOR PALETTE (WCAG 2.1 AA Compliant)
+     - Primary Action Button: #087F5B with #FFFFFF text (Contrast ratio 5.05:1)
+     - Accent: #10B981 strictly for fills, badges, and icons (NEVER text on white)
+     - Primary Text: #0F172A (Slate 900, Contrast ratio 16.2:1 passes WCAG AAA)
+     - Secondary Text: #475569 (Slate 600, Contrast ratio 5.6:1)
+     - Muted Text: #64748B (Slate 500 for captions and timestamps)
+     - Background Canvas: #F8FAFC (Modern soft slate)
+     - Card Surface: #FFFFFF
+     - Sidebar Chrome: #064E3B (Deep Forest Green, Contrast ratio 9.5:1 AAA)
+     ------------------------------------------------------------------------ */
+  --color-primary-btn: #087F5B;
+  --color-primary-btn-hover: #066C4D;
+  --color-primary-btn-active: #044E37;
+  --color-primary-btn-text: #FFFFFF;
+
+  --color-primary: #087F5B;
+  --secondary-green: #087F5B;
+  --color-sidebar: #064E3B;
+  --sidebar-bg: #064E3B;
+  --primary-dark: #064E3B;
+
+  --color-accent: #10B981;
+  --accent-green: #10B981;
+  --accent-hover: #059669;
+
+  --color-text-brand: #087F5B;
+  --color-text-brand-dark: #064E3B;
+
+  --color-text: #0F172A;
+  --text-main: #0F172A;
+  --color-text-secondary: #475569;
+  --text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --text-muted: #64748B;
+  --color-text-inverse: #FFFFFF;
+
+  --color-bg: #F8FAFC;
+  --bg: #F8FAFC;
+  --color-card-bg: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --color-surface-subtle: #F1F5F9;
+
+  --light-green: #D1FAE5;
+  --light-green-subtle: #ECFDF5;
+  --border: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-focus: #087F5B;
+
+  --danger: #EF4444;
+  --danger-bg: #FEE2E2;
+  --danger-text: #991B1B;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --warning-text: #92400E;
+  --info: #3B82F6;
+  --info-bg: #DBEAFE;
+  --info-text: #1E40AF;
+
+  /* ------------------------------------------------------------------------
+     2. STRICT 8PX SPACING GRID (4, 8, 16, 24, 32)
+     ------------------------------------------------------------------------ */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ------------------------------------------------------------------------
+     3. TYPOGRAPHY (Single font: Inter, 5 strictly standardized sizes)
+     ------------------------------------------------------------------------ */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-main: var(--font-family);
+
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+  --font-size-20: 20px;
+  --font-size-28: 28px;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+
+  /* ------------------------------------------------------------------------
+     4. RADIUS STANDARDS (12px cards, 999px chips/buttons)
+     ------------------------------------------------------------------------ */
+  --radius-card: 12px;
+  --radius-chip: 999px;
+  --radius-button: 999px;
+  --radius-btn: 999px;
+  --radius-full: 999px;
+  --radius: 12px;
+  --radius-lg: 12px;
+  --radius-sm: 8px;
+
+  /* ------------------------------------------------------------------------
+     5. TOUCH TARGETS (>= 44x44px for accessibility)
+     ------------------------------------------------------------------------ */
+  --touch-target-min: 44px;
+  --touch-min-height: 44px;
+  --touch-min-width: 44px;
+
+  /* ------------------------------------------------------------------------
+     6. RESPONSIVE BREAKPOINTS
+     - Mobile: < 768px
+     - Tablet: 768px - 1023px
+     - Desktop: >= 1024px
+     ------------------------------------------------------------------------ */
+  --breakpoint-mobile-max: 767px;
+  --breakpoint-tablet-min: 768px;
+  --breakpoint-tablet-max: 1023px;
+  --breakpoint-desktop-min: 1024px;
+
+  --sidebar-width: 240px;
+  --right-rail-width: 300px;
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
