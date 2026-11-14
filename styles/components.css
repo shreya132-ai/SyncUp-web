@@ -552,6 +552,9 @@
     bottom: 80px;
   }
   .toast-item { max-width: 100%; }
+  .sheet-container [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* 7. Chat Bubbles & View Components */
