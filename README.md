@@ -1,6 +1,7 @@
 # SyncUp — Peer-to-Peer Project Collaboration & Teammate Discovery Platform
 
-> A modern, production-grade collaboration platform for student developers, hackathon teams, and creator communities.
+> A production-grade, frameworkless web platform for student developers, hackathon teams, and open source builders.  
+> Built with Vanilla JavaScript (native ES Modules), HTML5, CSS3, and Firebase (Cloud Firestore, Auth, Storage, Hosting).
 
 🌐 **Live Web Application:** [https://shreya132-ai.github.io/SyncUp-web/](https://shreya132-ai.github.io/SyncUp-web/)  
 💻 **Repository:** [https://github.com/shreya132-ai/SyncUp-web](https://github.com/shreya132-ai/SyncUp-web)
@@ -9,162 +10,168 @@
 
 ## 🏛️ System Architecture & Four-Layer Data Flow
 
-SyncUp is built with a clean, unidirectional four-layer architecture ensuring high performance, zero-latency optimistic updates, native offline resilience, and strict separation of concerns.
+SyncUp is architected strictly around a unidirectional, four-layer data flow pattern. This guarantees predictable state mutations, zero-latency optimistic updates, native IndexedDB offline resilience, and strict separation of presentation from database logic.
 
 ```mermaid
 flowchart TD
-    subgraph Layer1["Layer 1: UI Presentation Components"]
-        Feed["ui-feed.js (Feed Stream & Explore)"]
-        Inbox["ui-inbox.js (Chats & Applications)"]
-        Chat["ui-chat.js (Real-Time Messaging)"]
-        Profile["ui-profile.js (Profile & Skills)"]
-        Modals["ui-modals.js (Post Creation & Review)"]
-        Onboard["ui-onboarding.js (Skill Selection)"]
-        AppCoord["app.js (Router & Coordinator)"]
+    subgraph UI_Layer["Layer 1: UI Presentation Components (src/ui/)"]
+        Feed["feed.js (Feed Stream, Shimmers & Right Rail)"]
+        Explore["explore.js (Search, Skills & Categories)"]
+        PostCard["postCard.js (Card Rendering & Status Badges)"]
+        Inbox["inbox.js (Unified Chats & Applications Tabs)"]
+        Profile["profile.js (Profile, Bio & Authored Posts)"]
+        Nav["nav.js (5-Destination Sidebar & Mobile Nav)"]
+        Modals["modals.js (Two-Step Wizard & Application Review)"]
+        Onboarding["onboarding.js (3-5 Skill Selection)"]
+        AuthUI["auth.js (Login, Register & Demo Access)"]
     end
 
-    subgraph Layer2["Layer 2: Central State Store & Dialogs"]
-        Store["store.js (Single Source of Truth & Optimistic Mutations)"]
-        Sheet["sheet.js (Unified Accessible Sheet / Modal Dialog)"]
-        Toast["toast.js (A11y Notifications & Undo Action)"]
+    subgraph Store_Layer["Layer 2: Central State Store & Shell (src/store/)"]
+        Store["store.js (Single Source of Truth & Optimistic Updates)"]
+        Sheet["sheet.js (Reusable Accessible <Sheet> Controller)"]
+        Toast["toast.js (A11y Notifications & Undo Callbacks)"]
     end
 
-    subgraph Layer3["Layer 3: Data Service"]
-        DataService["data-service.js (Isolated Network I/O & Storage Uploads)"]
+    subgraph Data_Layer["Layer 3: Data Services (src/services/)"]
+        PostsService["postsService.js (Feed Stream & Post Mutations)"]
+        ChatService["chatService.js (Real-Time DM & Global Channels)"]
+        AuthService["authService.js (Credentials, Profiles & Demo)"]
+        StorageService["storageService.js (Compressed Storage Uploads)"]
     end
 
-    subgraph Layer4["Layer 4: Cloud & Persistence Layer"]
-        FirebaseService["firebase-service.js (SDK Init & IndexedDB Persistence)"]
+    subgraph Cloud_Layer["Layer 4: Firebase Infrastructure"]
+        FirebaseInit["firebase.js (IndexedDB Cache Persistence)"]
         CloudFirestore[("Cloud Firestore")]
         FirebaseStorage[("Firebase Storage")]
         FirebaseAuth[("Firebase Auth")]
     end
 
-    Layer1 -->|Dispatches Actions Only| Store
-    Store -->|Notifies Subscribers / Optimistic State| Layer1
-    Store -->|Invokes Async Operations| DataService
-    DataService --> FirebaseService
-    FirebaseService <--> CloudFirestore
-    FirebaseService <--> FirebaseStorage
-    FirebaseService <--> FirebaseAuth
+    UI_Layer -->|Dispatches Actions Only| Store
+    Store -->|Notifies Subscribers with State| UI_Layer
+    Store -->|Invokes Remote Network Calls| Data_Layer
+    Data_Layer --> FirebaseInit
+    FirebaseInit <--> CloudFirestore
+    FirebaseInit <--> FirebaseStorage
+    FirebaseInit <--> FirebaseAuth
 ```
 
 ### Architectural Responsibilities:
-1. **Layer 1 (UI Components):** Only render state and dispatch store actions (e.g. `store.applyToPost(id)`). UI components never communicate directly with Firestore.
-2. **Layer 2 (Central State Store):** The single source of truth for all domain entities (`posts`, `user`, `myUploads`, `chats`, `ui`). Implements optimistic UI updates with automatic rollbacks if remote synchronization fails.
-3. **Layer 3 (Data Service):** The ONLY module that talks to Cloud Firestore and Firebase Storage. Encapsulates queries, real-time listeners (`onSnapshot`), mutations, and image uploads.
-4. **Layer 4 (Firebase Infrastructure):** Native persistent local cache (`db.enablePersistence`) backed by browser IndexedDB, eliminating manual `localStorage` post/chat mirrors.
+1. **Layer 1 — UI Presentation Components (`src/ui/`):** Render DOM elements based purely on store state. Never import Firestore directly; all mutations dispatch to store actions (e.g. `applyToPost(id)`).
+2. **Layer 2 — Central State Store (`src/store/`):** The single source of truth for all domain entities (`posts`, `user`, `chats`, `ui`). Implements optimistic UI updates with immediate local state rendering and automatic rollback if background network writes fail.
+3. **Layer 3 — Data Services (`src/services/`):** The only layer that imports Firestore and Firebase Storage. Encapsulates network I/O, queries, real-time snapshot listeners, and file uploads.
+4. **Layer 4 — Firebase Infrastructure (`src/services/firebase.js`):** Utilizes Firestore's native IndexedDB cache persistence (`enablePersistence`), completely replacing legacy manual `localStorage` mirroring of posts and chats.
 
 ---
 
-## 📁 Repository Folder Structure
+## 📁 Clean Folder Structure
 
 ```
 SyncUp-Project/
-├── css/                                  # Layered Modular Stylesheets
-│   ├── variables.css                     # Design tokens (Colors, 8px grid, typography, WCAG AA)
-│   ├── layout.css                        # App shell, responsive 3-column grid & bottom bar
-│   ├── components.css                    # Buttons, badges, cards, inputs, tags
-│   ├── chat.css                          # Collaborator chat layout, speech bubbles, typing indicators
-│   └── modals.css                        # Reusable sheets, bottom sheets, focus outlines
-├── js/                                   # Four-Layer JavaScript Modules
-│   ├── firebase-service.js               # Layer 4: Firebase SDK init & IndexedDB persistence
-│   ├── data-service.js                   # Layer 3: Isolated Firestore & Storage data layer
-│   ├── store.js                          # Layer 2: Central state store & optimistic updates
-│   ├── sheet.js                          # Reusable <Sheet> dialog controller (mobile/desktop)
-│   ├── toast.js                          # Accessible toast notifications with Undo action
-│   ├── utils.js                          # XSS escaping, canvas image compression (<70KB)
-│   ├── ui-feed.js                        # Layer 1: Feed stream, pagination, filters, explore
-│   ├── ui-inbox.js                       # Layer 1: Unified inbox (Chats & Applications)
-│   ├── ui-chat.js                        # Layer 1: 1-on-1 direct messages & global room
-│   ├── ui-uploads.js                     # Layer 1: "My Uploads" showcase & delete actions
-│   ├── ui-profile.js                     # Layer 1: Developer profile & skill badges
-│   ├── ui-modals.js                      # Layer 1: Post creation wizard, application review
-│   ├── ui-onboarding.js                  # Layer 1: Post sign-up skill selection
-│   ├── ui-auth.js                        # Layer 1: Login, registration, Google auth, Demo guest
-│   └── app.js                            # App coordinator, routing, debounced search
-├── firestore.rules                       # Production Firestore security rules
-├── test-e2e-quality-pass.js              # Comprehensive E2E automated test suite (72 tests)
-├── index.html                            # Primary web application entry point
+├── scripts/                              # Utility Scripts & Automated Test Runners
+│   ├── serve.js                          # Zero-dependency native Node.js HTTP static server
+│   ├── migrate-base64.js                 # Firestore base64 image migration utility (dry-run default)
+│   ├── test-all.js                       # Master test runner (executes all 5 test suites)
+│   ├── test-phase1.js                    # Phase 1 test suite: Architecture & One-way data flow
+│   ├── test-phase2.js                    # Phase 2 test suite: App shell, sheets, & toasts
+│   ├── test-phase3.js                    # Phase 3 test suite: Feed, post creation, chat, & e2e flows
+│   ├── test-phase4.js                    # Phase 4 test suite: Design tokens & WCAG AA contrast
+│   └── test-phase5.js                    # Phase 5 test suite: Security rules, a11y, & performance
+├── src/                                  # Modular Application Source Code
+│   ├── main.js                           # Master entry point, render loop coordinator, & routing
+│   ├── services/                         # Layer 3: Data Services
+│   │   ├── authService.js                # Auth state, sign in/up, profile fetch & save
+│   │   ├── chatService.js                # Real-time message streaming & sending
+│   │   ├── firebase.js                   # Firebase SDK init & IndexedDB offline cache
+│   │   ├── postsService.js               # Feed query, post creation, like, comment, apply
+│   │   └── storageService.js             # Image upload to Firebase Storage (< 70 KB)
+│   ├── store/                            # Layer 2: Central State Store
+│   │   └── store.js                      # Single source of truth & optimistic mutations
+│   ├── ui/                               # Layer 1: Presentation Components
+│   │   ├── auth.js                       # Auth view controller, login/register tabs, Google auth
+│   │   ├── explore.js                    # Search with debouncing, skill chips, & categories
+│   │   ├── feed.js                       # Post stream, filter toolbar, & desktop right rail
+│   │   ├── inbox.js                      # Unified inbox (Chats & Applications) & badge count
+│   │   ├── modals.js                     # Two-step wizard, application review, & profile editor
+│   │   ├── nav.js                        # 5 destinations: desktop sidebar & mobile bottom bar
+│   │   ├── onboarding.js                 # 3-5 skill selection & feed personalization
+│   │   ├── postCard.js                   # Project card renderer with roles open & "Applied ✓"
+│   │   ├── profile.js                    # Developer profile, bio, education, & user posts
+│   │   ├── sheet.js                      # Reusable <Sheet> component (mobile sheet / desktop modal)
+│   │   └── toast.js                      # Accessible toast notifications with Undo action
+│   └── utils/                            # Pure Helper Utilities
+│       ├── dom.js                        # HTML escaping, element creation, & relative timestamps
+│       ├── imageCompress.js              # HTML5 Canvas client-side compression (< 70 KB)
+│       └── wordCount.js                  # 100-word limit counter with 90/100 threshold styling
+├── styles/                               # Layered Design System Stylesheets
+│   ├── tokens.css                        # Design tokens (Colors, 8px grid, typography, radii, touch)
+│   ├── base.css                          # CSS reset, focus-visible rings, skip link, & skeletons
+│   ├── layout.css                        # 3-column desktop grid, fixed sidebar, & mobile bottom bar
+│   └── components.css                    # Project cards, buttons, badges, sheets, & chat bubbles
+├── firestore.rules                       # Cloud Firestore security rules
+├── storage.rules                         # Firebase Storage security rules
+├── firebase.json                         # Firebase project configuration (Hosting, Rules)
+├── index.html                            # Primary web application HTML entry point
 ├── syncup.html                           # Synchronized secondary web entry point
-├── start.bat                             # Windows batch script to launch the app locally
-├── CHANGELOG.md                          # Phase-by-phase changelog and migration guide
-└── README.md                             # Project overview and architecture guide
+├── start.bat                             # One-click Windows launch script
+├── DEPLOY.md                             # Production deployment & operations guide
+├── TESTER_GUIDE.md                       # Plain-language manual QA testing walkthrough
+├── CHANGELOG.md                          # Phase-by-phase changelog and migration notes
+└── README.md                             # Architecture & project documentation
 ```
 
 ---
 
-## 🌟 Key Features & Storyboard Architecture
+## 🎨 Design System & Accessibility
 
-### 1. 🎨 Forest & Emerald Design System
-* **WCAG AA Compliant Colors:** Primary button `#087F5B` (white text: 5.05:1), Accent `#10B981` (restricted to fills/icons), Slate 900 text `#0F172A` (16.2:1 AAA), Canvas `#F8FAFC`, Sidebar `#064E3B` (9.5:1 AAA).
-* **Strict 8px Grid:** Spacing tokens (`4px`, `8px`, `16px`, `24px`, `32px`).
-* **Inter Typography Scale:** Standardized font sizes (`12px`, `14px`, `16px`, `20px`, `28px`).
-* **Touch Targets:** Minimum `≥ 44×44px` across interactive controls.
-* **Responsive 3-Column Desktop:** Fixed dark-green sidebar (`#064E3B`, 240px), centered feed column (max-width 720px), and right rail (300px) displaying Suggested Teams, Your Applications, and Trending Skills.
-* **Mobile Navigation:** 5-destination bottom navigation bar with raised center `+` FAB.
-
-### 2. 🤝 Team Application & Review Workflow
-* **"Apply to Join Team":** Developers specify role and a custom pitch.
-* **One-Click Apply:** CTA transitions to a disabled `Applied ✓` state to prevent duplicate submissions.
-* **Lead Application Review:** Post owners can review candidates with **Accept** and **Decline** actions.
-* **Seamless Chat Handoff:** Accepting a candidate automatically launches a direct 1-on-1 chat and delivers a personalized welcome greeting.
-* **Interactive Undo:** Declining an application presents an instant toast notification with an **Undo** button.
-
-### 3. 💬 Real-Time Collaborator Chat
-* **Private 1-on-1 DMs:** Direct conversations between collaborators.
-* **Global Community Room:** Public broadcast channel for hackathon rallying.
-* **Typing & Read Indicators:** Visual feedback (`... is typing`) and read receipts (`✓✓ Read`).
-
-### 4. 📝 Two-Step Post Creation Wizard
-* **Two Steps:** Step 1: Write Details → Step 2: Live Preview.
-* **Dynamic Word Limit:** Real-time counter (`42 / 100 words`), turns amber at 90 words, red at 100 words, announced via `aria-live`.
-* **Client-Side Image Compression:** HTML5 Canvas resizes and compresses screenshots under 70 KB before uploading to Firebase Storage.
-
-### 5. 🔒 Security & Privacy Protection
-* **Zero Email Leakage:** Emails are never exposed in public feeds or headers; users interact via display names and handles.
-* **XSS Sanitization:** All user-generated text is sanitized before rendering.
-* **Firestore Security Rules:** Users can only modify their own profile and posts. Non-owners cannot accept or decline applications.
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:** Vanilla modern ES6+ JavaScript, HTML5, CSS3, Google Fonts (Inter).
-* **Backend & Real-Time Database:** Cloud Firestore (v9 compat mode), Firebase Authentication, Firebase Storage.
-* **Offline Storage:** IndexedDB via Firestore's built-in `enablePersistence`.
-* **Testing:** Node.js automated DOM assertion test suite (`test-e2e-quality-pass.js`).
-* **Deployment:** GitHub Pages / Any static hosting.
+* **WCAG 2.1 AA Color Contrast:**
+  * **Primary Button:** `#087F5B` with `#FFFFFF` text (**5.00:1**, passes WCAG AA ≥ 4.5:1).
+  * **Accent:** `#10B981` strictly reserved for fills, badges, and icons (never text on white).
+  * **Primary Text:** `#0F172A` Slate 900 (**17.85:1**, passes WCAG AAA ≥ 7.0:1).
+  * **Background:** `#F8FAFC` soft slate.
+  * **Sidebar:** Deep Forest Green `#064E3B` (**9.72:1**, passes WCAG AAA ≥ 7.0:1).
+* **Strict 8px Spacing Grid:** Standardized spacing tokens (`4px`, `8px`, `16px`, `24px`, `32px`).
+* **Inter Typography Scale:** Standardized font sizes: `12px` (caption/meta), `14px` (body), `16px` (base), `20px` (card titles), `28px` (headings).
+* **Corner Radius Standards:** `12px` cards (`--radius-card`) and `999px` chips/buttons (`--radius-button`).
+* **Accessible Touch Targets:** Minimum `≥ 44×44px` enforced on all interactive buttons and inputs.
+* **Keyboard Navigation:** Explicit `:focus-visible` rings with 3px glowing offset, skip-to-content anchor, and active focus trapping in dialogs.
 
 ---
 
 ## 🚀 How to Run Locally
 
-### Option 1: Direct File Open
-Double-click `index.html` or `syncup.html` in any modern web browser (Edge, Chrome, Firefox, Safari).
+### Option 1: Double-Click Batch File (Recommended)
+Double-click **`start.bat`** in the project folder. It launches the native local server (`scripts/serve.js`) and opens your browser at `http://localhost:3000`.
 
-### Option 2: Windows Batch Script
-Double-click `start.bat` in the project root directory.
-
-### Option 3: Local Development Server
-Serve using any static web server:
+### Option 2: Command Line (Node.js)
 ```bash
-# Using Python
-python -m http.server 8080
-
-# Using Node.js npx
-npx serve .
+node scripts/serve.js
 ```
+Opens `http://localhost:3000` with native ES Module MIME types and IndexedDB cache support.
 
-### Instant Preview (No Sign-Up Needed)
-Click **"🚀 Preview Demo"** on the landing screen to test all features instantly as an authorized developer (`Shreya Sinha`, Amity University Patna).
+### Option 3: Instant Demo Access
+No sign-up is required. Click **`🚀 Preview Demo`** on the landing screen to instantly access the app as an authorized developer (`Shreya Sinha`, Amity University Patna).
 
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the comprehensive 72-assertion test suite locally:
+Run the master test runner to verify all 47 assertions across all phases:
 ```bash
-node test-e2e-quality-pass.js
+node scripts/test-all.js
 ```
-Expected result: **72 / 72 assertions passed (100%)**.
+
+Or run individual phase test suites:
+```bash
+node scripts/test-phase1.js   # Architecture, store, & offline cache
+node scripts/test-phase2.js   # App shell, reusable sheets, & toasts
+node scripts/test-phase3.js   # Feed, post creation, chat, & e2e flows
+node scripts/test-phase4.js   # Design tokens & WCAG AA contrast
+node scripts/test-phase5.js   # Security rules, a11y, & performance
+```
+Expected result: **47 / 47 tests passed (100%)**.
+
+---
+
+## 🔒 Security Summary
+* **Firestore Security Rules (`firestore.rules`):** Users can only edit/delete their own posts and profile. Direct chats are strictly private between participants. Non-owners are forbidden from accepting or declining applications.
+* **Storage Security Rules (`storage.rules`):** Image uploads are restricted to authenticated users, image MIME types (`image/*`), and a 5 MB maximum file ceiling (client compresses images to < 70 KB).
