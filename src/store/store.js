@@ -441,6 +441,45 @@ export async function deletePost(postId) {
   }
 }
 
+export async function reportPost(postId, reason, details) {
+  if (!state.user) {
+    showToast({ message: "Please login to report a project post.", icon: "🔒", type: "info" });
+    return;
+  }
+
+  const prevPosts = [...state.posts];
+  const reporterUid = state.user.uid;
+
+  // 1. Optimistic Update: record in user.hiddenPosts and remove from local feed
+  const updatedUser = { ...state.user };
+  if (!updatedUser.hiddenPosts) updatedUser.hiddenPosts = [];
+  if (!updatedUser.hiddenPosts.includes(postId)) {
+    updatedUser.hiddenPosts.push(postId);
+  }
+  setUser(updatedUser);
+
+  state.posts = state.posts.filter(p => p.id !== postId);
+  closeModal();
+  notify();
+  showToast({ message: "Report submitted. The post has been hidden from your feed.", icon: "🛡️", type: "info" });
+
+  try {
+    // 2. Background Sync to /reports collection
+    await postsService.reportPost({
+      postId,
+      reporterUid,
+      reason,
+      details
+    });
+
+    if (!updatedUser.isAnonymous) {
+      await authService.saveUserProfile(updatedUser.uid, { hiddenPosts: updatedUser.hiddenPosts });
+    }
+  } catch (err) {
+    console.warn("[Store] reportPost sync notice:", err.message);
+  }
+}
+
 export async function applyToPost(postId, role, pitch) {
   if (!state.user) {
     showToast({ message: "Please login to apply to join a project team.", icon: "🔒", type: "info" });
@@ -544,6 +583,8 @@ export async function sendMessage(text) {
   if (!text || !text.trim()) return;
   const docId = getChatDocId();
   const currentUid = state.user ? state.user.uid : 'guest';
+  const targetUid = state.chats.activeContact ? state.chats.activeContact.uid : 'user_rohit';
+  const participants = [currentUid, targetUid].sort();
   const senderName = state.user ? state.user.name : 'You';
 
   const newMsg = {
@@ -568,7 +609,7 @@ export async function sendMessage(text) {
 
   try {
     // 2. Background Sync
-    await chatService.sendChatMessage(docId, state.chats.activeMode === 'global', newMsg);
+    await chatService.sendChatMessage(docId, state.chats.activeMode === 'global', newMsg, participants);
 
     // Realistic Simulated Partner Reply in DM mode
     if (state.chats.activeMode === 'dm' && state.chats.activeContact && state.chats.activeContact.uid.startsWith('user_')) {

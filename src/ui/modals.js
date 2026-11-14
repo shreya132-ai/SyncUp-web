@@ -23,6 +23,7 @@ import {
   applyToPost as storeApplyToPost,
   updateApplicationStatus as storeUpdateAppStatus,
   deletePost as storeDeletePost,
+  reportPost as storeReportPost,
   setUser,
   setUi,
   getState
@@ -282,7 +283,8 @@ export async function submitNewProjectPost() {
     userHandle: state.user.user || "@user",
     userPic: state.user.pic || "",
     userUid: currentUid,
-    college: state.user.college || (state.user.edu || "Student Developer")
+    college: state.user.college || (state.user.edu || "Student Developer"),
+    isDemo: Boolean(state.user.isDemo || state.user.isAnonymous)
   };
 
   await storeCreatePost(postDoc);
@@ -328,8 +330,14 @@ export function confirmSubmitReport() {
   const state = getState();
   const postId = state.ui && state.ui.currentReportingPostId;
   if (postId) {
-    storeDeletePost(postId);
-    showToast({ message: "Report submitted. The post has been hidden from your feed.", icon: "🛡️", type: "info" });
+    const reasonEl = document.getElementById('report-reason-select');
+    const detailsEl = document.getElementById('report-details-text');
+    const reason = reasonEl ? reasonEl.value : 'Other violation';
+    const details = detailsEl ? detailsEl.value.trim() : '';
+
+    storeReportPost(postId, reason, details);
+
+    if (detailsEl) detailsEl.value = '';
   }
   closeSheet();
 }

@@ -92,6 +92,10 @@ export function renderFeed(state, force = false) {
   if (blocked.length) {
     filtered = filtered.filter(p => !blocked.includes(p.userUid));
   }
+  const hidden = (state.user && state.user.hiddenPosts) ? state.user.hiddenPosts : [];
+  if (hidden.length) {
+    filtered = filtered.filter(p => !hidden.includes(p.id));
+  }
 
   // Category Filter
   if (state.ui && state.ui.categoryFilter && state.ui.categoryFilter !== 'All') {
@@ -227,8 +231,14 @@ export function renderFeed(state, force = false) {
     html += `
       <div style="text-align:center; padding: 24px 0 12px;">
         <button class="btn btn-outline" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding: 8px 24px;" onclick="window.SyncUpApp.loadMorePosts()">
-          Load More Projects (${filtered.length - limit} remaining) ↓
+          Load More Projects (${visible.length} of ${filtered.length})
         </button>
+      </div>
+    `;
+  } else if (filtered.length > 20) {
+    html += `
+      <div style="text-align:center; padding: 20px 0; color:var(--color-text-muted); font-size:var(--font-size-14);">
+        Showing all ${filtered.length} projects
       </div>
     `;
   }

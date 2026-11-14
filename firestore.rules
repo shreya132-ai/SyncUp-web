@@ -36,32 +36,14 @@ service cloud.firestore {
 
     // =========================================================================
     // 2. PROJECT POSTS (/posts/{postId})
-    // - Feed is readable for discovery
+    // - Feed is readable by everyone for discovery
     // - Authors can create and delete their own posts
     // - Authors can edit their own posts and ACCEPT/DECLINE applications
     // - Non-authors can only like, comment, or submit a new application for themselves
     // =========================================================================
     match /posts/{postId} {
-
-      // Legacy direct and community chat documents stored within posts collection
-      allow read: if isAuthenticated() && (
-        postId == 'GLOBAL_COMMUNITY_CHAT' ||
-        (postId.matches('CHAT_.*') && (
-          (resource == null || resource.data.participants == null || request.auth.uid in resource.data.participants) ||
-          postId.matches('.*' + request.auth.uid + '.*')
-        ))
-      );
-
-      allow write: if isAuthenticated() && (
-        postId == 'GLOBAL_COMMUNITY_CHAT' ||
-        (postId.matches('CHAT_.*') && (
-          (resource == null || resource.data.participants == null || request.auth.uid in resource.data.participants) ||
-          postId.matches('.*' + request.auth.uid + '.*')
-        ))
-      );
-
-      // Project posts read (excludes chat documents)
-      allow read: if !postId.matches('CHAT_.*') && postId != 'GLOBAL_COMMUNITY_CHAT';
+      // Feed is publicly readable for project discovery
+      allow read: if true;
 
       // Create: Authenticated users can create posts with their own UID as author
       allow create: if isAuthenticated() && 
@@ -119,6 +101,16 @@ service cloud.firestore {
           request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
         );
       }
+    }
+
+    // =========================================================================
+    // 4. REPORTS (/reports/{reportId})
+    // - Authenticated users can submit reports
+    // - Reports are strictly write-only (no client reads)
+    // =========================================================================
+    match /reports/{reportId} {
+      allow create: if isAuthenticated() && request.resource.data.reporterUid == request.auth.uid;
+      allow read, update, delete: if false;
     }
 
     // Default deny for all other paths

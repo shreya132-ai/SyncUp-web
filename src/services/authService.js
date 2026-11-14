@@ -9,19 +9,24 @@ import { getAuth, getDb } from './firebase.js';
 import { uploadImage } from './storageService.js';
 
 export const DEMO_USER_CONFIG = {
-  uid: "guest_demo_user",
-  name: "Shreya Sinha",
-  user: "@shreya_sinha",
-  email: "shreya@demo.syncup",
+  name: "Demo Developer (Shreya)",
+  user: "@demo_dev",
   pic: "",
   college: "Amity University Patna",
   edu: "BCA 2nd Sem | Amity University Patna",
-  bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
+  bio: "Passionate developer exploring SyncUp Demo Mode. Looking for teammates to build cool projects!",
   skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
   github: "https://github.com",
   linkedin: "https://linkedin.com",
-  blockedUsers: []
+  blockedUsers: [],
+  hiddenPosts: []
 };
+
+export async function signInAnonymously() {
+  const auth = getAuth();
+  if (!auth) throw new Error("Auth service unavailable");
+  return await auth.signInAnonymously();
+}
 
 export async function signIn(email, password) {
   const auth = getAuth();

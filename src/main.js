@@ -19,7 +19,7 @@ import { showToast } from './ui/toast.js';
 import { openSheet, closeSheet } from './ui/sheet.js';
 import { renderFeed, renderRightRail } from './ui/feed.js';
 import { renderExplore } from './ui/explore.js';
-import { renderInbox, switchInboxTab, filterContacts } from './ui/inbox.js';
+import { renderInbox, switchInboxTab, filterContacts, calculateInboxBadge } from './ui/inbox.js';
 import { renderProfile } from './ui/profile.js';
 import { updateTopNavAndSidebar, navigateTo, switchTab, toggleMobileSidebar } from './ui/nav.js';
 import {
@@ -57,6 +57,24 @@ let currentChatDocId = null;
 function renderAll(state) {
   updateTopNavAndSidebar(state);
 
+  // Synchronize inbox notification badges across desktop sidebar & mobile bottom nav
+  const badgeCount = calculateInboxBadge(state);
+  const sideBadge = document.getElementById('inbox-sidebar-badge');
+  const mobBadge = document.getElementById('inbox-mobile-badge');
+  const tabAppsBadge = document.getElementById('inbox-tab-apps-badge');
+  if (sideBadge) {
+    sideBadge.innerText = badgeCount;
+    sideBadge.style.display = badgeCount > 0 ? 'inline-block' : 'none';
+  }
+  if (mobBadge) {
+    mobBadge.innerText = badgeCount;
+    mobBadge.style.display = badgeCount > 0 ? 'inline-block' : 'none';
+  }
+  if (tabAppsBadge) {
+    tabAppsBadge.innerText = badgeCount;
+    tabAppsBadge.style.display = badgeCount > 0 ? 'inline-block' : 'none';
+  }
+
   const currentView = state.ui ? state.ui.currentView : 'landing';
   const currentTab = state.ui ? state.ui.currentTab : 'home';
 
@@ -88,8 +106,12 @@ function initFeedSubscription() {
       store.setPosts(posts);
     },
     (err) => {
-      console.warn("Feed stream active in local cached mode:", err.message);
-      store.setUi({ loading: { feed: false } });
+      console.warn("[Feed] Real-time stream notice:", err.message);
+      store.setUi({
+        error: { feed: err.message || "Failed to load live project posts." },
+        loading: { feed: false }
+      });
+      showToast({ message: "Unable to load live feed. Tap Retry to reconnect.", icon: "⚠️", type: "error" });
     }
   );
 }
@@ -306,7 +328,25 @@ function init() {
   authService.onAuthStateChanged((firebaseUser) => {
     const state = store.getState();
     if (firebaseUser) {
-      if (state.user && state.user.uid === 'guest_demo_user') {
+      if (firebaseUser.isAnonymous) {
+        if (!state.user || state.user.uid !== firebaseUser.uid) {
+          const demoUser = {
+            uid: firebaseUser.uid,
+            isDemo: true,
+            isAnonymous: true,
+            name: (state.user && state.user.name) || "Demo Developer (Shreya)",
+            user: (state.user && state.user.user) || "@demo_dev",
+            email: "",
+            pic: "",
+            college: "Amity University Patna",
+            edu: "BCA 2nd Sem | Amity University Patna",
+            bio: "Passionate developer exploring SyncUp Demo Mode.",
+            skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
+            blockedUsers: [],
+            hiddenPosts: []
+          };
+          store.setUser(demoUser);
+        }
         navigateTo('dashboard');
         return;
       }
@@ -322,7 +362,8 @@ function init() {
           bio: "Passionate developer, always eager to learn and build cool projects.",
           skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
           pic: firebaseUser.photoURL || "",
-          blockedUsers: []
+          blockedUsers: [],
+          hiddenPosts: []
         };
         store.setUser(finalUser);
         navigateTo('dashboard');
@@ -331,7 +372,7 @@ function init() {
         else navigateTo('landing');
       });
     } else {
-      if (state.user && state.user.uid === 'guest_demo_user') {
+      if (state.user && (state.user.isDemo || state.user.isAnonymous)) {
         navigateTo('dashboard');
         return;
       }
@@ -396,10 +437,15 @@ window.SyncUpUIAuth = {
   logout
 };
 
+window.SyncUpUIFeed = {
+  renderFeed,
+  renderRightRail
+};
+
 window.SyncUpUIInbox = {
   renderInbox,
   switchInboxTab,
-  calculateInboxBadge: () => store.getState() ? 0 : 0
+  calculateInboxBadge: () => calculateInboxBadge(store.getState())
 };
 
 window.SyncUpUIModals = {

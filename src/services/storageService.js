@@ -15,6 +15,8 @@ export function isBase64Image(str) {
   if (!str || typeof str !== 'string') return false;
   return str.startsWith('data:image/');
 }
+
+/**
  * Returns the public HTTPS download URL.
  * MIGRATION NOTE: Existing legacy documents may still have base64 strings in their 'img' field.
  * Both Storage HTTPS URLs and legacy base64 data URLs are supported seamlessly by the UI.

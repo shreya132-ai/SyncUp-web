@@ -12,13 +12,14 @@
 import { escapeHtml } from '../utils/dom.js';
 
 export function calculateInboxBadge(state) {
+  if (!state) return 0;
   let count = 0;
   const currentUid = state.user ? state.user.uid : '';
   const userHandle = state.user ? state.user.user : '';
 
-  // Count pending applications received on user's posts
+  // 1. Count pending applications received on user's own posts
   const myPosts = (state.posts || []).filter(p => {
-    return (p.userUid && p.userUid === currentUid) || (userHandle && p.userHandle === userHandle);
+    return (currentUid && p.userUid === currentUid) || (userHandle && p.userHandle === userHandle);
   });
 
   myPosts.forEach(p => {
@@ -34,6 +35,29 @@ export function calculateInboxBadge(state) {
         if (a.status === 'pending') count++;
       });
     });
+  }
+
+  // 2. Count unread chat messages
+  if (state.chats) {
+    if (Array.isArray(state.chats.contacts)) {
+      state.chats.contacts.forEach(c => {
+        if (typeof c.unread === 'number' && c.unread > 0) {
+          count += c.unread;
+        }
+      });
+    }
+    if (state.chats.threads) {
+      Object.keys(state.chats.threads).forEach(key => {
+        const msgs = state.chats.threads[key];
+        if (Array.isArray(msgs)) {
+          msgs.forEach(m => {
+            if (!m.isMe && m.read === false) {
+              count++;
+            }
+          });
+        }
+      });
+    }
   }
 
   return count;

@@ -81,6 +81,7 @@ export function renderPostCard(p, state) {
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
+          ${p.isDemo ? `<span class="status-badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Demo</span>` : ''}
           <span class="status-badge ${statusBadgeClass}">${statusBadgeText}</span>
           <div style="position:relative;">
             <button class="btn-icon" onclick="window.SyncUpApp.toggleDropdown('${p.id}')" title="Options" aria-label="Post options">···</button>
@@ -135,7 +136,7 @@ export function renderPostCard(p, state) {
               📥 Applications (${appCount})
             </button>
           ` : (hasApplied ? `
-            <button class="btn btn-primary" style="font-size:0.86rem; padding:6px 16px; opacity:0.6; cursor:default;" disabled>
+            <button class="btn btn-primary" style="font-size:0.86rem; padding:6px 16px; opacity:0.6; cursor:default;" disabled title="You have submitted an application to this project">
               Applied ✓
             </button>
           ` : `

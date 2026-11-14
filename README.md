@@ -110,8 +110,7 @@ SyncUp-Project/
 ├── firestore.rules                       # Cloud Firestore security rules
 ├── storage.rules                         # Firebase Storage security rules
 ├── firebase.json                         # Firebase project configuration (Hosting, Rules)
-├── index.html                            # Primary web application HTML entry point
-├── syncup.html                           # Synchronized secondary web entry point
+├── index.html                            # Primary web application HTML entry point (single entry point)
 ├── start.bat                             # One-click Windows launch script
 ├── DEPLOY.md                             # Production deployment & operations guide
 ├── TESTER_GUIDE.md                       # Plain-language manual QA testing walkthrough

@@ -8,7 +8,8 @@
  * 3. Flow 3: Post -> Manage
  * 4. Accessibility standards (ARIA, keyboard navigation, focus trap, visible focus, contrast)
  * 5. Performance optimizations (feed pagination, render memoization, lazy image loading, search debounce)
- * 6. Firestore Security Rules file validation
+ * 6. Firestore Security Rules file validation (users, posts, chats, reports)
+ * 7. JavaScript Syntax Integrity Validation (parsing all modules and scripts)
  */
 
 const fs = require('fs');
@@ -128,6 +129,8 @@ const mockWindow = {
     },
     scrollTo() {},
     requestAnimationFrame(cb) { return setTimeout(cb, 0); },
+    addEventListener() {},
+    removeEventListener() {},
     setTimeout,
     clearTimeout,
     setInterval,
@@ -147,6 +150,7 @@ mockWindow.window = mockWindow;
 
 // Global Firebase Mock
 mockWindow.firebase = {
+    apps: [],
     firestore: {
         FieldValue: {
             serverTimestamp: () => Date.now(),
@@ -154,63 +158,35 @@ mockWindow.firebase = {
             arrayUnion: (item) => [item],
             arrayRemove: (item) => []
         }
-    }
+    },
+    auth: () => ({
+        currentUser: { uid: 'user_priya', email: 'priya@patna.edu', emailVerified: true },
+        signInAnonymously: async () => ({ user: { uid: 'anon_demo_user_' + Date.now(), isAnonymous: true } })
+    })
 };
 
-mockWindow.SyncUpFirebase = {
-    db: {
-        collection: () => ({
-            doc: () => ({
-                set: async () => {},
-                update: async () => {},
-                delete: async () => {},
-                get: async () => ({ exists: false }),
-                onSnapshot: (cb) => { cb([]); return () => {}; }
-            }),
-            onSnapshot: (cb) => { cb([]); return () => {}; }
-        })
-    },
-    auth: {
-        currentUser: { uid: 'user_priya', email: 'priya@patna.edu', emailVerified: true }
-    },
-    storage: null
-};
-
-// Load project scripts into VM context
-const scriptsToLoad = [
-    'js/utils.js',
-    'js/toast.js',
-    'js/sheet.js',
-    'js/data-service.js',
-    'js/store.js',
-    'js/ui-feed.js',
-    'js/ui-inbox.js',
-    'js/ui-uploads.js',
-    'js/ui-chat.js',
-    'js/ui-profile.js',
-    'js/ui-modals.js',
-    'js/ui-auth.js',
-    'js/app.js'
-];
-
-const ctx = vm.createContext(mockWindow);
-
-scriptsToLoad.forEach(scriptPath => {
-    const fullPath = path.join(__dirname, scriptPath);
-    const code = fs.readFileSync(fullPath, 'utf8');
-    vm.runInContext(code, ctx, { filename: scriptPath });
-});
+// Set Node Globals for ES Module execution
+global.window = mockWindow;
+global.document = mockDocument;
+global.localStorage = mockWindow.localStorage;
+global.firebase = mockWindow.firebase;
+global.requestAnimationFrame = mockWindow.requestAnimationFrame;
+global.scrollTo = mockWindow.scrollTo;
 
 console.log("\n=======================================================");
 console.log("SYNCUP PHASE 5: QUALITY PASS AUTOMATED TEST SUITE");
 console.log("=======================================================\n");
 
 async function runTestSuite() {
-    const store = ctx.SyncUpStore;
-    const sheet = ctx.SyncUpSheet;
-    const app = ctx.SyncUpApp;
-    const uiFeed = ctx.SyncUpUIFeed;
-    const uiInbox = ctx.SyncUpUIInbox;
+    // Dynamically import the application bootstrap ES module
+    await import('./src/main.js');
+
+    const store = mockWindow.SyncUpStore;
+    const sheet = mockWindow.SyncUpSheet;
+    const app = mockWindow.SyncUpApp;
+    const uiFeed = mockWindow.SyncUpUIFeed;
+    const uiInbox = mockWindow.SyncUpUIInbox;
+    const uiModals = mockWindow.SyncUpUIModals;
 
     // Set initial test user (Sneha)
     store.setUser({
@@ -304,7 +280,6 @@ async function runTestSuite() {
     assert(inboxContainer.innerHTML.includes('ACCEPTED ✓'), `Inbox status chip updated to "ACCEPTED ✓"`);
 
     // 2.4 Verify automatic 1-on-1 direct chat creation
-    // The store's updateApplicationStatus triggers triggerDirectChatCTA and sendMessage on accept
     await new Promise(r => setTimeout(r, 350));
     const stateChat = store.getState();
     assert(stateChat.chats.activeContact !== null, `Direct chat session initiated`);
@@ -336,7 +311,7 @@ async function runTestSuite() {
     skillsInput.value = 'Rust, Libp2p, Cryptography, IPFS';
     statusInput.value = 'Recruiting';
 
-    ctx.SyncUpUIModals.updateLivePostPreview();
+    uiModals.updateLivePostPreview();
 
     const prevTitle = getOrCreateMockElement('prev-title');
     const prevDesc = getOrCreateMockElement('prev-desc');
@@ -387,7 +362,6 @@ async function runTestSuite() {
     // ---------------------------------------------------------------------------
     console.log("\n▶ TEST SUITE 4: Accessibility Validation");
 
-    // 4.1 Check all sheets have proper ARIA attributes in index.html
     const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
     const sheetIds = [
         'sheet-create-post',
@@ -409,11 +383,12 @@ async function runTestSuite() {
     assert(indexHtml.includes('class="skip-to-content"'), `Index contains skip-to-content anchor link`);
     assert(indexHtml.includes('id="main-feed-column" tabindex="-1"'), `Main feed column has id="main-feed-column" and tabindex="-1"`);
 
-    // 4.3 Focus-visible ring
-    const variablesCss = fs.readFileSync(path.join(__dirname, 'css/variables.css'), 'utf8');
-    assert(variablesCss.includes(':focus-visible'), `CSS defines :focus-visible ring styles`);
-    assert(variablesCss.includes('--color-primary-btn: #087F5B'), `Brand primary button token defined as #087F5B`);
-    assert(variablesCss.includes('--color-accent: #10B981'), `Accent token #10B981 designated for fills/icons only`);
+    // 4.3 Focus-visible ring & Design Tokens
+    const baseCss = fs.readFileSync(path.join(__dirname, 'styles/base.css'), 'utf8');
+    const tokensCss = fs.readFileSync(path.join(__dirname, 'styles/tokens.css'), 'utf8');
+    assert(baseCss.includes(':focus-visible'), `CSS defines :focus-visible ring styles`);
+    assert(tokensCss.includes('--color-primary-btn: #087F5B'), `Brand primary button token defined as #087F5B`);
+    assert(tokensCss.includes('--color-accent: #10B981'), `Accent token #10B981 designated for fills/icons only`);
 
     // 4.4 Form labels
     assert(indexHtml.includes('<label for="inp-name"'), `Register name field has linked <label for="inp-name">`);
@@ -421,7 +396,7 @@ async function runTestSuite() {
     assert(indexHtml.includes('aria-label="Search skills, projects, or users"'), `Global search input has descriptive aria-label`);
 
     // 4.5 Toast accessibility
-    const toastJs = fs.readFileSync(path.join(__dirname, 'js/toast.js'), 'utf8');
+    const toastJs = fs.readFileSync(path.join(__dirname, 'src/ui/toast.js'), 'utf8');
     assert(toastJs.includes("aria-live', 'polite'"), `Toast container implements aria-live="polite"`);
     assert(toastJs.includes("role', type === 'error' ? 'alert' : 'status'"), `Toast items implement role="alert" or role="status"`);
 
@@ -431,7 +406,7 @@ async function runTestSuite() {
     console.log("\n▶ TEST SUITE 5: Performance Optimizations");
 
     // 5.1 Feed pagination limit
-    const storeJs = fs.readFileSync(path.join(__dirname, 'js/store.js'), 'utf8');
+    const storeJs = fs.readFileSync(path.join(__dirname, 'src/store/store.js'), 'utf8');
     assert(storeJs.includes('feedLimit: 20'), `Store state defines feedLimit: 20`);
     assert(storeJs.includes('loadMorePosts'), `Store exposes loadMorePosts action`);
 
@@ -468,13 +443,13 @@ async function runTestSuite() {
     assert(feedContainer.innerHTML === 'FLAG_UNTOUCHED', `renderFeed skips re-render when state has not changed (memoization verified)`);
 
     // 5.4 Search debouncing
-    const appJs = fs.readFileSync(path.join(__dirname, 'js/app.js'), 'utf8');
-    assert(appJs.includes('searchDebounceTimer'), `app.js implements search debouncing timer`);
-    assert(appJs.includes('setTimeout') && appJs.includes('250'), `Search debounce interval configured at 250ms`);
+    const mainJs = fs.readFileSync(path.join(__dirname, 'src/main.js'), 'utf8');
+    assert(mainJs.includes('searchDebounceTimer'), `src/main.js implements search debouncing timer`);
+    assert(mainJs.includes('setTimeout') && mainJs.includes('250'), `Search debounce interval configured at 250ms`);
 
     // 5.5 Lazy loading on images
-    const uiFeedJs = fs.readFileSync(path.join(__dirname, 'js/ui-feed.js'), 'utf8');
-    assert(uiFeedJs.includes('loading="lazy"') && uiFeedJs.includes('decoding="async"'), `ui-feed.js images include loading="lazy" and decoding="async"`);
+    const postCardJs = fs.readFileSync(path.join(__dirname, 'src/ui/postCard.js'), 'utf8');
+    assert(postCardJs.includes('loading="lazy"') && postCardJs.includes('decoding="async"'), `postCard.js images include loading="lazy" and decoding="async"`);
 
     // ---------------------------------------------------------------------------
     // TEST SUITE 6: FIRESTORE SECURITY RULES
@@ -492,6 +467,32 @@ async function runTestSuite() {
     assert(rulesContent.includes("applications"), `Rules explicitly govern the 'applications' array`);
     assert(rulesContent.includes("match /chats/{chatId}"), `Rules secure chats collection`);
     assert(rulesContent.includes("isChatParticipant"), `Direct chats are restricted strictly to conversation participants`);
+    assert(rulesContent.includes("match /reports/{reportId}"), `Rules secure reports collection (write-only by authenticated users)`);
+
+    // ---------------------------------------------------------------------------
+    // TEST SUITE 7: JAVASCRIPT SYNTAX INTEGRITY VALIDATION
+    // ---------------------------------------------------------------------------
+    console.log("\n▶ TEST SUITE 7: JavaScript Syntax Integrity Validation");
+
+    const { execSync } = require('child_process');
+
+    function checkDirRecursively(dir) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                if (entry.name !== 'node_modules' && entry.name !== '.git') {
+                    checkDirRecursively(full);
+                }
+            } else if (entry.isFile() && entry.name.endsWith('.js')) {
+                execSync(`node --check "${full}"`, { stdio: 'pipe' });
+                assert(true, `Syntax valid for ${entry.name}`);
+            }
+        }
+    }
+
+    checkDirRecursively(path.join(__dirname, 'src'));
+    checkDirRecursively(path.join(__dirname, 'scripts'));
 
     console.log("\n=======================================================");
     console.log(`TEST SUITE RESULTS: ${passedTests} / ${totalTests} assertions passed (${Math.round(passedTests/totalTests*100)}%)`);

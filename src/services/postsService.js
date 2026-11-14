@@ -143,3 +143,22 @@ export async function updateApplicationStatus(postId, updatedApplicationsArray) 
     applications: updatedApplicationsArray
   });
 }
+
+/**
+ * Submits a post violation report to the /reports/ collection.
+ */
+export async function reportPost(reportData) {
+  const db = getDb();
+  if (!db) return;
+
+  const FieldValue = window.firebase?.firestore?.FieldValue;
+  const createdAt = FieldValue ? FieldValue.serverTimestamp() : new Date().toISOString();
+
+  await db.collection("reports").add({
+    postId: reportData.postId,
+    reporterUid: reportData.reporterUid,
+    reason: reportData.reason || "Other",
+    details: reportData.details || "",
+    createdAt: createdAt
+  });
+}

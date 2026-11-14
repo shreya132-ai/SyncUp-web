@@ -6,7 +6,7 @@
  * Triggers onboarding modal upon new registration.
  */
 
-import { signIn, signUp, signOut, getUserProfile, saveUserProfile, DEMO_USER_CONFIG } from '../services/authService.js';
+import { signIn, signUp, signOut, signInAnonymously, getUserProfile, saveUserProfile, DEMO_USER_CONFIG } from '../services/authService.js';
 import { setUser, getState } from '../store/store.js';
 import { showToast } from './toast.js';
 import { openOnboarding } from './onboarding.js';
@@ -54,30 +54,41 @@ export function togglePasswordVisibility(inputId) {
 }
 
 export async function continueAsDemoGuest() {
+  showToast({ message: "Connecting to SyncUp Demo Session...", icon: "⏳", type: "info" });
+
+  let realUid = null;
+  try {
+    const cred = await signInAnonymously();
+    if (cred && cred.user) {
+      realUid = cred.user.uid;
+    }
+  } catch (err) {
+    console.warn("[Auth] Anonymous Auth notice (local mode active):", err.message);
+  }
+
+  const finalUid = realUid || ("demo_" + Date.now().toString(36));
+
   const demoUser = {
-    uid: "guest_demo_user",
-    name: "Shreya Sinha",
-    user: "@shreya_sinha",
-    email: "shreya@demo.syncup",
+    uid: finalUid,
+    isDemo: true,
+    isAnonymous: true,
+    name: DEMO_USER_CONFIG.name || "Demo Developer (Shreya)",
+    user: DEMO_USER_CONFIG.user || "@demo_dev",
+    email: "",
     pic: "",
-    college: "Amity University Patna",
-    edu: "BCA 2nd Sem | Amity University Patna",
-    bio: "Passionate developer, always eager to learn and build cool projects. Looking for teammates to work on exciting ideas!",
-    skills: ["Java", "Python", "React", "HTML/CSS", "UI/UX", "Git"],
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    blockedUsers: []
+    college: DEMO_USER_CONFIG.college || "Amity University Patna",
+    edu: DEMO_USER_CONFIG.edu || "BCA 2nd Sem | Amity University Patna",
+    bio: DEMO_USER_CONFIG.bio || "Passionate developer exploring SyncUp Demo Mode.",
+    skills: [...(DEMO_USER_CONFIG.skills || ["Java", "Python", "React"])],
+    github: DEMO_USER_CONFIG.github || "https://github.com",
+    linkedin: DEMO_USER_CONFIG.linkedin || "https://linkedin.com",
+    blockedUsers: [],
+    hiddenPosts: []
   };
 
   setUser(demoUser);
   window.SyncUpApp?.navigateTo('dashboard');
   showToast({ message: `👋 Welcome to SyncUp Demo Mode, ${demoUser.name}!`, icon: "🚀", type: "success" });
-
-  try {
-    await signIn(DEMO_USER_CONFIG.email, DEMO_USER_CONFIG.password);
-  } catch (e) {
-    console.log("Firebase Auth demo session notice (offline persistence active):", e.message);
-  }
 }
 
 export function handleGoogleSignIn() {
