@@ -4,10 +4,13 @@
  * Layer 1 UI Component: Explore & Discovery View
  * Supports search plus browse by skill chips with counts, and browse by category cards.
  * Renders matching project cards using renderPostCard.
+ * Category cards and filters use semantic button elements.
+ * Lucide inline SVGs used for iconography.
  */
 
 import { renderPostCard } from './postCard.js';
 import { escapeHtml } from '../utils/dom.js';
+import { getIcon } from '../utils/icons.js';
 
 export function renderExplore(state) {
   const container = document.getElementById('subview-explore');
@@ -37,7 +40,10 @@ export function renderExplore(state) {
 
   container.innerHTML = `
     <div class="explore-hero-card">
-      <h2>🧭 Discover Teams & Projects</h2>
+      <h2 style="display:flex; align-items:center; gap:8px;">
+        ${getIcon('compass', { size: 24, stroke: '#FFFFFF' })}
+        <span>Discover Teams & Projects</span>
+      </h2>
       <p>Find teammates across colleges, join hackathon teams, and collaborate on exciting open source software.</p>
       
       <div class="explore-search-bar">
@@ -46,25 +52,25 @@ export function renderExplore(state) {
 
       <!-- Browse by Skill Pills with Counts -->
       <div style="margin-top:16px;">
-        <div style="font-size:0.8rem; font-weight:700; color:#A7F3D0; text-transform:uppercase; margin-bottom:8px;">Browse by Skill:</div>
+        <div style="font-size:var(--font-size-12); font-weight:700; color:#A7F3D0; text-transform:uppercase; margin-bottom:8px;">Browse by Skill:</div>
         <div class="explore-quick-tags">
           ${topSkills.map(s => `
-            <button type="button" class="explore-tag-pill filter-chip-btn" onclick="window.SyncUpApp.handleSearch('${escapeHtml(s)}')">
-              ${escapeHtml(s)} <span style="opacity:0.8; font-size:0.75rem;">(${skillCounts[s]})</span>
+            <button type="button" class="explore-tag-pill filter-chip-btn" data-action="search-tag" data-tag="${escapeHtml(s)}">
+              ${escapeHtml(s)} <span style="opacity:0.8; font-size:var(--font-size-12);">(${skillCounts[s]})</span>
             </button>
           `).join('')}
         </div>
       </div>
 
-      <!-- Browse by Category Cards -->
+      <!-- Browse by Category Cards (Accessible Buttons) -->
       <div style="margin-top:20px;">
-        <div style="font-size:0.8rem; font-weight:700; color:#A7F3D0; text-transform:uppercase; margin-bottom:8px;">Browse by Category:</div>
+        <div style="font-size:var(--font-size-12); font-weight:700; color:#A7F3D0; text-transform:uppercase; margin-bottom:8px;">Browse by Category:</div>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px;">
           ${categories.map(c => `
-            <div class="explore-category-card" onclick="window.SyncUpApp.filterByCategory('${c}'); window.SyncUpApp.switchTab('home');" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:10px 12px; cursor:pointer; text-align:center;">
-              <div style="font-weight:700; font-size:0.88rem; color:#FFFFFF;">${c}</div>
-              <div style="font-size:0.75rem; color:#A7F3D0; margin-top:2px;">${categoryCounts[c]} projects</div>
-            </div>
+            <button type="button" class="explore-category-card" data-action="filter-category" data-category="${escapeHtml(c)}" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:10px 12px; cursor:pointer; text-align:center; color:inherit; font-family:inherit;">
+              <div style="font-weight:700; font-size:var(--font-size-14); color:#FFFFFF;">${escapeHtml(c)}</div>
+              <div style="font-size:var(--font-size-12); color:#A7F3D0; margin-top:2px;">${categoryCounts[c]} projects</div>
+            </button>
           `).join('')}
         </div>
       </div>
@@ -72,10 +78,10 @@ export function renderExplore(state) {
 
     ${searchTerm ? `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:0 4px;">
-        <div style="font-size:0.9rem; color:var(--color-text-secondary);">
+        <div style="font-size:var(--font-size-14); color:var(--color-text-secondary);">
           Showing results for "<strong>${escapeHtml(searchTerm)}</strong>"
         </div>
-        <button class="btn btn-outline" style="padding:3px 10px; font-size:0.75rem;" onclick="window.SyncUpApp.handleSearch('')">✕ Clear Filter</button>
+        <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:var(--font-size-12);" data-action="clear-search">✕ Clear Filter</button>
       </div>
     ` : ''}
 
@@ -100,10 +106,10 @@ export function renderExplore(state) {
     if (!filtered.length) {
       exploreStream.innerHTML = `
         <div class="empty-state">
-          <div style="font-size:2.5rem; margin-bottom:12px;">🧭</div>
-          <h3>No projects match your search</h3>
-          <p style="color:var(--color-text-secondary); margin-top:6px;">Try another keyword or skill tag.</p>
-          <button class="btn btn-primary" style="margin-top:14px;" onclick="window.SyncUpApp.handleSearch('')">View All Projects</button>
+          <div style="margin-bottom:12px; color:var(--color-text-muted);">${getIcon('compass', { size: 40 })}</div>
+          <h3 style="color:var(--color-text);">No projects match your search</h3>
+          <p style="color:var(--color-text-secondary); margin-top:6px; font-size:var(--font-size-14);">Try another keyword or skill tag.</p>
+          <button type="button" class="btn btn-primary" style="margin-top:14px;" data-action="clear-search">View All Projects</button>
         </div>
       `;
     } else {

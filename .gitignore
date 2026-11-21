@@ -1,0 +1,4 @@
+.tmp-edge-profile/
+node_modules/
+lighthouse-report.json
+*.log

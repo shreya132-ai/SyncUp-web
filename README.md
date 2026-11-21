@@ -83,7 +83,7 @@ SyncUp-Project/
 │   │   ├── chatService.js                # Real-time message streaming & sending
 │   │   ├── firebase.js                   # Firebase SDK init & IndexedDB offline cache
 │   │   ├── postsService.js               # Feed query, post creation, like, comment, apply
-│   │   └── storageService.js             # Image upload to Firebase Storage (< 70 KB)
+│   │   └── storageService.js             # Compressed Storage uploads (avatars < 70 KB, posts < 150 KB)
 │   ├── store/                            # Layer 2: Central State Store
 │   │   └── store.js                      # Single source of truth & optimistic mutations
 │   ├── ui/                               # Layer 1: Presentation Components
@@ -99,8 +99,8 @@ SyncUp-Project/
 │   │   ├── sheet.js                      # Reusable <Sheet> component (mobile sheet / desktop modal)
 │   │   └── toast.js                      # Accessible toast notifications with Undo action
 │   └── utils/                            # Pure Helper Utilities
-│       ├── dom.js                        # HTML escaping, element creation, & relative timestamps
-│       ├── imageCompress.js              # HTML5 Canvas client-side compression (< 70 KB)
+│       ├── dom.js                        # HTML escaping, element creation, safeUrl, & relative timestamps
+│       ├── imageCompress.js              # HTML5 Canvas iterative compression (avatars < 70KB, posts < 150KB)
 │       └── wordCount.js                  # 100-word limit counter with 90/100 threshold styling
 ├── styles/                               # Layered Design System Stylesheets
 │   ├── tokens.css                        # Design tokens (Colors, 8px grid, typography, radii, touch)
@@ -171,6 +171,86 @@ Expected result: **47 / 47 tests passed (100%)**.
 
 ---
 
-## 🔒 Security Summary
-* **Firestore Security Rules (`firestore.rules`):** Users can only edit/delete their own posts and profile. Direct chats are strictly private between participants. Non-owners are forbidden from accepting or declining applications.
-* **Storage Security Rules (`storage.rules`):** Image uploads are restricted to authenticated users, image MIME types (`image/*`), and a 5 MB maximum file ceiling (client compresses images to < 70 KB).
+## 🔒 Security Architecture & Hardening Guide
+
+SyncUp employs a multi-tiered, defense-in-depth security model spanning DOM sanitization, client-side event delegation, strict Firebase Security Rules, and cloud infrastructure safeguards:
+
+### 1. XSS Prevention & Event Delegation
+* **Elimination of Inline JavaScript Handlers:** All dynamic elements across the Feed, Inbox, Modals, Profile, and Explore views are refactored from inline `onclick` string handlers to declarative `data-action` and `data-*` attributes.
+* **Single Centralized Event Delegator:** A single master click listener attached to `document` intercepts actions (such as `like-post`, `apply-team`, `chat-cta`, `update-app-status`), completely preventing attribute-decoding XSS execution.
+* **Context-Aware Escaping:** `escapeHtml` is strictly preserved for raw text rendering and attribute values, preventing tag injection while avoiding JavaScript evaluation of unescaped HTML entities.
+
+### 2. URL Safety Sanitization (`safeUrl`)
+* **Strict Protocol Enforcement:** The `safeUrl(u)` helper verifies all candidate URLs using the standard `new URL()` parser, strictly permitting only `http:` and `https:` schemes.
+* **Dangerous Schemes Blocked:** Protocol vectors such as `javascript:`, `data:text/html`, and `vbscript:` are immediately rejected and return an empty string.
+* **Write & Render Validation:** Applied across all GitHub repository links (`githubUrl`), live project demo links (`demoUrl`), author avatar photos, and project screenshots before being written to Firestore or rendered into `href` or `src` attributes. External links always include `rel="noopener noreferrer" target="_blank"`.
+
+### 3. Hardened Cloud Firestore Security Rules (`firestore.rules`)
+Each rule enforces strict boundary checks and least-privilege access:
+* **Likes Subcollection (`posts/{id}/likes/{uid}`):**
+  * *Doc ID == auth.uid:* Guarantees exactly one like per user without distributed race conditions.
+  * *Owner-Only Mutations:* Users can only `create` or `delete` their own like document (`request.auth.uid == uid`). Updates are denied.
+* **Comments Subcollection (`posts/{id}/comments/{commentId}`):**
+  * *Author Identity:* Authenticated creation requires `request.resource.data.authorUid == request.auth.uid`.
+  * *Size Limits:* Comment text is limited to 1–500 characters.
+  * *Author-Only Delete:* Only the comment author can delete their comment. Updates are denied.
+* **Applications Subcollection (`posts/{id}/applications/{appId}`):**
+  * *Privacy Isolation:* Fixes the privacy leak where pitches sat in public post documents. Third parties cannot read another candidate's application.
+  * *Applicant Read:* Applicants can read only their own application (`resource.data.applicantUid == request.auth.uid`).
+  * *Owner Read & Triage:* The project lead can read all applications for their post and has exclusive authorization to update application status to `'accepted'` or `'declined'`.
+  * *Pending on Create:* New applications must be created with `status == 'pending'` and pitch `<= 1000` characters.
+* **Project Posts (`posts/{postId}`):**
+  * *Field Validation:* Validates post title (`<= 120` chars), description (`<= 800` chars), skills array (`<= 10` tags), and status (`Recruiting`, `In Progress`, `Completed`).
+  * *Immutable Author:* Post owners cannot alter the `userUid` field during updates.
+* **User Profiles (`users/{userId}`):**
+  * *Private Field Protection:* The public user profile document excludes email addresses to prevent data harvesting. Private account information resides in `/users/{userId}/private/account`, readable and writable exclusively by the account owner.
+  * *Username Uniqueness (`usernames/{handle}`):* Manages claim mappings to guarantee unique user handles across the platform.
+* **Default Deny:** All unmapped documents and collections default to `allow read, write: if false;`.
+
+### 4. Firebase Storage Rules (`storage.rules`)
+* **Authenticated Access Only:** All uploads require an active Firebase Auth session (`request.auth != null`).
+* **Content-Type & Size Ceilings:** Strict MIME checking (`image/*`) and a 500 KB maximum file limit (`< 500 * 1024`).
+* **Path-Based Ownership:** Users can write only to their own designated storage locations:
+  * Avatars: `avatars/{uid}.jpg` (strictly `request.auth.uid == userId`)
+  * Post images: `posts/{uid}/...` (strictly `request.auth.uid == userId`)
+* **Default Deny:** All other bucket paths are denied.
+
+### 5. Client-Side Image Compression with Enforced Targets
+* **Iterative Compression Loop:** HTML5 Canvas compressor (`src/utils/imageCompress.js`) loops reducing JPEG quality (from 0.85 down to 0.4) and dimensions iteratively until the target byte size is met:
+  * **Avatar Images:** Compressed to strictly `< 70 KB` (max 400×400px).
+  * **Post Screenshots:** Compressed to strictly `< 150 KB` (max 1200×1200px).
+* **Graceful Failure:** If an oversized or corrupted image cannot be compressed under the threshold, it rejects with a user-friendly error toast instead of crashing or exceeding storage rules.
+
+### 6. Content Security Policy (CSP) & External Link Hardening
+* **CSP `<meta>` Tag:** Enforces least-privilege origins tailored to Firebase SDKs and Google Fonts:
+  * `default-src 'self'`
+  * `script-src 'self' 'unsafe-inline' https://www.gstatic.com`
+  * `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`
+  * `font-src 'self' https://fonts.gstatic.com`
+  * `img-src 'self' data: blob: https://www.gstatic.com https://firebasestorage.googleapis.com https://*.googleusercontent.com`
+  * `connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com`
+  * `object-src 'none'; base-uri 'self'`
+* **External Link Hardening:** All outbound links (GitHub, LinkedIn, live demos) enforce `rel="noopener noreferrer" target="_blank"` to eliminate tab-napping and reverse tab exploitation.
+
+### 7. Firebase Web API Keys & Production Console Hardening
+> [!IMPORTANT]
+> **Firebase Web API Keys are Public by Design:**
+> In the Firebase Web Client architecture, the `apiKey` specified in `firebase.js` is merely a project identifier passed to Google backend APIs to route requests to your Firebase project. It is **not** a secret administrative key and cannot be used by itself to bypass security rules or download private data. Security in Firebase is enforced strictly through **Firestore Security Rules**, **Storage Security Rules**, and **Firebase Authentication JWT tokens**.
+
+#### Recommended Production Console Checklist:
+1. **Restrict Authorized Domains:**
+   * Go to **Firebase Console > Authentication > Settings > Authorized Domains**.
+   * In production, remove `localhost` and authorize only your verified domain (e.g. `shreya132-ai.github.io`).
+   * In **Google Cloud Console > APIs & Services > Credentials**, locate your Browser API Key and add an **HTTP Referrer restriction** (e.g. `https://shreya132-ai.github.io/*`).
+2. **Enable Firebase App Check (Recommended):**
+   * Navigate to **Firebase Console > App Check**.
+   * Register your web app with **reCAPTCHA Enterprise** or **reCAPTCHA v3**.
+   * Enforce App Check for Cloud Firestore and Firebase Storage to protect backend endpoints against abusive bots and automated scraping.
+3. **Configure Google Cloud Budget Alerts & Quota Caps:**
+   * In **Google Cloud Console > Billing > Budgets & Alerts**, set a monthly spending limit (e.g. $10 or $25) with alerts at 50%, 90%, and 100%.
+   * In Cloud Firestore Quotas, configure daily read/write rate limit alerts to protect against unexpected traffic surges.
+
+### 8. Client-Side Rate Limiting & Debouncing
+* **Button Locks While Pending:** Project post publishing (`#btn-submit-post`), team applications (`#btn-submit-application`), profile saves (`#btn-save-profile`), and reports disable submit buttons immediately upon click, preventing duplicate network requests and double-submits.
+* **Debounced Search:** Global search and explore filters use a 250ms debounce timer to prevent firing redundant filter recalculations on every keystroke.
+* **In-Flight Action Guards:** Like actions and comment submissions maintain in-flight tracking sets and minimum cooldowns (1000ms for comments, 350ms for likes) to prevent button spamming.

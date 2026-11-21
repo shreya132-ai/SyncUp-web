@@ -4,12 +4,15 @@
  * Layer 1 UI Component: Unified Inbox (Chats + Applications Tabs)
  * - Dynamic Badge Count: computes unread messages + pending applications
  * - Tab 1: Chats (1-on-1 DMs & Global Community Room, typing indicators, read receipts, timestamps)
+ * - Single-Pane Mobile Flow: Contact list first, tap opens conversation full-screen with a Back button
  * - Tab 2: Applications (Received Team Applications + Sent Applications)
  * - Status chips (Pending amber, Accepted green, Declined gray)
  * - Accepting applicant automatically opens a chat with them; Undo toast on decline
+ * - Semantic buttons for contact cards & action delegation
  */
 
-import { escapeHtml } from '../utils/dom.js';
+import { escapeHtml, safeUrl } from '../utils/dom.js';
+import { getIcon } from '../utils/icons.js';
 
 export function calculateInboxBadge(state) {
   if (!state) return 0;
@@ -58,6 +61,13 @@ export function calculateInboxBadge(state) {
         }
       });
     }
+  }
+
+  // 3. Count unread notifications
+  if (Array.isArray(state.notifications)) {
+    state.notifications.forEach(n => {
+      if (!n.read) count++;
+    });
   }
 
   return count;
@@ -169,73 +179,83 @@ export function renderApplicationsTab(state) {
   container.innerHTML = `
     <div style="margin-bottom:28px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 style="font-size:1.15rem; color:var(--color-primary-dark);">
-          📥 Team Applications Received (${receivedApps.length})
+        <h3 style="font-size:var(--font-size-20); color:var(--color-primary-dark); display:flex; align-items:center; gap:8px;">
+          ${getIcon('inbox', { size: 20 })}
+          <span>Team Applications Received (${receivedApps.length})</span>
         </h3>
       </div>
 
       ${!receivedApps.length ? `
         <div class="empty-state" style="padding:32px 20px;">
-          <p style="color:var(--color-text-muted); font-size:0.9rem;">
+          <div style="margin-bottom:8px; color:var(--color-text-muted);">${getIcon('inbox', { size: 36 })}</div>
+          <p style="color:var(--color-text-muted); font-size:var(--font-size-14);">
             No incoming applications on your project posts yet. Create a recruiting post to invite collaborators!
           </p>
         </div>
       ` : `
         <div style="display:flex; flex-direction:column; gap:14px;">
-          ${receivedApps.map(({ app, post, appIndex }) => `
-            <div class="applicant-card">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <div class="author-avatar" style="width:40px; height:40px;">
-                    ${app.applicantPic ? `<img src="${app.applicantPic}" loading="lazy" decoding="async" alt="Applicant" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (app.applicantName ? app.applicantName[0] : 'U')}
+          ${receivedApps.map(({ app, post, appIndex }) => {
+            const applicantAvatarUrl = safeUrl(app.applicantPic);
+            return `
+              <div class="applicant-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="author-avatar" style="width:40px; height:40px;">
+                      ${applicantAvatarUrl ? `<img src="${applicantAvatarUrl}" loading="lazy" decoding="async" alt="Applicant" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (app.applicantName ? escapeHtml(app.applicantName[0]) : 'U')}
+                    </div>
+                    <div>
+                      <div style="font-weight:700; font-size:var(--font-size-14);">
+                        ${escapeHtml(app.applicantName)} 
+                        <span style="font-size:var(--font-size-12); color:var(--color-text-muted); font-weight:normal;">${escapeHtml(app.applicantHandle)}</span>
+                      </div>
+                      <div style="font-size:var(--font-size-12); color:var(--color-text-brand); font-weight:600;">
+                        Applied for: ${escapeHtml(app.role)}
+                      </div>
+                      <div style="font-size:var(--font-size-12); color:var(--color-text-secondary);">
+                        Project: <strong>${escapeHtml(post.title || 'Your Project')}</strong>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div style="font-weight:700; font-size:0.95rem;">
-                      ${escapeHtml(app.applicantName)} 
-                      <span style="font-size:0.8rem; color:var(--color-text-muted); font-weight:normal;">${escapeHtml(app.applicantHandle)}</span>
-                    </div>
-                    <div style="font-size:var(--font-size-12); color:var(--color-text-brand); font-weight:600;">
-                      Applied for: ${escapeHtml(app.role)}
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--color-text-secondary);">
-                      Project: <strong>${escapeHtml(post.title || 'Your Project')}</strong>
-                    </div>
-                  </div>
+                  ${getStatusChip(app.status)}
                 </div>
-                ${getStatusChip(app.status)}
-              </div>
 
-              <div style="font-size:0.88rem; color:#334155; background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border); margin:8px 0;">
-                "${escapeHtml(app.pitch)}"
-              </div>
+                <div style="font-size:var(--font-size-14); color:var(--color-text); background:var(--color-surface-subtle); padding:12px; border-radius:8px; border:1px solid var(--border); margin:8px 0;">
+                  "${escapeHtml(app.pitch)}"
+                </div>
 
-              <div style="display:flex; gap:8px; justify-content:flex-end;">
-                ${app.status === 'pending' ? `
-                  <button class="btn btn-primary" style="padding:5px 14px; font-size:0.8rem;" onclick="window.SyncUpStore.updateApplicationStatus('${post.id}', ${appIndex}, 'accepted')">
-                    ✅ Accept
+                <div style="display:flex; gap:8px; justify-content:flex-end;">
+                  ${app.status === 'pending' ? `
+                    <button type="button" class="btn btn-primary" style="padding:6px 14px; font-size:var(--font-size-12); display:inline-flex; align-items:center; gap:6px;" data-action="update-app-status" data-post-id="${escapeHtml(post.id)}" data-app-index="${appIndex}" data-status="accepted">
+                      ${getIcon('check', { size: 14 })}
+                      <span>Accept</span>
+                    </button>
+                    <button type="button" class="btn btn-outline" style="padding:6px 14px; font-size:var(--font-size-12); display:inline-flex; align-items:center; gap:6px;" data-action="update-app-status" data-post-id="${escapeHtml(post.id)}" data-app-index="${appIndex}" data-status="declined">
+                      ${getIcon('x', { size: 14 })}
+                      <span>Decline</span>
+                    </button>
+                  ` : ''}
+                  <button type="button" class="btn btn-outline" style="padding:6px 14px; font-size:var(--font-size-12); display:inline-flex; align-items:center; gap:6px;" data-action="chat-cta" data-user-uid="${escapeHtml(app.applicantUid || 'user_rohit')}" data-user-name="${escapeHtml(app.applicantName)}" data-user-handle="${escapeHtml(app.applicantHandle)}" data-project-title="${escapeHtml(post.title || 'Project')}">
+                    ${getIcon('message-square', { size: 14 })}
+                    <span>Chat</span>
                   </button>
-                  <button class="btn btn-outline" style="padding:5px 14px; font-size:0.8rem;" onclick="window.SyncUpStore.updateApplicationStatus('${post.id}', ${appIndex}, 'declined')">
-                    ❌ Decline
-                  </button>
-                ` : ''}
-                <button class="btn btn-outline" style="padding:5px 14px; font-size:0.8rem;" onclick="window.SyncUpStore.triggerDirectChatCTA('${app.applicantUid || 'user_rohit'}', '${escapeHtml(app.applicantName)}', '${escapeHtml(app.applicantHandle)}', '${escapeHtml(post.title || 'Project')}')">
-                  💬 Chat
-                </button>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       `}
     </div>
 
     <div>
-      <h3 style="font-size:1.15rem; color:var(--color-primary-dark); margin-bottom:14px;">
-        📤 Applications You've Submitted (${sentApps.length})
+      <h3 style="font-size:var(--font-size-20); color:var(--color-primary-dark); margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+        ${getIcon('send', { size: 20 })}
+        <span>Applications You've Submitted (${sentApps.length})</span>
       </h3>
 
       ${!sentApps.length ? `
         <div class="empty-state" style="padding:32px 20px;">
-          <p style="color:var(--color-text-muted); font-size:0.9rem;">
+          <div style="margin-bottom:8px; color:var(--color-text-muted);">${getIcon('send', { size: 36 })}</div>
+          <p style="color:var(--color-text-muted); font-size:var(--font-size-14);">
             You haven't submitted any applications yet. Browse the Feed or Explore tab to find teams!
           </p>
         </div>
@@ -245,17 +265,17 @@ export function renderApplicationsTab(state) {
             <div class="application-item-card">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                  <div style="font-weight:700; font-size:0.95rem; color:var(--color-text-main);">
+                  <div style="font-weight:700; font-size:var(--font-size-14); color:var(--color-text);">
                     ${escapeHtml(post.title || 'Project')}
                   </div>
-                  <div style="font-size:0.8rem; color:var(--color-text-secondary);">
+                  <div style="font-size:var(--font-size-12); color:var(--color-text-secondary);">
                     Project Lead: ${escapeHtml(post.userName || 'Lead')} • Role: <strong>${escapeHtml(app.role)}</strong>
                   </div>
                 </div>
                 ${getStatusChip(app.status)}
               </div>
               ${app.pitch ? `
-                <div style="font-size:0.85rem; color:var(--color-text-secondary); background:#F8FAFC; padding:10px; border-radius:6px; margin-top:8px;">
+                <div style="font-size:var(--font-size-14); color:var(--color-text-secondary); background:var(--color-surface-subtle); padding:10px; border-radius:6px; margin-top:8px;">
                   Pitch: "${escapeHtml(app.pitch)}"
                 </div>
               ` : ''}
@@ -277,7 +297,17 @@ export function renderChat(state) {
   if (tabDm) tabDm.classList.toggle('active', chats.activeMode === 'dm');
   if (tabGlobal) tabGlobal.classList.toggle('active', chats.activeMode === 'global');
 
-  // 2. Update Header Info
+  // 2. Single Pane State on Mobile (<1024px)
+  const chatBox = document.getElementById('chat-layout-box');
+  if (chatBox) {
+    if (chats.activeMode === 'global' || (chats.activeContact && chats.mobileConversationOpen !== false)) {
+      chatBox.classList.add('mobile-conversation-active');
+    } else {
+      chatBox.classList.remove('mobile-conversation-active');
+    }
+  }
+
+  // 3. Update Header Info
   const headerName = document.getElementById('chat-active-name');
   const statusLabel = document.getElementById('chat-active-mode-label');
   const av = document.getElementById('chat-active-avatar');
@@ -287,40 +317,58 @@ export function renderChat(state) {
     if (headerName) headerName.innerText = "Global Collaborator Room";
     if (statusLabel) statusLabel.innerText = "Public Real-Time Channel";
     if (contactsPanel) contactsPanel.classList.add('hidden');
-    if (av) av.innerText = "🌐";
+    if (av) av.innerHTML = getIcon('globe', { size: 20 });
   } else {
     if (contactsPanel) contactsPanel.classList.remove('hidden');
     if (chats.activeContact) {
       if (headerName) headerName.innerText = chats.activeContact.name;
       if (statusLabel) statusLabel.innerText = "Direct Message (Private)";
       if (av) {
-        if (chats.activeContact.avatar) av.innerHTML = `<img src="${chats.activeContact.avatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-        else av.innerText = chats.activeContact.name[0];
+        const contactAvatar = safeUrl(chats.activeContact.avatar);
+        if (contactAvatar) av.innerHTML = `<img src="${contactAvatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+        else av.innerText = chats.activeContact.name ? chats.activeContact.name[0] : 'U';
       }
     }
   }
 
-  // 3. Render Contacts List
+  // 4. Render Contacts List (Buttons for keyboard & screen reader accessibility)
   const contactList = document.getElementById('chat-contacts-list');
-  if (contactList && chats.contacts) {
-    contactList.innerHTML = chats.contacts.map(c => `
-      <div class="contact-card-item ${chats.activeContact && chats.activeContact.id === c.id ? 'active' : ''}" onclick="window.SyncUpStore.selectContact('${c.id}')">
-        <div class="contact-avatar-box">
-          ${c.avatar ? `<img src="${c.avatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (c.name ? c.name[0] : 'U')}
-          <span class="online-dot"></span>
+  if (contactList) {
+    if (!chats.contacts || !chats.contacts.length) {
+      contactList.innerHTML = `
+        <div class="empty-state" style="padding:24px 16px; border:none; text-align:center;">
+          <div style="margin-bottom:8px; color:var(--color-text-muted);">${getIcon('users', { size: 32 })}</div>
+          <p style="font-size:var(--font-size-12); color:var(--color-text-muted);">No chat contacts found.</p>
         </div>
-        <div class="contact-details-box">
-          <div class="contact-name-row">
-            <span class="contact-display-name">${escapeHtml(c.name)}</span>
-            <span class="contact-last-time">${c.time}</span>
-          </div>
-          <div class="contact-snippet-text">${escapeHtml(c.lastMsg || '')}</div>
-        </div>
-      </div>
-    `).join('');
+      `;
+    } else {
+      contactList.innerHTML = chats.contacts.map(c => {
+        const cAvatar = safeUrl(c.avatar);
+        const isActive = chats.activeContact && chats.activeContact.id === c.id;
+        const unreadCount = c.unreadCount || c.unread || 0;
+        return `
+          <button type="button" class="contact-card-item ${isActive ? 'active' : ''}" data-action="select-contact" data-contact-id="${escapeHtml(c.id)}" style="width:100%; text-align:left; border:none; background:none; cursor:pointer;" aria-label="Chat with ${escapeHtml(c.name)}">
+            <div class="contact-avatar-box">
+              ${cAvatar ? `<img src="${cAvatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (c.name ? escapeHtml(c.name[0]) : 'U')}
+              ${c.online ? `<span class="online-dot"></span>` : ''}
+            </div>
+            <div class="contact-details-box">
+              <div class="contact-name-row">
+                <span class="contact-display-name">${escapeHtml(c.name)}</span>
+                <span class="contact-last-time">${escapeHtml(c.time || '')}</span>
+              </div>
+              <div class="contact-snippet-row" style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                <div class="contact-snippet-text">${escapeHtml(c.lastMsg || '')}</div>
+                ${unreadCount > 0 ? `<span class="contact-unread-badge" style="background:var(--color-primary-btn); color:#fff; font-size:var(--font-size-12); font-weight:700; padding:1px 6px; border-radius:var(--radius-full);">${unreadCount}</span>` : ''}
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
   }
 
-  // 4. Render Message Bubbles
+  // 5. Render Message Bubbles
   const messagesContainer = document.getElementById('chat-messages-container');
   if (!messagesContainer) return;
 
@@ -367,7 +415,7 @@ export function renderChat(state) {
       <div class="msg-bubble">${escapeHtml(msg.text)}</div>
       <div class="msg-time-stamp">
         <span>${escapeHtml(msg.time)}</span>
-        ${msg.isMe ? `<span class="read-receipt" title="Delivered & Read">✓✓</span>` : ''}
+        ${msg.isMe ? `<span class="read-receipt" title="${msg.read ? 'Read' : 'Sent'}">${msg.read ? '✓✓' : '✓'}</span>` : ''}
       </div>
     </div>
   `).join('');
@@ -382,7 +430,7 @@ export function renderChat(state) {
           <span></span>
           <span></span>
         </div>
-        <span style="font-size:0.75rem; color:var(--color-text-muted); font-weight:500;">
+        <span style="font-size:var(--font-size-12); color:var(--color-text-muted); font-weight:500;">
           ${escapeHtml(partnerName)} is typing...
         </span>
       </div>
@@ -399,23 +447,36 @@ export function filterContacts(query) {
   if (!contactList) return;
 
   const state = window.SyncUpStore.getState();
-  const filtered = state.chats.contacts.filter(c => c.name.toLowerCase().includes(term) || c.handle.toLowerCase().includes(term));
+  const filtered = state.chats.contacts.filter(c => c.name.toLowerCase().includes(term) || (c.handle && c.handle.toLowerCase().includes(term)));
 
-  contactList.innerHTML = filtered.map(c => `
-    <div class="contact-card-item ${state.chats.activeContact && state.chats.activeContact.id === c.id ? 'active' : ''}" onclick="window.SyncUpStore.selectContact('${c.id}')">
-      <div class="contact-avatar-box">
-        ${c.avatar ? `<img src="${c.avatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (c.name ? c.name[0] : 'U')}
-        <span class="online-dot"></span>
+  if (!filtered.length) {
+    contactList.innerHTML = `
+      <div style="padding:20px 14px; text-align:center; color:var(--color-text-muted); font-size:var(--font-size-12);">
+        No matching contacts found.
       </div>
-      <div class="contact-details-box">
-        <div class="contact-name-row">
-          <span class="contact-display-name">${escapeHtml(c.name)}</span>
-          <span class="contact-last-time">${c.time}</span>
+    `;
+    return;
+  }
+
+  contactList.innerHTML = filtered.map(c => {
+    const cAvatar = safeUrl(c.avatar);
+    const isActive = state.chats.activeContact && state.chats.activeContact.id === c.id;
+    return `
+      <button type="button" class="contact-card-item ${isActive ? 'active' : ''}" data-action="select-contact" data-contact-id="${escapeHtml(c.id)}" style="width:100%; text-align:left; border:none; background:none; cursor:pointer;" aria-label="Chat with ${escapeHtml(c.name)}">
+        <div class="contact-avatar-box">
+          ${cAvatar ? `<img src="${cAvatar}" loading="lazy" decoding="async" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : (c.name ? escapeHtml(c.name[0]) : 'U')}
+          <span class="online-dot"></span>
         </div>
-        <div class="contact-snippet-text">${escapeHtml(c.lastMsg || '')}</div>
-      </div>
-    </div>
-  `).join('');
+        <div class="contact-details-box">
+          <div class="contact-name-row">
+            <span class="contact-display-name">${escapeHtml(c.name)}</span>
+            <span class="contact-last-time">${escapeHtml(c.time || '')}</span>
+          </div>
+          <div class="contact-snippet-text">${escapeHtml(c.lastMsg || '')}</div>
+        </div>
+      </button>
+    `;
+  }).join('');
 }
 
 export function switchInboxTab(tabName) {

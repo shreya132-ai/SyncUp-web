@@ -6,7 +6,7 @@
  * Triggers onboarding modal upon new registration.
  */
 
-import { signIn, signUp, signOut, signInAnonymously, getUserProfile, saveUserProfile, DEMO_USER_CONFIG } from '../services/authService.js';
+import { signIn, signUp, signOut, signInAnonymously, getUserProfile, saveUserProfile, checkUsernameAvailable, DEMO_USER_CONFIG } from '../services/authService.js';
 import { setUser, getState } from '../store/store.js';
 import { showToast } from './toast.js';
 import { openOnboarding } from './onboarding.js';
@@ -194,10 +194,13 @@ export async function handleAuthSubmit() {
       btn.disabled = false;
       btn.innerText = 'Login';
       if (err.code === 'auth/invalid-login-credentials' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        if (confirm("Account not found. Would you like to enter Instant Demo Mode to test the application?")) {
-          continueAsDemoGuest();
-          return;
-        }
+        showToast({ 
+          message: "Account not found or password incorrect. You can click 'Preview Demo' below to explore instantly.", 
+          icon: "🔒", 
+          type: "error",
+          duration: 5000 
+        });
+        return;
       }
       showToast({ message: "Login note: " + err.message, icon: "⚠️", type: "error" });
     }
@@ -221,6 +224,15 @@ export async function handleAuthSubmit() {
       return;
     }
     if (!username.startsWith('@')) username = '@' + username;
+
+    // Check unique username before registration
+    const isAvail = await checkUsernameAvailable(username);
+    if (!isAvail) {
+      btn.disabled = false;
+      btn.innerText = 'Create Account';
+      showToast({ message: `Username ${username} is already taken. Please choose another.`, icon: "⚠️", type: "error" });
+      return;
+    }
 
     try {
       const cred = await signUp(email, pass);

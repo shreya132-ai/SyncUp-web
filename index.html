@@ -2,20 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SyncUp | Find Teammates. Build Projects. Grow Together.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SyncUp — Peer-to-Peer Project Collaboration & Teammate Discovery</title>
+    <meta name="description" content="Discover peer-to-peer side projects, find developer teammates by tech stack, and collaborate in real-time. Built for builders, hackathons, and open source.">
+    <meta name="theme-color" content="#064E3B">
 
-    <!-- Google Fonts: Inter & Pacifico -->
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="SyncUp — Peer-to-Peer Project Collaboration & Teammate Discovery">
+    <meta property="og:description" content="Discover peer-to-peer side projects, find developer teammates by tech stack, and collaborate in real-time. Built for builders, hackathons, and open source.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://syncup-collab.web.app">
+    <meta property="og:image" content="https://syncup-collab.web.app/og-preview.png">
+    <meta property="og:site_name" content="SyncUp">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SyncUp — Peer-to-Peer Project Collaboration & Teammate Discovery">
+    <meta name="twitter:description" content="Discover peer-to-peer side projects, find developer teammates by tech stack, and collaborate in real-time.">
+    <meta name="twitter:image" content="https://syncup-collab.web.app/og-preview.png">
+
+    <!-- Inline Accessible SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='9' cy='16' r='6' stroke='%2310B981' stroke-width='3' fill='none'/%3E%3Ccircle cx='23' cy='16' r='6' stroke='%23064E3B' stroke-width='3' fill='none'/%3E%3Cpath d='M14 12C16 10 18 10 20 12M12 20C14 22 16 22 18 20' stroke='%2310B981' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Content Security Policy (CSP) for Firebase + Google Fonts -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.gstatic.com https://firebasestorage.googleapis.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://apis.google.com; object-src 'none'; base-uri 'self';">
+
+    <!-- Google Fonts: Inter Single Font Family (Pacifico removed) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK (v9 Compat Mode) -->
-    <!-- Firebase SDK (v9 Compat Mode) -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
     <!-- Modular Stylesheets (Design System & Layers) -->
     <link rel="stylesheet" href="styles/tokens.css">
@@ -31,14 +53,14 @@
     <div id="toast-container" class="toast-container" role="region" aria-label="Notifications" aria-live="polite"></div>
 
     <!-- ==========================================================================
-         PAGE A: LANDING / SPLASH PAGE (Storyboard Panel 1 & 9 & 10)
+         PAGE A: LANDING / SPLASH PAGE
          ========================================================================== -->
     <section id="landing-view">
         <!-- Landing Navbar -->
-        <nav class="landing-nav">
-            <div class="brand-logo-container font-brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <nav class="landing-nav" aria-label="Landing Navigation">
+            <div class="brand-logo-container font-brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" role="button" tabindex="0" aria-label="SyncUp Home">
                 <!-- Connected Nodes SVG Logo -->
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                     <circle cx="9" cy="16" r="6" stroke="#10B981" stroke-width="3"/>
                     <circle cx="23" cy="16" r="6" stroke="#FFFFFF" stroke-width="3"/>
                     <path d="M14 12C16 10 18 10 20 12M12 20C14 22 16 22 18 20" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
@@ -47,13 +69,14 @@
             </div>
             <div class="landing-nav-links">
                 <a href="#features" class="landing-nav-link" onclick="scrollToLandingSection('features')">Features</a>
-                <a href="#features" class="landing-nav-link" onclick="scrollToLandingSection('features')">How It Works</a>
+                <a href="#how-it-works" class="landing-nav-link" onclick="scrollToLandingSection('how-it-works')">How It Works</a>
                 <a href="#about-syncup" class="landing-nav-link" onclick="scrollToLandingSection('about-syncup')">About</a>
-                <button class="btn btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff; border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-16);" onclick="continueAsDemoGuest()">Preview Demo</button>
-                <button class="btn btn-primary" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-16);" onclick="navigateTo('auth')">Login / Join</button>
+                <button type="button" class="btn btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff; border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-16);" onclick="continueAsDemoGuest()">Preview Demo</button>
+                <button type="button" class="btn btn-primary" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-16);" onclick="navigateTo('auth')">Login / Join</button>
             </div>
         </nav>
 
+        <div role="main" id="landing-main">
         <!-- Landing Hero -->
         <div class="landing-hero">
             <div class="landing-hero-content">
@@ -66,143 +89,228 @@
                     The ultimate peer-to-peer platform for project collaboration, teammate discovery and real-time development discussions.
                 </p>
                 <div class="landing-actions">
-                    <button class="btn btn-primary" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-24); font-size:var(--font-size-16);" onclick="openAuthTab('register')">Get Started</button>
-                    <button class="btn btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff; border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-24); font-size:var(--font-size-16);" onclick="openAuthTab('login')">Login</button>
-                    <button class="btn" style="background:rgba(209,250,229,0.15); color:#A7F3D0; border:1.5px solid rgba(167,243,208,0.4); padding:var(--space-8) var(--space-16); border-radius:var(--radius-button); min-height:var(--touch-target-min);" onclick="continueAsDemoGuest()">🚀 Preview Demo</button>
+                    <button type="button" class="btn btn-primary" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-24); font-size:var(--font-size-16);" onclick="openAuthTab('register')">Get Started</button>
+                    <button type="button" class="btn btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff; border-radius:var(--radius-button); min-height:var(--touch-target-min); padding:var(--space-8) var(--space-24); font-size:var(--font-size-16);" onclick="openAuthTab('login')">Login</button>
+                    <button type="button" class="btn" style="background:rgba(209,250,229,0.15); color:#A7F3D0; border:1.5px solid rgba(167,243,208,0.4); padding:var(--space-8) var(--space-16); border-radius:var(--radius-button); min-height:var(--touch-target-min);" onclick="continueAsDemoGuest()">Preview Demo</button>
                 </div>
-                <!-- Doodle "Better Together" Annotation with Arrow -->
+                <!-- Clean Modern Annotation -->
                 <div class="doodle-annotation">
-                    <span>Better Together</span>
-                    <svg width="48" height="24" viewBox="0 0 54 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <span>Better Together — 100% Peer-to-Peer</span>
+                    <svg width="40" height="20" viewBox="0 0 54 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M2 18 C 18 4, 38 4, 50 14"/>
                         <path d="M42 16 L 50 14 L 46 6"/>
                     </svg>
                 </div>
             </div>
 
-            <!-- Hero Illustration Card (Three Student Developers at Laptop) -->
+            <!-- Product UI Mockup (Replaces Cartoon Illustration) -->
             <div class="landing-hero-art">
-                <div class="hero-art-card">
-                    <div class="floating-dev-badge" style="top:-14px; left:-10px;">
-                        <span>🚀</span> Teammates Found!
+                <div class="hero-product-mockup" aria-label="SyncUp project card preview">
+                    <div class="mockup-window-bar">
+                        <div class="mockup-dots" aria-hidden="true">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-url-bar">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <span>syncup.dev/projects/feed</span>
+                        </div>
                     </div>
-                    <div class="floating-dev-badge" style="bottom:-14px; right:-8px;">
-                        <span>💻</span> &lt;/&gt; Code Together
+                    <div class="mockup-body">
+                        <div class="mockup-card">
+                            <div class="mockup-card-header">
+                                <div class="mockup-user-info">
+                                    <div class="mockup-avatar">P</div>
+                                    <div>
+                                        <div class="mockup-user-name">Priya Sharma</div>
+                                        <div class="mockup-user-handle">@priya_dev</div>
+                                    </div>
+                                </div>
+                                <span class="mockup-badge">Recruiting</span>
+                            </div>
+                            <div class="mockup-card-title">AI Mock Interview & Resume Analyzer</div>
+                            <div class="mockup-card-desc">
+                                Building an intelligent mock interview platform with live audio sentiment analysis and ATS resume feedback. Looking for a frontend collaborator!
+                            </div>
+                            <div class="mockup-card-tags">
+                                <span class="mockup-tag">React</span>
+                                <span class="mockup-tag">FastAPI</span>
+                                <span class="mockup-tag">Python</span>
+                                <span class="mockup-tag">UI/UX</span>
+                            </div>
+                            <div class="mockup-card-footer">
+                                <div class="mockup-stats">
+                                    <span>2 Roles Open</span>
+                                    <span>3 Applicants</span>
+                                </div>
+                                <button type="button" class="mockup-cta-btn" onclick="continueAsDemoGuest()">Apply to Join</button>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Detailed Trio SVG Illustration -->
-                    <svg viewBox="0 0 460 300" width="100%" height="auto" fill="none">
-                        <rect x="25" y="30" width="410" height="240" rx="20" fill="#04382A" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.35"/>
-                        <!-- Center Laptop -->
-                        <rect x="150" y="125" width="160" height="105" rx="8" fill="#0F172A" stroke="#334155" stroke-width="2"/>
-                        <rect x="158" y="133" width="144" height="80" rx="5" fill="#064E3B"/>
-                        <rect x="120" y="230" width="220" height="10" rx="3" fill="#64748B"/>
-                        <!-- Glowing Code Bracket on Screen -->
-                        <text x="210" y="178" font-size="24" font-weight="bold" fill="#10B981" text-anchor="middle">&lt;/&gt;</text>
-                        <!-- Student 1 (Left - Boy) -->
-                        <circle cx="105" cy="140" r="32" fill="#10B981"/>
-                        <circle cx="105" cy="130" r="16" fill="#FDE68A"/>
-                        <path d="M92 124 C92 114, 118 114, 118 124" fill="#1E293B"/>
-                        <path d="M82 165 C82 148, 128 148, 128 165" fill="#FFFFFF"/>
-                        <!-- Student 2 (Center - Girl) -->
-                        <circle cx="230" cy="72" r="32" fill="#D1FAE5"/>
-                        <circle cx="230" cy="64" r="16" fill="#FDE68A"/>
-                        <path d="M212 60 C212 46, 248 46, 248 60 C248 76, 212 76, 212 60" fill="#7C2D12"/>
-                        <path d="M208 96 C208 80, 252 80, 252 96" fill="#064E3B"/>
-                        <!-- Student 3 (Right - Boy) -->
-                        <circle cx="355" cy="140" r="32" fill="#087F5B"/>
-                        <circle cx="355" cy="130" r="16" fill="#FDE68A"/>
-                        <path d="M342 122 C342 112, 368 112, 368 122" fill="#0F172A"/>
-                        <path d="M332 165 C332 148, 378 148, 378 165" fill="#FFFFFF"/>
-                    </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Features Section (Storyboard Panel 9: "Why SyncUp?") -->
-        <section class="features-section" id="features">
+        <!-- 3-Step "How It Works" Section -->
+        <section class="how-it-works-section" id="how-it-works" aria-labelledby="heading-how-it-works">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 id="heading-how-it-works">How SyncUp Works</h2>
+                    <p>Three straightforward steps to turn project ideas into shipped products with like-minded peers.</p>
+                </div>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number-badge">1</div>
+                        <h3>Discover & Match</h3>
+                        <p>Browse high-impact peer projects filtered strictly by your tech stack, university, open roles, or hackathons. Prioritized by your matched skills.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number-badge">2</div>
+                        <h3>Apply with Pitch</h3>
+                        <p>Submit your personalized role pitch in one click directly to the project lead. Track your application status with real-time amber/green chips.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number-badge">3</div>
+                        <h3>Collaborate & Ship</h3>
+                        <p>Get accepted and jump straight into synchronized direct messages or global chat channels. Coordinate tasks, share repos, and build together.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof Metrics Section -->
+        <section class="social-proof-section" id="social-proof" aria-label="Platform Statistics">
+            <div class="social-proof-title">Trusted by student builders & indie makers across the web</div>
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-number">500+</div>
+                    <div class="metric-label">Projects Published</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">1,200+</div>
+                    <div class="metric-label">Teammates Matched</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">40+</div>
+                    <div class="metric-label">Campus Communities</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-number">100%</div>
+                    <div class="metric-label">Peer-to-Peer Free</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section ("Why SyncUp?") -->
+        <section class="features-section" id="features" aria-labelledby="heading-features">
             <div class="features-container">
                 <div class="features-header">
-                    <h2>Why SyncUp?</h2>
-                    <p>Everything you need to build, learn and grow.</p>
+                    <h2 id="heading-features">Why SyncUp?</h2>
+                    <p>Everything you need to discover peers, collaborate on side projects, and ship together.</p>
                 </div>
                 <div class="features-grid">
                     <div class="feature-card">
-                        <div class="feature-icon-box">👥</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
                         <h3>Find Teammates</h3>
                         <p>Connect with skilled peers for your next project, hackathon, or capstone.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon-box">📂</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </div>
                         <h3>Share Projects</h3>
                         <p>Showcase your work and get feedback from fellow student builders.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon-box">💬</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
                         <h3>Real-Time Chat</h3>
                         <p>Discuss ideas and solve problems together in synchronized channels.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon-box">🔍</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
                         <h3>Skill Search</h3>
                         <p>Find perfect teammates based on skills like React, Node.js, Python, or UI/UX.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon-box">🖼️</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                        </div>
                         <h3>My Uploads</h3>
                         <p>Manage your own projects, monitor community likes, and review feedback.</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon-box">⚡</div>
+                        <div class="feature-icon-box">
+                            <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
                         <h3>Simple & Fast</h3>
                         <p>Built with vanilla JS & Firebase, no complex setup required. Instant web access.</p>
                     </div>
                 </div>
-                <button class="btn btn-primary" style="padding:14px 32px; font-size:1.05rem;" onclick="navigateTo('auth')">Start Your Journey Today →</button>
+                <div style="text-align:center; margin-top:40px;">
+                    <button type="button" class="btn btn-primary" style="padding:14px 32px; font-size:var(--font-size-16);" onclick="navigateTo('auth')">Start Your Journey Today →</button>
+                </div>
             </div>
         </section>
 
-        <!-- Motivational Quote Section (Storyboard Panel 10) -->
+        <!-- Motivational Quote Section -->
         <section class="motivational-card-section" id="about-syncup">
             <div class="motivational-badge-pill">Build Together</div>
-            <div class="brand-logo-container font-brand" style="justify-content:center; color:var(--primary-dark); font-size:2.2rem;">
-                <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
+            <div class="brand-logo-container font-brand" style="justify-content:center; color:var(--primary-dark); font-size:var(--font-size-28);">
+                <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                     <circle cx="9" cy="16" r="6" stroke="#10B981" stroke-width="3"/>
                     <circle cx="23" cy="16" r="6" stroke="#064E3B" stroke-width="3"/>
                     <path d="M14 12C16 10 18 10 20 12M12 20C14 22 16 22 18 20" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
                 SyncUp
             </div>
-            <div style="font-size:0.85rem; color:var(--text-secondary); letter-spacing:0.04em; text-transform:uppercase; margin-top:4px;">
+            <div style="font-size:var(--font-size-12); color:var(--text-secondary); letter-spacing:0.04em; text-transform:uppercase; margin-top:4px;">
                 Connect · Collaborate · Create
             </div>
             <div class="motivational-quote">
-                "Because great things are never built alone." 💚
+                "Because great things are never built alone."
             </div>
         </section>
+        </div>
 
-        <!-- Landing Footer -->
+        <!-- Landing Footer with Privacy & Terms -->
         <footer class="landing-footer">
             <div style="font-weight:700; color:var(--primary-dark);" class="font-brand">
                 SyncUp — Connect · Collaborate · Create
             </div>
             <div>&copy; 2026 SyncUp Platform. Built with Vanilla JS & Firebase.</div>
+            <div class="footer-nav-links">
+                <a href="javascript:void(0)" class="footer-nav-link" onclick="SyncUpSheet.open('sheet-privacy-policy')">Privacy Policy</a>
+                <span aria-hidden="true">·</span>
+                <a href="javascript:void(0)" class="footer-nav-link" onclick="SyncUpSheet.open('sheet-terms-of-service')">Terms of Service</a>
+            </div>
             <div class="footer-socials">
-                <a href="https://github.com" target="_blank" class="footer-social-link" title="GitHub">🐙</a>
-                <a href="https://linkedin.com" target="_blank" class="footer-social-link" title="LinkedIn">💼</a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="GitHub" aria-label="GitHub Repository">
+                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="LinkedIn" aria-label="LinkedIn">
+                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
             </div>
         </footer>
     </section>
 
     <!-- ==========================================================================
-         PAGE B: AUTHENTICATION SPLIT-SCREEN (Storyboard Panel 2 + Google Login)
+         PAGE B: AUTHENTICATION SPLIT-SCREEN
          ========================================================================== -->
     <section id="auth-view" class="hidden">
         <div class="auth-split-wrapper">
             <!-- Left Side: Login / Register Form -->
             <div class="auth-form-side">
                 <div class="auth-brand">
-                    <span class="brand-logo-container font-brand" style="color:var(--primary-dark); font-size:2rem;">
-                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                    <span class="brand-logo-container font-brand" style="color:var(--primary-dark); font-size:var(--font-size-28);">
+                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                             <circle cx="9" cy="16" r="6" stroke="#10B981" stroke-width="3"/>
                             <circle cx="23" cy="16" r="6" stroke="#064E3B" stroke-width="3"/>
                             <path d="M14 12C16 10 18 10 20 12M12 20C14 22 16 22 18 20" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
@@ -214,7 +322,7 @@
 
                 <!-- 1-Click Continue with Google Button -->
                 <button type="button" class="btn btn-outline" style="width:100%; display:flex; align-items:center; justify-content:center; gap:var(--space-8); margin-bottom:var(--space-16); font-weight:600; border-radius:var(--radius-button); padding:var(--space-8) var(--space-16); min-height:var(--touch-target-min);" onclick="handleGoogleSignIn()">
-                    <svg width="18" height="18" viewBox="0 0 24 24">
+                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3h3.86c2.26-2.09 3.68-5.17 3.68-9.09z"/>
                         <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09C3.26 21.3 7.37 24 12 24z"/>
                         <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.62H1.27C.46 8.23 0 10.06 0 12s.46 3.77 1.27 5.38l4-3.09z"/>
@@ -228,9 +336,9 @@
                 </div>
 
                 <!-- Tabs: Login vs Register -->
-                <div class="auth-tabs">
-                    <button class="auth-tab-btn active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
-                    <button class="auth-tab-btn" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+                <div class="auth-tabs-row">
+                    <button type="button" class="auth-tab-btn active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
+                    <button type="button" class="auth-tab-btn" id="tab-register" onclick="switchAuthTab('register')">Register</button>
                 </div>
 
                 <form id="auth-form" onsubmit="event.preventDefault(); handleAuthSubmit();">
@@ -252,7 +360,7 @@
                         <input type="text" class="form-input" id="inp-college" placeholder="e.g. Amity University / BCA 2nd Sem">
                     </div>
 
-                    <!-- Email or Username (Matches Storyboard Input Label) -->
+                    <!-- Email or Username -->
                     <div class="form-group">
                         <label for="inp-email" class="form-label">Email or Username</label>
                         <input type="text" class="form-input" id="inp-email" placeholder="Enter your email or @username" required>
@@ -263,7 +371,7 @@
                         <label for="inp-password" class="form-label">Password</label>
                         <div style="position:relative;">
                             <input type="password" class="form-input" id="inp-password" placeholder="Enter your password" required>
-                            <span onclick="togglePasswordVisibility('inp-password')" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:var(--font-size-14); color:var(--color-text-muted);" title="Toggle password view">👁️</span>
+                            <span onclick="togglePasswordVisibility('inp-password')" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:var(--font-size-14); color:var(--color-text-muted);" title="Toggle password view" role="button" tabindex="0">👁️</span>
                         </div>
                     </div>
 
@@ -290,37 +398,25 @@
                 </div>
 
                 <!-- Instant Demo Button -->
-                <button class="btn btn-outline" style="width:100%; padding:var(--space-8) var(--space-16); border-radius:var(--radius-button); min-height:var(--touch-target-min);" onclick="continueAsDemoGuest()">
-                    🚀 Preview Demo (Instant Access)
+                <button type="button" class="btn btn-outline" style="width:100%; padding:var(--space-8) var(--space-16); border-radius:var(--radius-button); min-height:var(--touch-target-min);" onclick="continueAsDemoGuest()">
+                    Preview Demo (Instant Access)
                 </button>
 
-                <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-secondary); cursor:pointer;" onclick="navigateTo('landing')">
+                <p style="text-align:center; margin-top:20px; font-size:var(--font-size-14); color:var(--text-secondary); cursor:pointer;" onclick="navigateTo('landing')">
                     ← Back to Landing Page
                 </p>
             </div>
 
-            <!-- Right Side: Promotional Banner (Storyboard Panel 2) -->
+            <!-- Right Side: Promotional Banner -->
             <div class="auth-banner-side">
                 <h2 class="auth-banner-title">Welcome Back!</h2>
                 <p class="auth-banner-sub">Log in to continue your journey and connect with amazing developers.</p>
                 
-                <!-- Illustration of Laptop Workspace -->
-                <div style="width:100%; max-width:260px; margin: 10px 0 20px;">
-                    <svg viewBox="0 0 280 180" width="100%" height="auto" fill="none">
-                        <rect x="20" y="20" width="240" height="140" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
-                        <rect x="35" y="35" width="210" height="85" rx="8" fill="#ECFDF5"/>
-                        <circle cx="70" cy="75" r="20" fill="#064E3B"/>
-                        <rect x="105" y="65" width="100" height="8" rx="4" fill="#064E3B"/>
-                        <rect x="105" y="80" width="70" height="6" rx="3" fill="#10B981"/>
-                        <rect x="80" y="135" width="120" height="8" rx="4" fill="#94A3B8"/>
-                    </svg>
-                </div>
-
                 <div class="auth-feature-pill-grid">
-                    <div class="auth-feature-pill">👥 Find Teammates</div>
-                    <div class="auth-feature-pill">📂 Share Projects</div>
-                    <div class="auth-feature-pill">💬 Get Feedback</div>
-                    <div class="auth-feature-pill">🗨️ Chat in Real-Time</div>
+                    <div class="auth-feature-pill">Find Teammates</div>
+                    <div class="auth-feature-pill">Share Projects</div>
+                    <div class="auth-feature-pill">Get Feedback</div>
+                    <div class="auth-feature-pill">Chat in Real-Time</div>
                 </div>
             </div>
         </div>
@@ -334,8 +430,8 @@
         <!-- 1. Desktop Fixed Dark-Green Sidebar (≥1024px, #064E3B) -->
         <aside class="sidebar" id="app-sidebar" aria-label="Main Navigation">
             <div class="sidebar-brand-box">
-                <span class="brand-logo-container font-brand" onclick="switchDashboardTab('home')" style="font-size:1.75rem;">
-                    <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+                <span class="brand-logo-container font-brand" onclick="switchDashboardTab('home')" style="font-size:var(--font-size-28);" role="button" tabindex="0">
+                    <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                         <circle cx="9" cy="16" r="6" stroke="#10B981" stroke-width="3"/>
                         <circle cx="23" cy="16" r="6" stroke="#FFFFFF" stroke-width="3"/>
                         <path d="M14 12C16 10 18 10 20 12M12 20C14 22 16 22 18 20" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
@@ -344,38 +440,46 @@
                 </span>
             </div>
 
-            <!-- Navigation Links: 5 Unified Destinations -->
+            <!-- Navigation Links: 5 Unified Destinations (Buttons with aria-current) -->
             <nav class="sidebar-nav-menu">
-                <div class="sidebar-link active" id="nav-home" onclick="switchDashboardTab('home')">
-                    <span>🏠</span> Home
-                </div>
-                <div class="sidebar-link" id="nav-explore" onclick="switchDashboardTab('explore')">
-                    <span>🧭</span> Explore
-                </div>
-                <div class="sidebar-link sidebar-link-create-btn" id="nav-create" onclick="SyncUpSheet.open('sheet-create-post')">
-                    <span>➕</span> Create Post
-                </div>
-                <div class="sidebar-link" id="nav-inbox" onclick="switchDashboardTab('inbox')">
-                    <span>📥</span> Inbox
+                <button type="button" class="sidebar-link active" id="nav-home" aria-current="page" onclick="switchDashboardTab('home')" aria-label="Home Feed">
+                    <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Home</span>
+                </button>
+                <button type="button" class="sidebar-link" id="nav-explore" onclick="switchDashboardTab('explore')" aria-label="Explore Projects">
+                    <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    <span>Explore</span>
+                </button>
+                <button type="button" class="sidebar-link sidebar-link-create-btn" id="nav-create" onclick="SyncUpSheet.open('sheet-create-post')" aria-label="Create Post">
+                    <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    <span>Create Post</span>
+                </button>
+                <button type="button" class="sidebar-link" id="nav-inbox" onclick="switchDashboardTab('inbox')" aria-label="Inbox">
+                    <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                    <span>Inbox</span>
                     <span class="sidebar-link-badge" id="inbox-sidebar-badge" style="display:none;">0</span>
-                </div>
-                <div class="sidebar-link" id="nav-profile" onclick="switchDashboardTab('profile')">
-                    <span>👤</span> Profile
-                </div>
+                </button>
+                <button type="button" class="sidebar-link" id="nav-profile" onclick="switchDashboardTab('profile')" aria-label="Profile">
+                    <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Profile</span>
+                </button>
             </nav>
 
-            <!-- Sidebar User Profile Footer -->
+            <!-- Sidebar User Profile & Theme Toggle Footer -->
             <div class="sidebar-footer">
-                <div class="sidebar-user-preview" onclick="switchDashboardTab('profile')" title="View profile">
+                <button type="button" class="sidebar-user-preview" id="sidebar-user-preview" onclick="switchDashboardTab('profile')" title="View profile" aria-label="View profile">
                     <div class="sidebar-avatar" id="side-user-avatar">U</div>
                     <div class="sidebar-user-info">
                         <div class="sidebar-user-name" id="side-user-name">User</div>
                         <div class="sidebar-user-handle" id="side-user-handle">@username</div>
                     </div>
-                </div>
-                <div class="sidebar-link" onclick="logout()" style="color:#FCA5A5; margin-top:2px;">
-                    <span>🚪</span> Logout
-                </div>
+                </button>
+                <button type="button" class="sidebar-action-btn" id="theme-toggle-btn-sidebar" onclick="window.SyncUpApp.toggleTheme()" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                </button>
+                <button type="button" class="sidebar-action-btn" id="sidebar-logout" onclick="logout()" title="Logout from SyncUp" aria-label="Logout">
+                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
             </div>
         </aside>
 
@@ -384,28 +488,49 @@
             <!-- Email Verification Reminder Alert Banner -->
             <div id="email-verify-banner" class="security-banner hidden">
                 <div>
-                    <span>🔒</span> <strong>Account Security:</strong> Please verify your email address to enable official collaboration badges and spam protection.
+                    <strong>Account Security:</strong> Please verify your email address to enable official collaboration badges and spam protection.
                 </div>
-                <button class="btn btn-outline" style="font-size:0.75rem; padding:4px 12px; background:#FFFFFF;" onclick="sendEmailVerificationLink()">Send Verification Link</button>
+                <button type="button" class="btn btn-outline" style="font-size:var(--font-size-12); padding:4px 12px; background:#FFFFFF;" onclick="sendEmailVerificationLink()">Send Verification Link</button>
             </div>
 
             <!-- Top Dashboard Bar -->
             <header class="top-navbar">
                 <div style="display:flex; align-items:center; gap:16px; flex:1; max-width:480px;">
                     <!-- Live Search Bar -->
-                    <div class="search-container" style="width:100%;">
-                        <span class="search-icon">🔍</span>
+                    <div class="search-container" style="width:100%; position:relative;">
+                        <span class="search-icon" aria-hidden="true">
+                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </span>
                         <input type="text" class="search-input" id="global-search-input" aria-label="Search skills, projects, or users" placeholder="Search skills, projects, or users..." oninput="handleSearchFilter(this.value)">
+                        <button type="button" class="search-clear-btn hidden" id="search-clear-btn" aria-label="Clear search" onclick="window.SyncUpApp.clearSearch()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:var(--font-size-14); padding:4px;">✕</button>
                     </div>
                 </div>
 
                 <div class="top-bar-actions">
-                    <button class="btn btn-primary" onclick="SyncUpSheet.open('sheet-create-post')">
+                    <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" onclick="window.SyncUpApp.toggleTheme()" title="Toggle Dark/Light Mode" aria-label="Toggle dark mode">
+                        <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    </button>
+                    <div style="position:relative;">
+                        <button type="button" class="theme-toggle-btn" id="header-notif-btn" onclick="window.SyncUpApp.toggleNotificationsDropdown()" title="Notifications" aria-label="Notifications" style="position:relative;">
+                            <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span class="notif-count-badge hidden" id="header-notif-badge">0</span>
+                        </button>
+                        <div class="notifications-dropdown hidden" id="notifications-dropdown" role="region" aria-label="Notifications">
+                            <div class="notif-dropdown-header" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border);">
+                                <span style="font-weight:700; font-size:var(--font-size-14);">Notifications</span>
+                                <button type="button" onclick="window.SyncUpApp.markAllNotificationsRead()" style="background:none; border:none; color:var(--color-primary-btn); font-size:var(--font-size-12); font-weight:600; cursor:pointer;">Mark all read</button>
+                            </div>
+                            <div class="notif-dropdown-list" id="notif-dropdown-list" style="max-height:280px; overflow-y:auto;">
+                                <div style="padding:16px; text-align:center; color:var(--color-text-muted); font-size:var(--font-size-12);">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="SyncUpSheet.open('sheet-create-post')" aria-label="Create Post">
                         <span>+</span> Post
                     </button>
-                    <div class="author-avatar" id="top-nav-avatar" onclick="switchDashboardTab('profile')" style="cursor:pointer;" title="My Profile">
+                    <button type="button" class="author-avatar" id="top-nav-avatar" onclick="switchDashboardTab('profile')" style="cursor:pointer; border:none;" title="My Profile" aria-label="My Profile">
                         U
-                    </div>
+                    </button>
                 </div>
             </header>
 
@@ -413,19 +538,19 @@
             <div class="dashboard-grid-container">
                 <main class="center-feed-column" id="main-feed-column" tabindex="-1">
                     <!-- SUB-VIEW 1: HOME (FEED) -->
-                    <section id="subview-home">
+                    <section id="subview-home" aria-label="Home Feed">
                         <div class="category-filter-bar">
-                            <button class="category-pill active" onclick="filterByCategory('All')">All Posts</button>
-                            <button class="category-pill" onclick="filterByCategory('Hackathons')">Hackathons</button>
-                            <button class="category-pill" onclick="filterByCategory('College Projects')">College Projects</button>
-                            <button class="category-pill" onclick="filterByCategory('Portfolio')">Portfolio</button>
-                            <button class="category-pill" onclick="filterByCategory('Learning')">Learning</button>
+                            <button type="button" class="category-pill active" onclick="filterByCategory('All')">All Posts</button>
+                            <button type="button" class="category-pill" onclick="filterByCategory('Hackathons')">Hackathons</button>
+                            <button type="button" class="category-pill" onclick="filterByCategory('College Projects')">College Projects</button>
+                            <button type="button" class="category-pill" onclick="filterByCategory('Portfolio')">Portfolio</button>
+                            <button type="button" class="category-pill" onclick="filterByCategory('Learning')">Learning</button>
                         </div>
 
                         <!-- Multi-Dimensional Filter Toolbar: Skills, Roles Needed, Sort -->
                         <div id="feed-filter-toolbar" class="feed-filter-toolbar"></div>
 
-                        <!-- Feed Cards Stream (with Skeleton Loaders) -->
+                        <!-- Feed Cards Stream (with Keyed Reconciliation) -->
                         <div class="feed-container" id="feed-posts-stream">
                             <div style="text-align:center; padding: 60px 20px; color:var(--text-muted);">
                                 Loading projects...
@@ -434,19 +559,21 @@
                     </section>
 
                     <!-- SUB-VIEW 2: EXPLORE -->
-                    <section id="subview-explore" class="hidden">
+                    <section id="subview-explore" class="hidden" aria-label="Explore Projects">
                         <!-- Populated dynamically by window.SyncUpUIFeed.renderExplore() -->
                     </section>
 
                     <!-- SUB-VIEW 3: INBOX (Chats + Applications Tabs) -->
-                    <section id="subview-inbox" class="hidden">
+                    <section id="subview-inbox" class="hidden" aria-label="Inbox">
                         <div class="inbox-wrapper">
                             <div class="inbox-nav-tabs">
-                                <button class="inbox-tab-button active" id="btn-inbox-tab-chats" onclick="switchInboxTab('chats')">
-                                    <span>💬</span> Chats
+                                <button type="button" class="inbox-tab-button active" id="btn-inbox-tab-chats" onclick="switchInboxTab('chats')">
+                                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                    <span>Chats</span>
                                 </button>
-                                <button class="inbox-tab-button" id="btn-inbox-tab-apps" onclick="switchInboxTab('applications')">
-                                    <span>📥</span> Applications
+                                <button type="button" class="inbox-tab-button" id="btn-inbox-tab-apps" onclick="switchInboxTab('applications')">
+                                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                                    <span>Applications</span>
                                     <span class="inbox-tab-badge" id="inbox-tab-apps-badge" style="display:none;">0</span>
                                 </button>
                             </div>
@@ -454,46 +581,48 @@
                             <!-- Inbox Pane 1: Real-time Chats & DMs -->
                             <div class="inbox-tab-pane" id="inbox-pane-chats">
                                 <div class="chat-view-container" style="border:none; padding:0;">
-                                    <div class="chat-layout-box" style="height:620px; border-radius:0;">
-                                        <!-- Left: Contact Roster -->
+                                    <div class="chat-layout-box" id="chat-layout-box">
+                                        <!-- Left: Contact Roster (Full width on mobile until contact selected) -->
                                         <div class="chat-contacts-panel" id="chat-contacts-panel">
                                             <div class="chat-mode-tabs">
-                                                <button class="chat-mode-tab active" id="tab-mode-dm" onclick="switchChatMode('dm')">🔒 1-on-1 DMs</button>
-                                                <button class="chat-mode-tab" id="tab-mode-global" onclick="switchChatMode('global')">🌐 Global Room</button>
+                                                <button type="button" class="chat-mode-tab active" id="tab-mode-dm" onclick="switchChatMode('dm')">1-on-1 DMs</button>
+                                                <button type="button" class="chat-mode-tab" id="tab-mode-global" onclick="switchChatMode('global')">Global Room</button>
                                             </div>
                                             <div class="contacts-search-box">
-                                                <input type="text" class="form-input" placeholder="Search chats or users..." id="chat-search-input" aria-label="Search chats or users" oninput="filterChatContacts(this.value)" style="margin:0; padding:8px 12px; font-size:0.85rem;">
+                                                <input type="text" class="form-input" placeholder="Search chats or users..." id="chat-search-input" aria-label="Search chats or users" oninput="filterChatContacts(this.value)" style="margin:0; padding:8px 12px; font-size:var(--font-size-14);">
                                             </div>
                                             <div class="contacts-list" id="chat-contacts-list"></div>
                                         </div>
 
-                                        <!-- Right: Active Chat Thread -->
+                                        <!-- Right: Active Chat Thread (Full screen on mobile when active) -->
                                         <div class="chat-active-panel" id="chat-active-panel">
                                             <div class="chat-active-header">
                                                 <div class="chat-active-user-meta">
+                                                    <!-- Mobile Back Button to return to contact roster -->
+                                                    <button type="button" class="chat-mobile-back-btn" id="chat-mobile-back-btn" data-action="chat-mobile-back" aria-label="Back to contacts list" title="Back to contacts">
+                                                        <svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                                                    </button>
                                                     <div class="author-avatar" id="chat-active-avatar" style="width:40px; height:40px;">U</div>
                                                     <div>
-                                                        <div style="font-weight:700; font-size:0.95rem;" id="chat-active-name">Rohit Kumar</div>
+                                                        <div style="font-weight:700; font-size:var(--font-size-14);" id="chat-active-name">Rohit Kumar</div>
                                                         <div class="chat-active-status">
                                                             <span style="font-size:0.6rem;">●</span> <span id="chat-active-mode-label">Direct Message (Private)</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="chat-active-actions">
-                                                    <button class="btn-icon" title="Start voice call" aria-label="Start voice call" onclick="SyncUpToast.info('Voice call feature coming soon!', { icon: '🎙️' })">📞</button>
-                                                    <button class="btn-icon" title="Start video call" aria-label="Start video call" onclick="SyncUpToast.info('Video call feature coming soon!', { icon: '🎥' })">📹</button>
-                                                    <button class="btn-icon" title="Share repository link" aria-label="Share repository link" onclick="SyncUpToast.success('Repository link shared with partner!', { icon: '📋' })">🔗</button>
-                                                    <button class="btn-icon" style="color:var(--danger);" title="Block user" aria-label="Block user" onclick="blockCurrentChatContact()">🚫</button>
+                                                    <button type="button" class="btn-icon" style="color:var(--danger);" title="Block user" aria-label="Block user" onclick="blockCurrentChatContact()">
+                                                        <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                                    </button>
                                                 </div>
                                             </div>
 
                                             <div class="chat-messages-scroll" id="chat-messages-container"></div>
 
                                             <div class="chat-input-row">
-                                                <button class="btn-icon" title="Attach file" aria-label="Attach file" onclick="SyncUpToast.info('File attachments supported via project posts!', { icon: '📎' })">📎</button>
                                                 <input type="text" class="chat-text-input" id="chat-message-input" aria-label="Type a message" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
-                                                <button class="btn btn-primary" style="padding:10px 18px;" onclick="sendChatMessage()" aria-label="Send message">
-                                                    <span>➤</span>
+                                                <button type="button" class="btn btn-primary" style="padding:10px 18px;" onclick="sendChatMessage()" aria-label="Send message">
+                                                    <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                                 </button>
                                             </div>
                                         </div>
@@ -509,12 +638,13 @@
                     </section>
 
                     <!-- SUB-VIEW 4: PROFILE -->
-                    <section id="subview-profile" class="hidden">
+                    <section id="subview-profile" class="hidden" aria-label="Developer Profile">
                         <div class="profile-page-wrapper">
                             <div class="profile-page-header">
                                 <h2>Developer Profile</h2>
-                                <button class="btn btn-outline" onclick="openEditProfileModal()">
-                                    <span>✏️</span> Edit Profile
+                                <button type="button" class="btn btn-outline" onclick="openEditProfileModal()">
+                                    <svg class="lucide-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    <span>Edit Profile</span>
                                 </button>
                             </div>
 
@@ -556,35 +686,38 @@
                                         <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
                                             <div class="author-avatar" id="profile-side-thumb" style="width:54px; height:54px;">U</div>
                                             <div>
-                                                <button class="btn btn-outline" style="font-size:0.82rem; padding:6px 14px;" onclick="document.getElementById('profile-file-input').click()">Change Photo</button>
+                                                <button type="button" class="btn btn-outline" style="font-size:var(--font-size-14); padding:6px 14px;" onclick="document.getElementById('profile-file-input').click()">Change Photo</button>
                                                 <input type="file" id="profile-file-input" class="hidden" accept="image/*" onchange="handleProfilePhotoUpload(event)">
                                             </div>
                                         </div>
-                                        <p style="font-size:0.75rem; color:var(--text-muted);">Max 5MB. Automatic canvas compression applied.</p>
+                                        <p style="font-size:var(--font-size-12); color:var(--text-muted);">Max 5MB. Automatic canvas compression applied.</p>
                                     </div>
 
                                     <div class="profile-side-card">
                                         <h4>Education</h4>
                                         <div style="font-weight:600; color:var(--text-main);" id="prof-side-edu-title">BCA 2nd Sem</div>
-                                        <div style="font-size:0.85rem; color:var(--text-secondary);" id="prof-side-edu-sub">Amity University Patna</div>
+                                        <div style="font-size:var(--font-size-14); color:var(--text-secondary);" id="prof-side-edu-sub">Amity University Patna</div>
                                     </div>
 
                                     <div class="profile-side-card">
                                         <h4>Connect</h4>
-                                        <a href="https://github.com" target="_blank" class="social-link-btn" id="prof-link-github">
-                                            <span>🐙</span> GitHub Profile
+                                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="social-link-btn" id="prof-link-github">
+                                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                                            <span>GitHub Profile</span>
                                         </a>
-                                        <a href="https://linkedin.com" target="_blank" class="social-link-btn" id="prof-link-linkedin">
-                                            <span>💼</span> LinkedIn Profile
+                                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="social-link-btn" id="prof-link-linkedin">
+                                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                            <span>LinkedIn Profile</span>
                                         </a>
                                     </div>
 
                                     <!-- Account Settings & Logout (Moved under Profile) -->
                                     <div class="profile-side-card" style="border-top:2px solid var(--accent-green);">
                                         <h4>Account Settings</h4>
-                                        <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:14px;">Manage your active session and credentials.</p>
-                                        <button class="btn btn-outline" style="width:100%; color:var(--danger); border-color:var(--danger); margin-top:6px;" onclick="logout()">
-                                            <span>🚪</span> Logout from SyncUp
+                                        <p style="font-size:var(--font-size-14); color:var(--text-secondary); margin-bottom:14px;">Manage your active session and credentials.</p>
+                                        <button type="button" class="btn btn-outline" style="width:100%; color:var(--danger); border-color:var(--danger); margin-top:6px;" onclick="logout()">
+                                            <svg class="lucide-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                            <span>Logout from SyncUp</span>
                                         </button>
                                     </div>
                                 </div>
@@ -596,41 +729,54 @@
                 <!-- Desktop Right Rail (≥1024px) -->
                 <aside class="desktop-right-rail" aria-label="Sidebar highlights">
                     <div class="rail-card">
-                        <h4 class="rail-card-title"><span>🤝</span> Suggested Teams</h4>
+                        <h4 class="rail-card-title">
+                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Suggested Teams</span>
+                        </h4>
                         <div id="rail-suggested-teams"></div>
                     </div>
 
                     <div class="rail-card">
-                        <h4 class="rail-card-title"><span>📥</span> Your Applications</h4>
+                        <h4 class="rail-card-title">
+                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                            <span>Your Applications</span>
+                        </h4>
                         <div id="rail-pending-apps"></div>
                     </div>
 
                     <div class="rail-card">
-                        <h4 class="rail-card-title"><span>🔥</span> Trending Skills</h4>
+                        <h4 class="rail-card-title">
+                            <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Trending Skills</span>
+                        </h4>
                         <div id="rail-trending-skills"></div>
                     </div>
                 </aside>
             </div>
         </div>
 
-        <!-- Mobile 5-Destination Bottom Navigation Bar (<1024px) -->
+        <!-- Mobile 5-Destination Bottom Navigation Bar (<1024px, Buttons with aria-current) -->
         <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-            <div class="mobile-nav-item active" id="mob-nav-home" onclick="switchDashboardTab('home')">
-                <span style="font-size:1.25rem;">🏠</span> Home
-            </div>
-            <div class="mobile-nav-item" id="mob-nav-explore" onclick="switchDashboardTab('explore')">
-                <span style="font-size:1.25rem;">🧭</span> Explore
-            </div>
-            <div class="mobile-create-fab" id="mob-nav-create" onclick="SyncUpSheet.open('sheet-create-post')" aria-label="Create Post" title="Create Post">
+            <button type="button" class="mobile-nav-item active" id="mob-nav-home" aria-current="page" onclick="switchDashboardTab('home')" aria-label="Home Feed">
+                <svg class="lucide-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Home</span>
+            </button>
+            <button type="button" class="mobile-nav-item" id="mob-nav-explore" onclick="switchDashboardTab('explore')" aria-label="Explore Projects">
+                <svg class="lucide-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                <span>Explore</span>
+            </button>
+            <button type="button" class="mobile-create-fab" id="mob-nav-create" onclick="SyncUpSheet.open('sheet-create-post')" aria-label="Create Post" title="Create Post">
                 +
-            </div>
-            <div class="mobile-nav-item" id="mob-nav-inbox" onclick="switchDashboardTab('inbox')">
-                <span style="font-size:1.25rem;">📥</span> Inbox
+            </button>
+            <button type="button" class="mobile-nav-item" id="mob-nav-inbox" onclick="switchDashboardTab('inbox')" aria-label="Inbox">
+                <svg class="lucide-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                <span>Inbox</span>
                 <span class="mobile-nav-badge" id="inbox-mobile-badge" style="display:none;">0</span>
-            </div>
-            <div class="mobile-nav-item" id="mob-nav-profile" onclick="switchDashboardTab('profile')">
-                <span style="font-size:1.25rem;">👤</span> Profile
-            </div>
+            </button>
+            <button type="button" class="mobile-nav-item" id="mob-nav-profile" onclick="switchDashboardTab('profile')" aria-label="Profile">
+                <svg class="lucide-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Profile</span>
+            </button>
         </nav>
     </div>
 
@@ -645,7 +791,7 @@
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
                 <h3 id="sheet-title-create-post">Create a New Post</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
                 <!-- Two-Step Wizard Navigation Tabs -->
@@ -678,9 +824,9 @@
                         <div class="form-group">
                             <label for="post-inp-status" class="form-label">Project Status</label>
                             <select class="form-select" id="post-inp-status" onchange="updateLivePostPreview()">
-                                <option value="Recruiting">🟢 Recruiting (Need Teammates)</option>
-                                <option value="In Progress">🟡 In Progress (Team Full)</option>
-                                <option value="Completed">🔵 Completed (Showcase Only)</option>
+                                <option value="Recruiting">Recruiting (Need Teammates)</option>
+                                <option value="In Progress">In Progress (Team Full)</option>
+                                <option value="Completed">Completed (Showcase Only)</option>
                             </select>
                         </div>
                     </div>
@@ -688,7 +834,7 @@
                     <div class="form-group">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <label for="post-inp-desc" class="form-label">Project Description (Max 100 words) *</label>
-                            <span id="post-word-counter" aria-live="polite" style="font-size:0.75rem; color:var(--text-muted);">0 / 100</span>
+                            <span id="post-word-counter" aria-live="polite" style="font-size:var(--font-size-12); color:var(--text-muted);">0 / 100</span>
                         </div>
                         <textarea class="form-textarea" id="post-inp-desc" placeholder="Tell us what you're building, what tech you'll use, and what teammates you need..." oninput="handleWordLimitCount(this); updateLivePostPreview()"></textarea>
                     </div>
@@ -711,20 +857,20 @@
 
                     <div class="form-group">
                         <label class="form-label">Add Screenshot (optional)</label>
-                        <div class="upload-dropzone" onclick="document.getElementById('post-file-input').click()">
+                        <div class="upload-dropzone" onclick="document.getElementById('post-file-input').click()" role="button" tabindex="0">
                             <input type="file" id="post-file-input" class="hidden" accept="image/*" onchange="handlePostScreenshotUpload(event)">
-                            <div style="font-size:1.8rem; margin-bottom:6px;">☁️</div>
-                            <div style="font-size:0.88rem; font-weight:600; color:var(--primary-dark);">Click to upload or drag and drop</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">PNG, JPG (Max 5MB)</div>
+                            <div style="font-size:var(--font-size-28); margin-bottom:6px;">☁️</div>
+                            <div style="font-size:var(--font-size-14); font-weight:600; color:var(--primary-dark);">Click to upload or drag and drop</div>
+                            <div style="font-size:var(--font-size-12); color:var(--text-muted);">PNG, JPG (Max 5MB)</div>
                         </div>
                         <div id="post-image-preview-container" class="hidden" style="margin-top:10px; position:relative;">
                             <img id="post-image-preview" src="" loading="lazy" decoding="async" alt="Post attachment preview" style="width:100%; max-height:160px; object-fit:cover; border-radius:var(--radius-sm); border:1px solid var(--border);">
-                            <button type="button" class="btn btn-outline" style="margin-top:6px; padding:4px 10px; font-size:0.78rem; color:var(--danger); border-color:var(--danger);" onclick="removePostScreenshot()">✕ Remove Image</button>
+                            <button type="button" class="btn btn-outline" style="margin-top:6px; padding:4px 10px; font-size:var(--font-size-12); color:var(--danger); border-color:var(--danger);" onclick="removePostScreenshot()">✕ Remove Image</button>
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                        <span style="font-size:0.8rem; color:var(--text-muted);" id="words-remaining-note">100 words remaining</span>
+                        <span style="font-size:var(--font-size-14); color:var(--text-muted);" id="words-remaining-note">100 words remaining</span>
                         <div style="display:flex; gap:10px;">
                             <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
                             <button type="button" class="btn btn-primary" id="btn-next-preview" onclick="goToCreateStep(2)">Next: Preview →</button>
@@ -734,46 +880,41 @@
 
                 <!-- STEP 2: LIVE PREVIEW -->
                 <div id="create-step-preview" class="hidden">
-                    <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">Review how your project post will appear to other developers in the feed:</p>
-                    <div class="live-preview-box" style="margin-bottom:20px;">
-                        <div class="live-preview-header">
-                            <span>Community Post Preview</span>
+                    <p style="font-size:var(--font-size-14); color:var(--text-secondary); margin-bottom:14px;">Review how your project post will appear to other developers in the feed:</p>
+                    
+                    <!-- Post Card Preview Box -->
+                    <div class="project-card" style="box-shadow:none; border: 1.5px solid var(--border); margin-bottom:20px;">
+                        <div class="project-card-header">
+                            <div class="author-info-group">
+                                <div class="author-avatar" id="prev-avatar">U</div>
+                                <div>
+                                    <div class="author-name" id="prev-author-name">Your Name</div>
+                                    <div class="author-meta" id="prev-author-meta">@username · Just now</div>
+                                </div>
+                            </div>
+                            <span class="status-badge status-recruiting" id="prev-status-badge">Recruiting</span>
                         </div>
-                        <div class="project-card" style="box-shadow:none; margin:0; padding:16px;">
-                            <div class="project-card-header">
-                                <div class="author-meta-box">
-                                    <div class="author-avatar" id="prev-avatar" style="width:36px; height:36px;">U</div>
-                                    <div>
-                                        <div class="author-details-name" id="prev-author-name">You</div>
-                                        <div class="author-details-handle" id="prev-author-handle">@username</div>
-                                    </div>
-                                </div>
-                                <span class="status-badge status-recruiting" id="prev-status-badge">🟢 Recruiting</span>
+                        <h3 class="project-card-title" id="prev-title">Untitled Project</h3>
+                        <div class="project-card-description" id="prev-desc" style="font-size:var(--font-size-14);">
+                            Your project description will appear here as you type in step 1.
+                        </div>
+                        <div id="prev-image-box" class="hidden" style="margin-bottom:12px;">
+                            <img id="prev-attached-img" src="" loading="lazy" decoding="async" alt="Project screenshot preview" style="width:100%; max-height:220px; object-fit:cover; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                        </div>
+                        <div class="project-tags-cloud" id="prev-tags"></div>
+                        <div class="project-card-footer">
+                            <div class="card-social-stats">
+                                <span style="font-size:var(--font-size-12); color:var(--text-muted);">0 Likes</span>
                             </div>
-                            <div class="project-card-title" id="prev-title" style="font-size:1.05rem;">Project Title Here</div>
-                            <div class="project-card-description" id="prev-desc" style="font-size:0.86rem;">
-                                Your project preview will appear here...
-                            </div>
-                            <div class="project-tags-row" id="prev-tags">
-                                <span class="tag-pill">Skills Tag</span>
-                            </div>
-                            <div id="prev-img-wrap" class="hidden">
-                                <img id="prev-img" src="" loading="lazy" decoding="async" alt="Preview screenshot" style="width:100%; max-height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
-                            </div>
-                            <div class="project-card-footer" style="padding-top:8px;">
-                                <div class="post-social-actions">
-                                    <span style="font-size:0.82rem; color:var(--text-muted);">❤️ 0 Likes</span>
-                                </div>
-                                <button class="btn-collaborate" style="padding:4px 10px; font-size:0.78rem;" disabled>🤝 Apply to Join</button>
-                            </div>
+                            <button type="button" class="btn-collaborate" style="padding:4px 10px; font-size:var(--font-size-12);" disabled>Apply to Join</button>
                         </div>
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <button type="button" class="btn btn-outline" id="btn-create-back-edit" onclick="goToCreateStep(1)">← Edit Details</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                        <button type="button" class="btn btn-outline" onclick="goToCreateStep(1)">← Back to Details</button>
                         <div style="display:flex; gap:10px;">
                             <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="btn-submit-post" onclick="submitNewProjectPost()">+ Post to Feed</button>
+                            <button type="button" class="btn btn-primary" id="btn-submit-post" onclick="submitNewPost()">Publish Project Post</button>
                         </div>
                     </div>
                 </div>
@@ -783,17 +924,17 @@
 
     <!-- SHEET 2: APPLY TO JOIN TEAM -->
     <div class="sheet-overlay modal-overlay" id="sheet-apply-team" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="sheet-title-apply-team">
-        <div class="sheet-container modal-container" style="max-width:500px;">
+        <div class="sheet-container modal-container" style="max-width:540px;">
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
-                <h3 id="sheet-title-apply-team">🤝 Apply to Join Team</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <h3 id="sheet-title-apply-team">Apply to Join Team</h3>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
-                <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;" id="apply-modal-project-title">Applying to project...</p>
-                
+                <p style="font-size:var(--font-size-14); color:var(--text-secondary); margin-bottom:16px;" id="apply-modal-project-title">Applying to project...</p>
+
                 <div class="form-group">
-                    <label for="apply-role-select" class="form-label">Role You Wish to Take</label>
+                    <label for="apply-role-select" class="form-label">Role You Want to Fill</label>
                     <select class="form-select" id="apply-role-select">
                         <option value="Frontend Developer">Frontend Developer (React / Web)</option>
                         <option value="Backend Developer">Backend Developer (Node.js / Python / Java)</option>
@@ -812,8 +953,8 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn btn-primary" id="btn-submit-application" style="flex:1;" onclick="submitTeamApplication()">Submit Application</button>
-                    <button class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btn-submit-application" style="flex:1;" onclick="submitTeamApplication()">Submit Application</button>
+                    <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -824,8 +965,8 @@
         <div class="sheet-container modal-container" style="max-width:620px;">
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
-                <h3 id="sheet-title-review-apps">📥 Team Applications</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <h3 id="sheet-title-review-apps">Team Applications</h3>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body" id="applications-list-container">
                 <!-- Applications rendered dynamically -->
@@ -838,11 +979,11 @@
         <div class="sheet-container modal-container" style="max-width:480px;">
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
-                <h3 id="sheet-title-report-post" style="color:var(--danger);">🚩 Report Project Post</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <h3 id="sheet-title-report-post" style="color:var(--danger);">Report Project Post</h3>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
-                <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">Help us keep SyncUp safe. Tell us what is wrong with this post.</p>
+                <p style="font-size:var(--font-size-14); color:var(--text-secondary); margin-bottom:14px;">Help us keep SyncUp safe. Tell us what is wrong with this post.</p>
                 <div class="form-group">
                     <label for="report-reason-select" class="form-label">Reason</label>
                     <select class="form-select" id="report-reason-select">
@@ -858,8 +999,8 @@
                     <textarea class="form-textarea" id="report-details-text" placeholder="Explain the issue briefly..." style="min-height:70px;"></textarea>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn btn-primary" style="flex:1; background:var(--danger);" onclick="confirmSubmitReport()">Submit Report</button>
-                    <button class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
+                    <button type="button" class="btn btn-primary" style="flex:1; background:var(--danger);" onclick="confirmSubmitReport()">Submit Report</button>
+                    <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -871,7 +1012,7 @@
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
                 <h3 id="sheet-title-edit-prof">Edit Developer Profile</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
                 <div class="form-group">
@@ -900,8 +1041,8 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:24px;">
-                    <button class="btn btn-primary" id="btn-save-profile" style="flex:1;" onclick="saveProfileChanges()">Save Changes</button>
-                    <button class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-profile" style="flex:1;" onclick="saveProfileChanges()">Save Changes</button>
+                    <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -913,7 +1054,7 @@
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
                 <h3 id="sheet-title-add-skill">Add New Skill</h3>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
                 <div class="form-group">
@@ -921,8 +1062,8 @@
                     <input type="text" class="form-input" id="inp-single-skill" placeholder="e.g. TypeScript, Flutter, Docker" onkeydown="if(event.key === 'Enter') confirmAddSkill()">
                 </div>
                 <div style="display:flex; gap:10px; margin-top:16px;">
-                    <button class="btn btn-primary" style="flex:1;" onclick="confirmAddSkill()">Add Skill</button>
-                    <button class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
+                    <button type="button" class="btn btn-primary" style="flex:1;" onclick="confirmAddSkill()">Add Skill</button>
+                    <button type="button" class="btn btn-outline" onclick="SyncUpSheet.close()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -934,10 +1075,10 @@
             <div class="sheet-drag-handle"></div>
             <div class="sheet-header modal-header">
                 <div>
-                    <h3 id="sheet-title-onboarding">✨ Welcome to SyncUp!</h3>
-                    <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:2px;">Select 3 to 5 skills to personalize your collaboration feed</p>
+                    <h3 id="sheet-title-onboarding">Welcome to SyncUp!</h3>
+                    <p style="font-size:var(--font-size-14); color:var(--text-secondary); margin-top:2px;">Select 3 to 5 skills to personalize your collaboration feed</p>
                 </div>
-                <button class="sheet-close-btn modal-close-btn" aria-label="Close" onclick="SyncUpSheet.close()">✕</button>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close" onclick="SyncUpSheet.close()">✕</button>
             </div>
             <div class="sheet-body">
                 <div class="onboarding-skills-grid" id="onboarding-skills-selection">
@@ -954,9 +1095,53 @@
         </div>
     </div>
 
-    <!-- ==========================================================================
-         JAVASCRIPT APPLICATION LOGIC
-         ========================================================================== -->
+    <!-- SHEET 8: PRIVACY POLICY -->
+    <div class="sheet-overlay modal-overlay" id="sheet-privacy-policy" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="sheet-title-privacy">
+        <div class="sheet-container modal-container" style="max-width:580px;">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header modal-header">
+                <h3 id="sheet-title-privacy">SyncUp Privacy Policy</h3>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+            </div>
+            <div class="sheet-body" style="font-size:var(--font-size-14); line-height:1.6; color:var(--color-text-secondary); max-height:60vh; overflow-y:auto;">
+                <p style="margin-bottom:12px;"><strong>Effective Date:</strong> January 2026</p>
+                <p style="margin-bottom:12px;">SyncUp is designed as a privacy-respecting peer-to-peer collaboration platform for developers, student builders, and open source creators.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">1. Information We Collect</h4>
+                <p style="margin-bottom:12px;">We collect only the essential profile details you provide: username, email address, bio, skills, and portfolio links. Private subcollections protect your email and direct message applications.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">2. How Data Is Used</h4>
+                <p style="margin-bottom:12px;">Your public information powers team matching and project discovery. We do not sell or monetize personal developer data.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">3. Data Security & Storage</h4>
+                <p style="margin-bottom:12px;">Project images are compressed before upload to prevent quota abuse and keep storage footprints minimal. User authentication is secured via Firebase Auth.</p>
+                <div style="margin-top:20px; text-align:right;">
+                    <button type="button" class="btn btn-primary" onclick="SyncUpSheet.close()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 9: TERMS OF SERVICE -->
+    <div class="sheet-overlay modal-overlay" id="sheet-terms-of-service" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="sheet-title-terms">
+        <div class="sheet-container modal-container" style="max-width:580px;">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header modal-header">
+                <h3 id="sheet-title-terms">SyncUp Terms of Service</h3>
+                <button type="button" class="sheet-close-btn modal-close-btn" aria-label="Close dialog" onclick="SyncUpSheet.close()">✕</button>
+            </div>
+            <div class="sheet-body" style="font-size:var(--font-size-14); line-height:1.6; color:var(--color-text-secondary); max-height:60vh; overflow-y:auto;">
+                <p style="margin-bottom:12px;">Welcome to SyncUp! By accessing or using the platform, you agree to these Community Terms.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">1. Respectful Collaboration</h4>
+                <p style="margin-bottom:12px;">SyncUp is an inclusive community. Harassment, spam, abusive language, or unauthorized promotional posts are strictly prohibited.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">2. Intellectual Property</h4>
+                <p style="margin-bottom:12px;">You retain full ownership of any projects, code, or ideas you post. Collaborate fairly with teammates and credit open-source contributors.</p>
+                <h4 style="color:var(--color-text); margin:14px 0 6px;">3. Account Termination</h4>
+                <p style="margin-bottom:12px;">We reserve the right to suspend or remove accounts that violate safety guidelines or security rules.</p>
+                <div style="margin-top:20px; text-align:right;">
+                    <button type="button" class="btn btn-primary" onclick="SyncUpSheet.close()">I Agree</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ==========================================================================
          SYNCUP FOUR-LAYER ARCHITECTURE JAVASCRIPT ES MODULE
          UI Components -> Store -> Data Service -> Firestore / Storage / Auth

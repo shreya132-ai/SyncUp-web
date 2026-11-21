@@ -122,7 +122,7 @@
   align-items: center;
   justify-content: center;
   transition: var(--transition);
-  font-size: 1.1rem;
+  font-size: var(--font-size-16);
 }
 .btn-icon:hover {
   background: var(--color-surface-subtle);
@@ -431,7 +431,7 @@
 .sheet-close-btn, .modal-close-btn {
   background: transparent;
   border: none;
-  font-size: 1.25rem;
+  font-size: var(--font-size-20);
   color: var(--color-text-muted);
   cursor: pointer;
   padding: 4px;
@@ -541,7 +541,7 @@
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
+  font-size: var(--font-size-16);
   cursor: pointer;
   padding: 2px 6px;
 }
@@ -738,7 +738,7 @@
 
 /* Read receipt indicator */
 .read-receipt {
-  font-size: 0.72rem;
+  font-size: var(--font-size-12);
   color: var(--color-accent);
   font-weight: 700;
   margin-left: 4px;
@@ -861,4 +861,121 @@
 }
 .error-banner button:hover {
   background: #FEE2E2;
+}
+
+
+/* ==========================================================================
+   DARK THEME COMPONENT OVERRIDES
+   ========================================================================== */
+[data-theme="dark"] .project-card,
+[data-theme="dark"] .sheet-container,
+[data-theme="dark"] .modal-container,
+[data-theme="dark"] .profile-hero-card,
+[data-theme="dark"] .profile-side-card,
+[data-theme="dark"] .applicant-card,
+[data-theme="dark"] .category-pill {
+  background: var(--color-card-bg);
+  border-color: var(--border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .category-pill {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] .category-pill.active {
+  background: var(--color-primary-btn);
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .filter-chip-btn {
+  background: var(--color-surface-subtle);
+  border-color: var(--border);
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] .filter-chip-btn.active {
+  background: var(--color-primary-btn);
+  border-color: var(--color-primary-btn);
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .filter-select-control,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-textarea,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .comment-input,
+[data-theme="dark"] .chat-text-input {
+  background: var(--color-bg);
+  border-color: var(--border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .project-card-header .author-name,
+[data-theme="dark"] .project-card-title {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .post-dropdown-menu {
+  background: var(--color-card-bg);
+  border-color: var(--border);
+  box-shadow: var(--shadow-lg);
+}
+[data-theme="dark"] .dropdown-item:hover {
+  background: var(--color-surface-subtle);
+}
+
+[data-theme="dark"] .social-action-btn {
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] .social-action-btn:hover {
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .chat-view-container,
+[data-theme="dark"] .chat-active-panel,
+[data-theme="dark"] .chat-active-header,
+[data-theme="dark"] .chat-input-row {
+  background: var(--color-card-bg);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .chat-contacts-panel,
+[data-theme="dark"] .chat-messages-scroll {
+  background: var(--color-bg);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .chat-mode-tabs {
+  background: var(--color-card-bg);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .chat-mode-tab {
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] .chat-mode-tab.active {
+  color: #34D399;
+  background: var(--color-bg);
+}
+
+[data-theme="dark"] .contact-card-item {
+  border-bottom-color: var(--border);
+}
+[data-theme="dark"] .contact-card-item:hover {
+  background: var(--color-surface-subtle);
+}
+[data-theme="dark"] .contact-card-item.active {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+[data-theme="dark"] .message-bubble-row.theirs .message-bubble {
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .empty-state {
+  background: var(--color-card-bg);
+  border-color: var(--border);
 }

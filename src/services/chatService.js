@@ -67,3 +67,50 @@ export async function sendChatMessage(chatId, isGlobal, messageObj, participants
     createdAt: serverTime
   });
 }
+
+/**
+ * Subscribes to all active conversations for the authenticated user.
+ * Queries /chats where participants array-contains uid.
+ */
+export function listenToUserConversations(uid, onUpdate, onError) {
+  const db = getDb();
+  if (!db || !uid) return () => {};
+
+  try {
+    return db.collection("chats")
+      .where("participants", "array-contains", uid)
+      .orderBy("updatedAt", "desc")
+      .onSnapshot((snapshot) => {
+        const chats = [];
+        snapshot.forEach((doc) => {
+          chats.push({ id: doc.id, ...doc.data() });
+        });
+        onUpdate(chats);
+      }, (err) => {
+        if (onError) onError(err);
+      });
+  } catch (err) {
+    if (onError) onError(err);
+    return () => {};
+  }
+}
+
+/**
+ * Marks conversation as read by recording lastReadAt timestamp for the user.
+ */
+export async function markChatRead(chatId, uid) {
+  const db = getDb();
+  if (!db || !chatId || !uid) return;
+
+  try {
+    const FieldValue = window.firebase?.firestore?.FieldValue;
+    const serverTime = FieldValue ? FieldValue.serverTimestamp() : new Date().toISOString();
+    await db.collection("chats").doc(chatId).set({
+      lastReadAt: {
+        [uid]: serverTime
+      }
+    }, { merge: true });
+  } catch (err) {
+    console.warn("[ChatService] markChatRead notice:", err.message);
+  }
+}

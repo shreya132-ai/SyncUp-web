@@ -107,19 +107,31 @@ export function switchTab(destination) {
     const sub = document.getElementById('subview-' + d);
     if (sub) sub.classList.add('hidden');
     const nav = document.getElementById('nav-' + d);
-    if (nav) nav.classList.remove('active');
+    if (nav) {
+      nav.classList.remove('active');
+      nav.removeAttribute('aria-current');
+    }
     const mobNav = document.getElementById('mob-nav-' + d);
-    if (mobNav) mobNav.classList.remove('active');
+    if (mobNav) {
+      mobNav.classList.remove('active');
+      mobNav.removeAttribute('aria-current');
+    }
   });
 
   const activeSub = document.getElementById('subview-' + target);
   if (activeSub) activeSub.classList.remove('hidden');
 
   const navItem = document.getElementById('nav-' + target);
-  if (navItem) navItem.classList.add('active');
+  if (navItem) {
+    navItem.classList.add('active');
+    navItem.setAttribute('aria-current', 'page');
+  }
 
   const mobNavItem = document.getElementById('mob-nav-' + target);
-  if (mobNavItem) mobNavItem.classList.add('active');
+  if (mobNavItem) {
+    mobNavItem.classList.add('active');
+    mobNavItem.setAttribute('aria-current', 'page');
+  }
 
   if (target === 'inbox') {
     window.SyncUpApp?.initChatSubscription?.();

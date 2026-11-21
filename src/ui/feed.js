@@ -5,14 +5,17 @@
  * Subscribes to Store state, renders project cards stream, multi-dimensional
  * filters (category, skill, role, sort), pagination (20/load), skeleton loaders,
  * and desktop right rail widgets.
+ * Keyed DOM reconciler patches only modified cards, preserving draft inputs,
+ * keyboard focus, and scroll position.
  */
 
 import { renderPostCard } from './postCard.js';
 import { escapeHtml } from '../utils/dom.js';
+import { getIcon } from '../utils/icons.js';
 
 let lastFeedRenderKey = '';
 
-function getFeedRenderKey(state) {
+export function getFeedRenderKey(state) {
   if (!state) return '';
   const posts = state.posts || [];
   const pSummary = posts.map(p => `${p.id}:${p.likes}:${(p.comments || []).length}:${(p.applications || []).length}:${p.status}`).join('|');
@@ -34,7 +37,7 @@ function getFeedRenderKey(state) {
 }
 
 /**
- * Renders the center feed column.
+ * Renders the center feed column with keyed updates.
  */
 export function renderFeed(state, force = false) {
   const container = document.getElementById('feed-posts-stream');
@@ -79,8 +82,8 @@ export function renderFeed(state, force = false) {
   if (state.ui && state.ui.error && state.ui.error.feed) {
     container.innerHTML = `
       <div class="error-banner">
-        <span>⚠️ ${escapeHtml(state.ui.error.feed)}</span>
-        <button class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;" onclick="window.SyncUpApp.retryFeed()">Retry</button>
+        <span>${getIcon('flag', { size: 18 })} ${escapeHtml(state.ui.error.feed)}</span>
+        <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:var(--font-size-12);" data-action="retry-feed">Retry</button>
       </div>
     `;
     return;
@@ -116,11 +119,15 @@ export function renderFeed(state, force = false) {
     const rf = state.ui.roleFilter.toLowerCase();
     filtered = filtered.filter(p => {
       const targetText = ((p.text || '') + ' ' + (p.title || '') + ' ' + (p.category || '')).toLowerCase();
-      return targetText.includes(rf) || (p.rolesNeeded && p.rolesNeeded.some(r => r.toLowerCase().includes(rf)));
+      const rolesMatch = p.rolesNeeded && p.rolesNeeded.some(r => {
+        const name = typeof r === 'string' ? r : r.role;
+        return name && name.toLowerCase().includes(rf);
+      });
+      return targetText.includes(rf) || Boolean(rolesMatch);
     });
   }
 
-  // Search Term Filter
+  // Search Term Filter (Multi-filter: matches title, description, author, skills & roles)
   if (state.ui && state.ui.searchTerm) {
     const term = state.ui.searchTerm.toLowerCase();
     filtered = filtered.filter(p => {
@@ -128,8 +135,9 @@ export function renderFeed(state, force = false) {
       const text = (p.text || '').toLowerCase();
       const author = (p.userName || '').toLowerCase();
       const handle = (p.userHandle || '').toLowerCase();
-      const skills = (Array.isArray(p.skills) ? p.skills.join(' ') : (p.skills || '')).toLowerCase();
-      return title.includes(term) || text.includes(term) || author.includes(term) || handle.includes(term) || skills.includes(term);
+      const skills = (Array.isArray(p.skills) ? p.skills.join(' ') : '').toLowerCase();
+      const roles = (Array.isArray(p.rolesNeeded) ? p.rolesNeeded.map(r => typeof r === 'string' ? r : r.role).join(' ') : '').toLowerCase();
+      return title.includes(term) || text.includes(term) || author.includes(term) || handle.includes(term) || skills.includes(term) || roles.includes(term);
     });
   }
 
@@ -172,10 +180,10 @@ export function renderFeed(state, force = false) {
     toolbarCont.innerHTML = `
       <div class="filter-controls-row">
         <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:0.8rem; font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">Skills:</span>
+          <span style="font-size:var(--font-size-12); font-weight:700; color:var(--color-text-muted); text-transform:uppercase;">Skills:</span>
           <div class="filter-chips-scroll">
             ${popularSkills.map(s => `
-              <button type="button" class="filter-chip-btn ${activeSkill.toLowerCase() === s.toLowerCase() ? 'active' : ''}" onclick="window.SyncUpApp.filterBySkill('${s}')">
+              <button type="button" class="filter-chip-btn ${activeSkill.toLowerCase() === s.toLowerCase() ? 'active' : ''}" data-action="filter-skill" data-skill="${escapeHtml(s)}">
                 ${escapeHtml(s)}
               </button>
             `).join('')}
@@ -184,7 +192,7 @@ export function renderFeed(state, force = false) {
         
         <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
           <select class="filter-select-control" onchange="window.SyncUpApp.filterByRole(this.value)" aria-label="Filter by role needed">
-            <option value="All" ${(!state.ui || state.ui.roleFilter === 'All' || !state.ui.roleFilter) ? 'selected' : ''}>🎯 All Roles</option>
+            <option value="All" ${(!state.ui || state.ui.roleFilter === 'All' || !state.ui.roleFilter) ? 'selected' : ''}>All Roles</option>
             <option value="Frontend" ${state.ui && state.ui.roleFilter === 'Frontend' ? 'selected' : ''}>Frontend Developer</option>
             <option value="Backend" ${state.ui && state.ui.roleFilter === 'Backend' ? 'selected' : ''}>Backend Developer</option>
             <option value="UI/UX" ${state.ui && state.ui.roleFilter === 'UI/UX' ? 'selected' : ''}>UI/UX Designer</option>
@@ -194,8 +202,8 @@ export function renderFeed(state, force = false) {
           </select>
 
           <select class="filter-select-control" onchange="window.SyncUpApp.sortBy(this.value)" aria-label="Sort feed posts">
-            <option value="newest" ${(!state.ui || state.ui.sortOrder === 'newest' || !state.ui.sortOrder) ? 'selected' : ''}>⚡ Newest</option>
-            <option value="popular" ${state.ui && state.ui.sortOrder === 'popular' ? 'selected' : ''}>🔥 Most Active</option>
+            <option value="newest" ${(!state.ui || state.ui.sortOrder === 'newest' || !state.ui.sortOrder) ? 'selected' : ''}>Newest</option>
+            <option value="popular" ${state.ui && state.ui.sortOrder === 'popular' ? 'selected' : ''}>Most Active</option>
           </select>
         </div>
       </div>
@@ -206,14 +214,14 @@ export function renderFeed(state, force = false) {
   if (!filtered.length) {
     container.innerHTML = `
       <div class="empty-state">
-        <div style="font-size:3rem; margin-bottom:12px;">🔍</div>
+        <div style="margin-bottom:12px; color:var(--color-primary-btn);">${getIcon('search', { size: 40 })}</div>
         <h3 style="color:var(--color-primary-dark); margin-bottom:8px;">No projects match your filters</h3>
-        <p style="color:var(--color-text-secondary); max-width:440px; margin:0 auto 20px; font-size:0.92rem;">
+        <p style="color:var(--color-text-secondary); max-width:440px; margin:0 auto 20px; font-size:var(--font-size-14);">
           Try resetting your search or filter criteria to discover more exciting teams and open source projects!
         </p>
         <div style="display:flex; justify-content:center; gap:10px;">
-          <button class="btn btn-outline" onclick="window.SyncUpApp.resetFilters()">Reset All Filters</button>
-          <button class="btn btn-primary" onclick="window.SyncUpSheet.open('sheet-create-post')">+ Create Project Post</button>
+          <button type="button" class="btn btn-outline" data-action="reset-filters">Reset All Filters</button>
+          <button type="button" class="btn btn-primary" data-action="open-sheet" data-sheet-id="sheet-create-post">+ Create Project Post</button>
         </div>
       </div>
     `;
@@ -225,25 +233,115 @@ export function renderFeed(state, force = false) {
   const visible = filtered.slice(0, limit);
   const hasMore = filtered.length > limit;
 
-  let html = visible.map(post => renderPostCard(post, state)).join('');
+  // 7. Keyed DOM Reconciliation (preserves drafts, focus, scroll)
+  const activeEl = document.activeElement;
+  const activeId = activeEl ? activeEl.id : null;
+  const scrollPos = window.scrollY;
 
-  if (hasMore) {
-    html += `
-      <div style="text-align:center; padding: 24px 0 12px;">
-        <button class="btn btn-outline" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding: 8px 24px;" onclick="window.SyncUpApp.loadMorePosts()">
+  const commentDrafts = {};
+  container.querySelectorAll('input.comment-input[data-post-id]').forEach(inp => {
+    if (inp.dataset.postId && inp.value) {
+      commentDrafts[inp.dataset.postId] = inp.value;
+    }
+  });
+
+  const existingCards = {};
+  container.querySelectorAll('article.project-card[data-post-id]').forEach(card => {
+    existingCards[card.dataset.postId] = card;
+  });
+
+  if (Object.keys(existingCards).length === 0) {
+    // Initial render
+    let html = visible.map(post => renderPostCard(post, state)).join('');
+    if (hasMore) {
+      html += `
+        <div id="feed-pagination-box" style="text-align:center; padding: 24px 0 12px;">
+          <button type="button" class="btn btn-outline" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding: 8px 24px;" data-action="load-more-posts">
+            Load More Projects (${visible.length} of ${filtered.length})
+          </button>
+        </div>
+      `;
+    } else if (filtered.length > 20) {
+      html += `
+        <div id="feed-pagination-box" style="text-align:center; padding: 20px 0; color:var(--color-text-muted); font-size:var(--font-size-14);">
+          Showing all ${filtered.length} projects
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  } else {
+    // Keyed reconciler
+    const fragment = document.createDocumentFragment();
+    visible.forEach(post => {
+      const cardHtml = renderPostCard(post, state);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = cardHtml;
+      const newCardNode = tempDiv.firstElementChild;
+
+      if (existingCards[post.id]) {
+        const oldCard = existingCards[post.id];
+        if (oldCard.outerHTML !== newCardNode.outerHTML) {
+          oldCard.replaceWith(newCardNode);
+          fragment.appendChild(newCardNode);
+        } else {
+          fragment.appendChild(oldCard);
+        }
+        delete existingCards[post.id];
+      } else {
+        fragment.appendChild(newCardNode);
+      }
+    });
+
+    // Remove obsolete cards
+    Object.values(existingCards).forEach(card => {
+      card.remove();
+    });
+
+    // Pagination box
+    const oldPagination = document.getElementById('feed-pagination-box');
+    if (oldPagination) oldPagination.remove();
+
+    if (hasMore) {
+      const pagDiv = document.createElement('div');
+      pagDiv.id = 'feed-pagination-box';
+      pagDiv.style.cssText = 'text-align:center; padding: 24px 0 12px;';
+      pagDiv.innerHTML = `
+        <button type="button" class="btn btn-outline" style="border-radius:var(--radius-button); min-height:var(--touch-target-min); padding: 8px 24px;" data-action="load-more-posts">
           Load More Projects (${visible.length} of ${filtered.length})
         </button>
-      </div>
-    `;
-  } else if (filtered.length > 20) {
-    html += `
-      <div style="text-align:center; padding: 20px 0; color:var(--color-text-muted); font-size:var(--font-size-14);">
-        Showing all ${filtered.length} projects
-      </div>
-    `;
+      `;
+      fragment.appendChild(pagDiv);
+    } else if (filtered.length > 20) {
+      const compDiv = document.createElement('div');
+      compDiv.id = 'feed-pagination-box';
+      compDiv.style.cssText = 'text-align:center; padding: 20px 0; color:var(--color-text-muted); font-size:var(--font-size-14);';
+      compDiv.innerText = `Showing all ${filtered.length} projects`;
+      fragment.appendChild(compDiv);
+    }
+
+    container.replaceChildren(fragment);
   }
 
-  container.innerHTML = html;
+  // Restore comment drafts into inputs
+  Object.keys(commentDrafts).forEach(pid => {
+    const inp = container.querySelector(`input.comment-input[data-post-id="${pid}"]`);
+    if (inp && !inp.value) {
+      inp.value = commentDrafts[pid];
+    }
+  });
+
+  // Restore active focus if applicable
+  if (activeId) {
+    const restoredEl = document.getElementById(activeId);
+    if (restoredEl && typeof restoredEl.focus === 'function') {
+      restoredEl.focus();
+    }
+  }
+
+  // Restore scroll position
+  if (typeof window !== 'undefined' && window.scrollY !== scrollPos) {
+    window.scrollTo({ top: scrollPos, behavior: 'instant' });
+  }
 }
 
 /**
@@ -262,16 +360,17 @@ export function renderRightRail(state) {
     if (otherPosts.length) {
       suggestedRail.innerHTML = otherPosts.map(p => {
         const skills = Array.isArray(p.skills) ? p.skills.slice(0, 2).join(', ') : (p.skills || 'Tech');
+        const firstSkill = Array.isArray(p.skills) ? (p.skills[0] || 'All') : 'All';
         return `
-          <div class="rail-item" onclick="window.SyncUpApp.filterBySkill('${Array.isArray(p.skills) ? (p.skills[0] || 'All') : 'All'}')" style="cursor:pointer;" title="View team">
-            <div style="font-weight:600; font-size:0.88rem; color:var(--color-text-main);">${escapeHtml(p.title || 'Untitled Project')}</div>
-            <div style="font-size:0.75rem; color:var(--color-primary-dark); margin-top:2px;">Needs: ${escapeHtml(skills)}</div>
-            <div style="font-size:0.72rem; color:var(--color-text-muted); margin-top:2px;">Lead: ${escapeHtml(p.userName || 'Author')}</div>
-          </div>
+          <button type="button" class="rail-item" data-action="filter-skill" data-skill="${escapeHtml(firstSkill)}" title="View team" aria-label="View team for ${escapeHtml(p.title || 'Project')}">
+            <div style="font-weight:600; font-size:var(--font-size-14); color:var(--color-text);">${escapeHtml(p.title || 'Untitled Project')}</div>
+            <div style="font-size:var(--font-size-12); color:var(--color-primary-btn); margin-top:2px;">Needs: ${escapeHtml(skills)}</div>
+            <div style="font-size:var(--font-size-12); color:var(--color-text-muted); margin-top:2px;">Lead: ${escapeHtml(p.userName || 'Author')}</div>
+          </button>
         `;
       }).join('');
     } else {
-      suggestedRail.innerHTML = `<div style="font-size:0.8rem; color:var(--color-text-muted); padding:4px 0;">No new team suggestions right now.</div>`;
+      suggestedRail.innerHTML = `<div style="font-size:var(--font-size-12); color:var(--color-text-muted); padding:4px 0;">No new team suggestions right now.</div>`;
     }
   }
 
@@ -291,13 +390,13 @@ export function renderRightRail(state) {
     if (myApps.length) {
       pendingRail.innerHTML = myApps.slice(0, 3).map(a => `
         <div class="rail-item" style="border-left:3px solid var(--warning); padding-left:8px;">
-          <div style="font-weight:600; font-size:0.84rem; color:var(--color-text-main);">${escapeHtml(a.projectTitle)}</div>
-          <div style="font-size:0.75rem; color:var(--color-text-secondary); margin-top:2px;">Role: ${escapeHtml(a.role)}</div>
-          <span class="status-badge" style="background:#FEF3C7; color:#92400E; font-size:0.68rem; margin-top:4px;">Pending Review</span>
+          <div style="font-weight:600; font-size:var(--font-size-14); color:var(--color-text);">${escapeHtml(a.projectTitle)}</div>
+          <div style="font-size:var(--font-size-12); color:var(--color-text-secondary); margin-top:2px;">Role: ${escapeHtml(a.role)}</div>
+          <span class="status-badge" style="background:#FEF3C7; color:#92400E; font-size:var(--font-size-12); margin-top:4px;">Pending Review</span>
         </div>
       `).join('');
     } else {
-      pendingRail.innerHTML = `<div style="font-size:0.8rem; color:var(--color-text-muted); padding:4px 0;">No pending team applications.</div>`;
+      pendingRail.innerHTML = `<div style="font-size:var(--font-size-12); color:var(--color-text-muted); padding:4px 0;">No pending team applications.</div>`;
     }
   }
 
@@ -323,14 +422,14 @@ export function renderRightRail(state) {
       skillsRail.innerHTML = `
         <div style="display:flex; flex-wrap:wrap; gap:6px;">
           ${sortedSkills.map(([skill, count]) => `
-            <button type="button" class="tag-pill" style="font-size:0.75rem; cursor:pointer;" onclick="window.SyncUpApp.filterBySkill('${escapeHtml(skill)}')">
-              ${escapeHtml(skill)} <span style="font-size:0.65rem; color:var(--color-text-muted); margin-left:3px;">${count}</span>
+            <button type="button" class="tag-pill" style="font-size:var(--font-size-12); cursor:pointer;" data-action="filter-skill" data-skill="${escapeHtml(skill)}">
+              ${escapeHtml(skill)} <span style="font-size:var(--font-size-12); color:var(--color-text-muted); margin-left:3px;">${count}</span>
             </button>
           `).join('')}
         </div>
       `;
     } else {
-      skillsRail.innerHTML = `<div style="font-size:0.8rem; color:var(--color-text-muted); padding:4px 0;">No skill tags detected yet.</div>`;
+      skillsRail.innerHTML = `<div style="font-size:var(--font-size-12); color:var(--color-text-muted); padding:4px 0;">No skill tags detected yet.</div>`;
     }
   }
 }

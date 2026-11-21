@@ -19,6 +19,34 @@ export function escapeHtml(str) {
 }
 
 /**
+ * URL Safety sanitizer: validates that a URL is well-formed and uses strictly http: or https:
+ * Accepts only http/https via new URL.
+ * Also safely permits verified data:image/ for client-compressed local images when allowDataImage is true.
+ * Returns empty string on any invalid, malformed, or dangerous protocol (e.g. javascript:, data:text/html, vbscript:).
+ */
+export function safeUrl(u, { allowDataImage = true } = {}) {
+  if (!u || typeof u !== 'string') return '';
+  const trimmed = u.trim();
+  if (!trimmed) return '';
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+    if (allowDataImage && parsed.protocol === 'data:' && /^data:image\/(jpeg|jpg|png|webp|gif);base64,/i.test(trimmed)) {
+      return trimmed;
+    }
+    return '';
+  } catch (e) {
+    if (allowDataImage && /^data:image\/(jpeg|jpg|png|webp|gif);base64,/i.test(trimmed)) {
+      return trimmed;
+    }
+    return '';
+  }
+}
+
+/**
  * Helper to safely create an element with attributes and safe text/children.
  */
 export function createElement(tag, attributes = {}, ...children) {

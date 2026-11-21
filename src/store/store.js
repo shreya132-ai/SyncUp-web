@@ -10,6 +10,7 @@
 import * as postsService from '../services/postsService.js';
 import * as chatService from '../services/chatService.js';
 import * as authService from '../services/authService.js';
+import * as notificationsService from '../services/notificationsService.js';
 import { showToast } from '../ui/toast.js';
 
 // Curated Default Storyboard Posts
@@ -21,6 +22,11 @@ export const defaultFeaturedPosts = [
     category: "College Projects",
     status: "Recruiting",
     skills: ["React", "Node.js", "MongoDB", "UI/UX"],
+    rolesNeeded: [
+      { role: "Frontend Developer (React)", filled: false },
+      { role: "UI/UX Designer", filled: false }
+    ],
+    rolesOpen: 2,
     userName: "Rohit Kumar",
     userHandle: "@rohit_dev",
     college: "Amity University | BCA 2nd Sem",
@@ -55,6 +61,11 @@ export const defaultFeaturedPosts = [
     category: "Hackathons",
     status: "Recruiting",
     skills: ["Python", "FastAPI", "OpenAI", "React"],
+    rolesNeeded: [
+      { role: "FastAPI Engineer", filled: false },
+      { role: "Prompt Specialist", filled: false }
+    ],
+    rolesOpen: 2,
     userName: "Priya Sharma",
     userHandle: "@priya_code",
     college: "Patna University | CS",
@@ -76,6 +87,11 @@ export const defaultFeaturedPosts = [
     category: "College Projects",
     status: "In Progress",
     skills: ["Solidity", "Next.js", "Tailwind", "Web3"],
+    rolesNeeded: [
+      { role: "Solidity Developer", filled: true },
+      { role: "Next.js Frontend", filled: true }
+    ],
+    rolesOpen: 0,
     userName: "Arjun Mehta",
     userHandle: "@arjun_m",
     college: "Amity Patna | BCA 2nd Sem",
@@ -95,6 +111,11 @@ export const defaultFeaturedPosts = [
     category: "Hackathons",
     status: "Completed",
     skills: ["Flutter", "Dart", "Firebase", "Figma"],
+    rolesNeeded: [
+      { role: "Flutter Developer", filled: true },
+      { role: "Firebase Architect", filled: true }
+    ],
+    rolesOpen: 0,
     userName: "Sneha Verma",
     userHandle: "@sneha_v",
     college: "NIT Patna | IT",
@@ -126,6 +147,11 @@ export const defaultMyUploads = [
     category: "College Projects",
     status: "Recruiting",
     skills: ["React", "Node.js", "MongoDB", "Socket.io"],
+    rolesNeeded: [
+      { role: "Backend Engineer", filled: false },
+      { role: "React Developer", filled: false }
+    ],
+    rolesOpen: 2,
     likes: 7,
     likedBy: [],
     comments: [
@@ -158,6 +184,16 @@ let state = {
   posts: [...defaultFeaturedPosts],
   user: null,
   myUploads: [...defaultMyUploads],
+  notifications: [
+    {
+      id: "notif_welcome",
+      type: "message",
+      text: "Welcome to SyncUp! Discover projects, pitch ideas, or find collaborators.",
+      read: false,
+      createdAt: Date.now() - 3600000
+    }
+  ],
+  savedPosts: [],
   chats: {
     activeMode: 'dm',
     activeContact: defaultChatContacts[0],
@@ -169,6 +205,10 @@ let state = {
     currentView: 'landing',
     currentTab: 'home',
     inboxTab: 'chats',
+    profileTab: 'projects',
+    viewingProfileUid: null,
+    pendingDeletePostId: null,
+    pendingEditPostId: null,
     categoryFilter: 'All',
     skillFilter: 'All',
     roleFilter: 'All',
@@ -315,9 +355,15 @@ export async function createPost(postData) {
   const prevPosts = [...state.posts];
   const newPostId = 'post_' + Date.now();
 
+  const rawRoles = postData.rolesNeeded && postData.rolesNeeded.length
+    ? postData.rolesNeeded
+    : (postData.skills || ['Developer']).slice(0, 2).map(s => ({ role: `${s} Developer`, filled: false }));
+
   const optimisticPost = {
     id: newPostId,
     ...postData,
+    rolesNeeded: rawRoles,
+    rolesOpen: rawRoles.filter(r => !r.filled).length,
     likes: 0,
     likedBy: [],
     comments: [],
@@ -411,11 +457,48 @@ export async function commentPost(postId, text) {
   try {
     // 2. Background Sync
     await postsService.commentPost(postId, newComment);
+
+    // Notify author if someone else commented
+    if (post.userUid && state.user && post.userUid !== state.user.uid) {
+      notificationsService.createNotification(post.userUid, {
+        type: 'comment',
+        postId,
+        text: `${newComment.u} commented on your project "${post.title}".`
+      });
+    }
   } catch (err) {
     // 3. Rollback
     state.posts = prevPosts;
     notify();
     showToast({ message: "Failed to post comment. Rolled back.", icon: "⚠️", type: "error" });
+  }
+}
+
+export async function editPost(postId, updatedFields) {
+  const prevPosts = [...state.posts];
+  const prevUploads = [...state.myUploads];
+
+  const postIdx = state.posts.findIndex(p => p.id === postId);
+  if (postIdx > -1) {
+    state.posts[postIdx] = { ...state.posts[postIdx], ...updatedFields };
+    if (updatedFields.rolesNeeded) {
+      state.posts[postIdx].rolesOpen = updatedFields.rolesNeeded.filter(r => !r.filled).length;
+    }
+  }
+  const uploadIdx = state.myUploads.findIndex(p => p.id === postId);
+  if (uploadIdx > -1) {
+    state.myUploads[uploadIdx] = { ...state.myUploads[uploadIdx], ...updatedFields };
+  }
+  notify();
+  showToast({ message: "Project updated successfully!", icon: "✏️", type: "success" });
+
+  try {
+    await postsService.updatePost(postId, updatedFields);
+  } catch (err) {
+    state.posts = prevPosts;
+    state.myUploads = prevUploads;
+    notify();
+    showToast({ message: "Could not update project. Rolled back.", icon: "⚠️", type: "error" });
   }
 }
 
@@ -512,6 +595,15 @@ export async function applyToPost(postId, role, pitch) {
   try {
     // 2. Background Sync
     await postsService.applyToPost(postId, appObj);
+
+    // Notify project lead
+    if (post.userUid && state.user && post.userUid !== state.user.uid) {
+      notificationsService.createNotification(post.userUid, {
+        type: 'application',
+        postId,
+        text: `${state.user.name} applied for role "${role}" on your project "${post.title}".`
+      });
+    }
   } catch (err) {
     // 3. Rollback
     state.posts = prevPosts;
@@ -531,9 +623,37 @@ export async function updateApplicationStatus(postId, appIndex, newStatus) {
 
   // 1. Optimistic Update
   post.applications[appIndex].status = newStatus;
-  notify();
 
   if (newStatus === 'accepted') {
+    // Mark matching role filled
+    if (post.rolesNeeded && post.rolesNeeded.length > 0) {
+      let roleIdx = post.rolesNeeded.findIndex(r => !r.filled && r.role.toLowerCase() === (applicant.role || '').toLowerCase());
+      if (roleIdx === -1) {
+        roleIdx = post.rolesNeeded.findIndex(r => !r.filled);
+      }
+      if (roleIdx !== -1) {
+        post.rolesNeeded[roleIdx].filled = true;
+      }
+      post.rolesOpen = post.rolesNeeded.filter(r => !r.filled).length;
+
+      // When all filled, auto-set status to "In Progress"
+      const allFilled = post.rolesNeeded.every(r => r.filled);
+      if (allFilled && post.status === 'Recruiting') {
+        post.status = 'In Progress';
+        showToast({ message: `All roles filled! Project moved to "In Progress".`, icon: "🎯", type: "info" });
+      }
+    }
+
+    // Notify applicant
+    if (applicant.applicantUid) {
+      notificationsService.createNotification(applicant.applicantUid, {
+        type: 'application_accepted',
+        postId,
+        text: `🎉 Congratulations! Your application for "${post.title}" as ${applicant.role} was accepted!`
+      });
+    }
+
+    notify();
     showToast({ message: `Accepted ${applicantName}! Opening team chat...`, icon: "🎉", type: "success" });
     setTimeout(() => {
       closeModal();
@@ -547,6 +667,27 @@ export async function updateApplicationStatus(postId, appIndex, newStatus) {
       sendMessage(welcomeMsg);
     }, 300);
   } else if (newStatus === 'declined') {
+    if (prevStatus === 'accepted' && post.rolesNeeded) {
+      const filledRole = post.rolesNeeded.find(r => r.filled && r.role.toLowerCase() === (applicant.role || '').toLowerCase());
+      if (filledRole) {
+        filledRole.filled = false;
+        post.rolesOpen = post.rolesNeeded.filter(r => !r.filled).length;
+        if (post.status === 'In Progress') {
+          post.status = 'Recruiting';
+        }
+      }
+    }
+
+    // Notify applicant
+    if (applicant.applicantUid) {
+      notificationsService.createNotification(applicant.applicantUid, {
+        type: 'application_declined',
+        postId,
+        text: `Your application for "${post.title}" was declined.`
+      });
+    }
+
+    notify();
     showToast({
       message: `Declined application from ${applicantName}.`,
       icon: "ℹ️",
@@ -557,12 +698,19 @@ export async function updateApplicationStatus(postId, appIndex, newStatus) {
       }
     });
   } else if (newStatus === 'pending') {
+    notify();
     showToast({ message: `Application from ${applicantName} restored to Pending.`, icon: "↩️", type: "success" });
   }
 
   try {
     // 2. Background Sync
     await postsService.updateApplicationStatus(postId, post.applications);
+    if (post.rolesNeeded) {
+      await postsService.updatePost(postId, {
+        rolesNeeded: post.rolesNeeded,
+        status: post.status
+      });
+    }
   } catch (err) {
     // 3. Rollback
     post.applications[appIndex].status = prevStatus;
@@ -611,35 +759,12 @@ export async function sendMessage(text) {
     // 2. Background Sync
     await chatService.sendChatMessage(docId, state.chats.activeMode === 'global', newMsg, participants);
 
-    // Realistic Simulated Partner Reply in DM mode
-    if (state.chats.activeMode === 'dm' && state.chats.activeContact && state.chats.activeContact.uid.startsWith('user_')) {
-      const partner = state.chats.activeContact;
-      setTimeout(() => {
-        state.chats.isPartnerTyping = true;
-        notify();
-      }, 350);
-
-      setTimeout(() => {
-        state.chats.isPartnerTyping = false;
-        const replies = [
-          `Sounds great! Let's build this together. When can we sync on GitHub?`,
-          `Awesome! I'll review the components and architecture today.`,
-          `Got it! I can take care of the backend schema and APIs.`,
-          `Super excited to collaborate on this! Let's make it great.`
-        ];
-        const replyMsg = {
-          uid: partner.uid,
-          senderName: partner.name,
-          text: replies[Math.floor(Math.random() * replies.length)],
-          isMe: false,
-          timestamp: new Date().toISOString()
-        };
-        if (!state.chats.threads[docId]) state.chats.threads[docId] = [];
-        state.chats.threads[docId].push(replyMsg);
-        partner.lastMsg = replyMsg.text;
-        partner.time = 'Just now';
-        notify();
-      }, 1500);
+    // Notify recipient of new DM
+    if (targetUid && (!state.user || targetUid !== state.user.uid) && targetUid.startsWith('user_')) {
+      notificationsService.createNotification(targetUid, {
+        type: 'message',
+        text: `New message from ${senderName}: "${text.slice(0, 45)}"`
+      });
     }
   } catch (err) {
     // 3. Rollback
@@ -663,7 +788,13 @@ export function selectContact(contactId) {
   const contact = state.chats.contacts.find(c => c.id === contactId);
   if (contact) {
     state.chats.activeContact = contact;
+    contact.unreadCount = 0;
     notify();
+
+    if (state.user && !state.user.isAnonymous) {
+      const docId = getChatDocId();
+      chatService.markChatRead(docId, state.user.uid);
+    }
   }
 }
 
@@ -685,4 +816,93 @@ export function triggerDirectChatCTA(contactUid, authorName, authorHandle, proje
     state.chats.contacts.unshift(contact);
   }
   selectContact(contact.id);
+}
+
+// =============================================================================
+// PHASE 4 FEATURE ACTIONS: Bookmarks, Notifications, Profiles & Delete Confirm
+// =============================================================================
+
+export async function bookmarkPost(postId) {
+  if (!state.user) {
+    showToast({ message: "Please login to save projects.", icon: "🔒", type: "info" });
+    return;
+  }
+
+  const user = { ...state.user };
+  if (!user.savedPosts) user.savedPosts = [];
+  const isSaved = user.savedPosts.includes(postId);
+
+  if (isSaved) {
+    user.savedPosts = user.savedPosts.filter(id => id !== postId);
+    showToast({ message: "Removed from saved projects.", icon: "🔖", type: "info" });
+  } else {
+    user.savedPosts.push(postId);
+    showToast({ message: "Project saved to bookmarks!", icon: "🔖", type: "success" });
+  }
+
+  setUser(user);
+  if (!user.isAnonymous) {
+    try {
+      await authService.saveUserProfile(user.uid, { savedPosts: user.savedPosts });
+    } catch (e) {
+      console.warn("[Store] bookmarkPost sync notice:", e.message);
+    }
+  }
+}
+
+export function viewProfile(uid) {
+  setUi({
+    currentTab: 'profile',
+    viewingProfileUid: uid,
+    profileTab: 'projects'
+  });
+  if (typeof window !== 'undefined' && window.location) {
+    window.location.hash = uid ? `#/profile/${uid}` : '#/profile';
+  }
+}
+
+export function openDeleteConfirm(postId) {
+  state.ui.pendingDeletePostId = postId;
+  openModal('sheet-delete-confirm', { postId });
+}
+
+export async function confirmDeletePost() {
+  const postId = state.ui.pendingDeletePostId;
+  closeModal();
+  if (postId) {
+    await deletePost(postId);
+    state.ui.pendingDeletePostId = null;
+  }
+}
+
+export async function markAllNotificationsRead() {
+  if (state.notifications) {
+    state.notifications.forEach(n => { n.read = true; });
+    notify();
+  }
+  if (state.user && !state.user.isAnonymous) {
+    await notificationsService.markAllNotificationsRead(state.user.uid);
+  }
+  showToast({ message: "All notifications marked as read.", icon: "✓", type: "info" });
+}
+
+export async function markNotificationRead(notifId) {
+  const notif = (state.notifications || []).find(n => n.id === notifId);
+  if (notif) {
+    notif.read = true;
+    notify();
+  }
+  if (state.user && !state.user.isAnonymous) {
+    await notificationsService.markNotificationRead(state.user.uid, notifId);
+  }
+}
+
+export function setNotifications(list) {
+  state.notifications = list;
+  notify();
+}
+
+export function setChatContacts(contacts) {
+  state.chats.contacts = contacts;
+  notify();
 }

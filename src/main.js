@@ -284,7 +284,8 @@ async function handleProfilePhotoUpload(e) {
   if (!e.target.files || !e.target.files.length) return;
   const file = e.target.files[0];
   try {
-    const compressed = await compressImage(file, 400, 400, 0.8);
+    // Compress avatar enforcing under 70 KB target
+    const compressed = await compressImage(file, { maxWidth: 400, maxHeight: 400, quality: 0.8, maxBytes: 70 * 1024 });
     const state = store.getState();
     if (state.user) {
       const updated = { ...state.user, pic: compressed };
@@ -298,26 +299,259 @@ async function handleProfilePhotoUpload(e) {
   }
 }
 
-// Global click & escape handler
-window.addEventListener('click', (e) => {
+// Client-side rate limiting / debouncing guards
+const pendingLikes = new Set();
+let lastCommentTime = 0;
+
+function handleDelegatedAction(action, el, e) {
+  switch (action) {
+    case 'toggle-dropdown': {
+      const postId = el.dataset.postId;
+      if (postId) toggleDropdown(postId);
+      break;
+    }
+    case 'delete-post': {
+      const postId = el.dataset.postId;
+      if (postId) store.deletePost(postId);
+      break;
+    }
+    case 'report-post': {
+      const postId = el.dataset.postId;
+      if (postId) openSheet('sheet-report-post', { reportPostId: postId });
+      break;
+    }
+    case 'block-user': {
+      const userUid = el.dataset.userUid;
+      const userName = el.dataset.userName || 'Author';
+      if (userUid) blockUserPrompt(userUid, userName);
+      break;
+    }
+    case 'like-post': {
+      const postId = el.dataset.postId;
+      if (!postId) break;
+      if (pendingLikes.has(postId)) break;
+      pendingLikes.add(postId);
+      store.likePost(postId).finally(() => {
+        setTimeout(() => pendingLikes.delete(postId), 350);
+      });
+      break;
+    }
+    case 'toggle-comments': {
+      const postId = el.dataset.postId;
+      if (postId) toggleComments(postId);
+      break;
+    }
+    case 'chat-cta': {
+      const { userUid, userName, userHandle, projectTitle } = el.dataset;
+      store.triggerDirectChatCTA(userUid, userName, userHandle, projectTitle);
+      break;
+    }
+    case 'chat-cta-close': {
+      closeSheet();
+      const { userUid, userName, userHandle, projectTitle } = el.dataset;
+      store.triggerDirectChatCTA(userUid, userName, userHandle, projectTitle);
+      break;
+    }
+    case 'review-applications': {
+      const postId = el.dataset.postId;
+      if (postId) openSheet('sheet-review-applications', { reviewPostId: postId });
+      break;
+    }
+    case 'apply-team': {
+      const postId = el.dataset.postId;
+      const postTitle = el.dataset.postTitle || '';
+      if (postId) openSheet('sheet-apply-team', { postId, postTitle });
+      break;
+    }
+    case 'submit-comment': {
+      const postId = el.dataset.postId;
+      if (!postId) break;
+      const now = Date.now();
+      if (now - lastCommentTime < 1000) {
+        showToast({ message: "Please wait a moment before posting another comment.", icon: "⏳", type: "info" });
+        break;
+      }
+      lastCommentTime = now;
+      submitComment(postId);
+      break;
+    }
+    case 'update-app-status': {
+      const { postId, appIndex, status } = el.dataset;
+      if (postId && appIndex !== undefined && status) {
+        store.updateApplicationStatus(postId, parseInt(appIndex, 10), status);
+      }
+      break;
+    }
+    case 'select-contact': {
+      const contactId = el.dataset.contactId;
+      if (contactId) {
+        store.selectContact(contactId);
+        const chatBox = document.getElementById('chat-layout-box');
+        if (chatBox) chatBox.classList.add('mobile-conversation-active');
+      }
+      break;
+    }
+    case 'chat-mobile-back': {
+      const chatBox = document.getElementById('chat-layout-box');
+      if (chatBox) chatBox.classList.remove('mobile-conversation-active');
+      break;
+    }
+    case 'toggle-theme': {
+      toggleTheme();
+      break;
+    }
+    case 'remove-skill': {
+      const skillIndex = parseInt(el.dataset.skillIndex, 10);
+      if (!isNaN(skillIndex)) removeSkill(skillIndex);
+      break;
+    }
+    case 'open-sheet': {
+      const sheetId = el.dataset.sheetId;
+      if (sheetId) openSheet(sheetId);
+      break;
+    }
+    case 'close-sheet': {
+      closeSheet();
+      break;
+    }
+    case 'filter-skill': {
+      const skill = el.dataset.skill;
+      if (skill) filterBySkill(skill);
+      break;
+    }
+    case 'filter-category': {
+      const category = el.dataset.category;
+      if (category) {
+        filterCategory(category);
+        switchTab('home');
+      }
+      break;
+    }
+    case 'search-tag': {
+      const tag = el.dataset.tag;
+      if (tag) handleSearch(tag, true);
+      break;
+    }
+    case 'clear-search': {
+      handleSearch('', true);
+      break;
+    }
+    case 'reset-filters': {
+      resetFilters();
+      break;
+    }
+    case 'retry-feed': {
+      retryFeed();
+      break;
+    }
+    case 'load-more-posts': {
+      store.loadMorePosts();
+      break;
+    }
+    case 'toggle-onboarding-skill': {
+      const skill = el.dataset.skill;
+      if (skill) toggleSkill(skill);
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Master Global Delegated Click Listener
+document.addEventListener('click', (e) => {
   if (e.target.classList && e.target.classList.contains('sheet-overlay')) {
     closeSheet();
   }
   if (!e.target.closest('.dropdown-menu') && !e.target.closest('.btn-icon')) {
     store.setUi({ dropdownPostId: null });
   }
+
+  // Handle centralized [data-action] interactions
+  const actionEl = e.target.closest('[data-action]');
+  if (actionEl) {
+    const action = actionEl.dataset.action;
+    if (action) {
+      handleDelegatedAction(action, actionEl, e);
+    }
+  }
 });
 
-window.addEventListener('keydown', (e) => {
+// Delegated keydown listener (Escape key + Enter key for comment inputs)
+document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeSheet();
     store.setUi({ dropdownPostId: null });
     toggleMobileSidebar(false);
+  } else if (e.key === 'Enter' && e.target && e.target.classList.contains('comment-input')) {
+    e.preventDefault();
+    const postId = e.target.dataset.postId;
+    if (postId) {
+      const now = Date.now();
+      if (now - lastCommentTime < 1000) {
+        showToast({ message: "Please wait a moment before posting another comment.", icon: "⏳", type: "info" });
+        return;
+      }
+      lastCommentTime = now;
+      submitComment(postId);
+    }
   }
 });
 
+// Dark Mode Theme Management (tokens + prefers-color-scheme + localStorage)
+export function initTheme() {
+  let theme = 'light';
+  try {
+    const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('syncup_theme') : null;
+    if (saved === 'dark' || saved === 'light') {
+      theme = saved;
+    } else if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      theme = 'dark';
+    }
+  } catch (e) {}
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  updateThemeIcons(theme);
+}
+
+export function toggleTheme() {
+  const current = (typeof document !== 'undefined' && document.documentElement)
+    ? (document.documentElement.getAttribute('data-theme') || 'light')
+    : 'light';
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('data-theme', newTheme);
+  }
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('syncup_theme', newTheme);
+    }
+  } catch (e) {}
+  updateThemeIcons(newTheme);
+  showToast({
+    message: `${newTheme === 'dark' ? 'Dark' : 'Light'} theme activated`,
+    icon: newTheme === 'dark' ? '🌙' : '☀️',
+    type: 'info'
+  });
+}
+
+function updateThemeIcons(theme) {
+  if (typeof document === 'undefined') return;
+  const topBtn = document.getElementById('theme-toggle-btn');
+  const sidebarBtn = document.getElementById('theme-toggle-btn-sidebar');
+  const sunIcon = `<svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+  const moonIcon = `<svg class="lucide-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+  const icon = theme === 'dark' ? sunIcon : moonIcon;
+  if (topBtn) topBtn.innerHTML = icon;
+  if (sidebarBtn) sidebarBtn.innerHTML = icon;
+}
+
 // App Startup
 function init() {
+  // Initialize light/dark theme preference
+  initTheme();
+
   // Subscribe master render loop to store
   store.subscribe(renderAll);
 
@@ -393,6 +627,8 @@ window.SyncUpApp = {
   navigateTo,
   switchTab,
   toggleMobileSidebar,
+  initTheme,
+  toggleTheme,
   retryFeed,
   toggleDropdown,
   toggleComments,
@@ -514,6 +750,7 @@ window.removePostScreenshot = removePostScreenshot;
 window.updateLivePostPreview = updateLivePostPreview;
 window.goToCreateStep = goToCreateStep;
 window.switchInboxTab = switchInboxTab;
+window.toggleTheme = toggleTheme;
 window.scrollToLandingSection = (id) => {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: 'smooth' });

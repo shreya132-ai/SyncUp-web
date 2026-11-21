@@ -20,6 +20,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const testSuites = [
   { name: 'Phase 1: Architecture & One-Way Data Flow', file: 'scripts/test-phase1.js', expected: 6 },
   { name: 'Phase 2: App Shell & Navigation', file: 'scripts/test-phase2.js', expected: 9 },
+  { name: 'Phase 2: Security Hardening & XSS/URL Protection', file: 'scripts/test-phase2-security.js', expected: 15 },
   { name: 'Phase 3: Core Features & Interactions', file: 'scripts/test-phase3.js', expected: 10 },
   { name: 'Phase 4: Design System & Design Tokens', file: 'scripts/test-phase4.js', expected: 9 },
   { name: 'Phase 5: Quality Pass, Security & E2E', file: 'scripts/test-phase5.js', expected: 13 }

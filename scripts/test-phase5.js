@@ -50,38 +50,43 @@ const toastJs = fs.readFileSync(path.resolve(__dirname, '../src/ui/toast.js'), '
 
 // GROUP 1: Firestore Security Rules Validation
 console.log(`--- Group 1: Firestore Security Rules Validation ---`);
-test('Users can only edit/delete their own profile (/users/{userId})', () => {
+test('Users can only edit/delete their own profile (/users/{userId}) with private subdoc', () => {
   assert.ok(firestoreRules.includes('match /users/{userId}'), 'Defines /users/{userId} rule');
-  assert.ok(firestoreRules.includes('allow update, delete: if isUser(userId)'), 'Profile write restricted to owner');
+  assert.ok(firestoreRules.includes('isUser(userId)'), 'Profile write restricted to owner');
   assert.ok(firestoreRules.includes('request.auth.uid == userId'), 'isUser helper checks auth.uid == userId');
+  assert.ok(firestoreRules.includes('match /private/{docId}'), 'Defines private subdoc for sensitive data');
 });
 
-test('Users can only edit/delete their own posts (/posts/{postId})', () => {
-  assert.ok(firestoreRules.includes('allow delete: if isAuthenticated() && \n        resource.data.userUid == request.auth.uid'), 'Delete restricted to post author');
-  assert.ok(firestoreRules.includes('resource.data.userUid == request.auth.uid'), 'Owner update allowed');
+test('Users can only edit/delete their own posts (/posts/{postId}) with immutable author and size limits', () => {
+  assert.ok(firestoreRules.includes('allow delete: if isAuthenticated() &&'), 'Delete restricted to post author');
+  assert.ok(firestoreRules.includes('resource.data.userUid == request.auth.uid'), 'Owner delete/update allowed');
+  assert.ok(firestoreRules.includes('request.resource.data.userUid == resource.data.userUid'), 'userUid cannot be modified on update');
+  assert.ok(firestoreRules.includes('isValidPostData'), 'Enforces post schema and size validation');
 });
 
-test('Only post owners can accept/decline applications; non-owners can only append 1 application', () => {
-  assert.ok(firestoreRules.includes("hasOnly(['applications'])"), 'Non-owners only allowed to touch applications array');
-  assert.ok(firestoreRules.includes("request.resource.data.applications.size() == resource.data.applications.size() + 1"), 'Non-owners strictly limited to appending 1 application for themselves');
-  assert.ok(firestoreRules.includes("NON-OWNERS ARE FORBIDDEN FROM ACCEPTING OR DECLINING APPLICATIONS"), 'Rule explicitly documents non-owner status mutation block');
+test('Applications subcollection (/posts/{postId}/applications/{appId}) guarantees privacy and owner-only triage', () => {
+  assert.ok(firestoreRules.includes('match /applications/{appId}'), 'Defines applications subcollection rule');
+  assert.ok(firestoreRules.includes('resource.data.applicantUid == request.auth.uid'), 'Applicant can only read own application');
+  assert.ok(firestoreRules.includes("status in ['accepted', 'declined', 'pending']"), 'Status transition restricted to allowed enums');
+  assert.ok(firestoreRules.includes('match /likes/{uid}'), 'Defines likes subcollection rule');
+  assert.ok(firestoreRules.includes('match /comments/{commentId}'), 'Defines comments subcollection rule');
 });
 
 test('Chats (/chats/{chatId}) are readable and writable ONLY by active participants', () => {
   assert.ok(firestoreRules.includes('match /chats/{chatId}'), 'Defines /chats/{chatId} rule');
-  assert.ok(firestoreRules.includes('isChatParticipant(resource.data)'), 'Direct chat access restricted to participants');
-  assert.ok(firestoreRules.includes('request.auth.uid in chatData.participants'), 'Checks auth.uid in participants array');
+  assert.ok(firestoreRules.includes('request.auth.uid in resource.data.participants'), 'Checks auth.uid in participants array');
   assert.ok(firestoreRules.includes('GLOBAL_COMMUNITY_CHAT'), 'Global room accessible to authenticated users');
 });
 
 // GROUP 2: Firebase Storage Security Rules Validation
 console.log(`\n--- Group 2: Firebase Storage Security Rules Validation ---`);
-test('Storage rules restrict uploads to authenticated users, image types, and < 5 MB', () => {
+test('Storage rules restrict uploads to authenticated users, image types, max 500 KB, and owner paths', () => {
   assert.ok(storageRules.includes("isImageFile()"), 'Helper checks image content type');
   assert.ok(storageRules.includes("matches('image/.*')"), 'Regex matches image MIME types');
   assert.ok(storageRules.includes("isUnderMaxSize()"), 'Size check helper present');
-  assert.ok(storageRules.includes("5 * 1024 * 1024"), '5 MB max file size enforced');
-  assert.ok(storageRules.includes("match /posts/{imageFile}"), 'Post images match rule present');
+  assert.ok(storageRules.includes("500 * 1024"), '500 KB max file size enforced');
+  assert.ok(storageRules.includes("match /avatars/{userId}.jpg"), 'User avatar path rule present');
+  assert.ok(storageRules.includes("match /posts/{userId}/{imageFile=**}"), 'Post images match rule present');
 });
 
 // GROUP 3: Accessibility Standards

@@ -3,98 +3,190 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // =========================================================================
-    // AUTHENTICATION & OWNERSHIP HELPER FUNCTIONS
+    // GLOBAL SECURITY HELPER FUNCTIONS
     // =========================================================================
+
+    // Validates that the client request comes from an authenticated Firebase session
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Validates that the authenticated caller owns the target userId
     function isUser(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    function isPostOwner(postData) {
-      return isAuthenticated() && request.auth.uid == postData.userUid;
+    // Validates that the authenticated caller is an active participant in the chat
+    function isChatParticipant(chatData) {
+      return isAuthenticated() && (request.auth.uid in chatData.participants);
     }
 
-    function isChatParticipant(chatData) {
-      return isAuthenticated() && (
-        request.auth.uid in chatData.participants
-      );
+    // Validates post creation & update field types, sizes, and allowed status enums
+    function isValidPostData(data) {
+      return data.title is string && data.title.size() <= 120 &&
+             data.text is string && data.text.size() <= 800 &&
+             data.skills is list && data.skills.size() <= 10 &&
+             data.status in ['Recruiting', 'In Progress', 'Completed'] &&
+             (!('githubUrl' in data) || data.githubUrl is string) &&
+             (!('demoUrl' in data) || data.demoUrl is string) &&
+             (!('img' in data) || data.img is string);
     }
 
     // =========================================================================
-    // 1. USER PROFILES (/users/{userId})
-    // - Authenticated users can view public profile details (colleges, skills, bio)
-    // - Only the authenticated account owner can update or delete their profile
+    // 1. USER PROFILES (/users/{userId}) & PRIVATE CREDENTIALS
+    // - Public profiles: Authenticated users can view developer portfolios.
+    // - Email privacy: Email is forbidden from the public document to eliminate
+    //   data harvesting. Email is isolated to the /private/account subdocument.
+    // - Ownership: Only the account owner can create, update, or delete their profile.
     // =========================================================================
     match /users/{userId} {
+      // Authenticated users can browse public collaborator profiles
       allow read: if isAuthenticated();
-      allow create: if isUser(userId);
+
+      // Users can only create their own profile; email is excluded from public doc
+      allow create: if isUser(userId) && 
+        (!('email' in request.resource.data) || request.resource.data.email == null || request.resource.data.email == '');
+
+      // Only the profile owner can update or delete their public profile
       allow update, delete: if isUser(userId);
+
+      // Private User Subcollection (/users/{userId}/private/{docId})
+      // Isolated sensitive data (e.g. account email, billing, internal settings)
+      // Strictly readable and writable ONLY by the document owner.
+      match /private/{docId} {
+        allow read, write: if isUser(userId);
+      }
+
+      // Notifications Subcollection (/users/{userId}/notifications/{notifId})
+      // Authenticated users can create notifications for this user (alerts for applications, DMs, comments)
+      // Recipient user can read, mark read, and delete their notifications
+      match /notifications/{notifId} {
+        allow read, update, delete: if isUser(userId);
+        allow create: if isAuthenticated();
+      }
+
+      // Saved / Bookmarked Posts Subcollection (/users/{userId}/savedPosts/{postId})
+      // Readable and writable strictly by the bookmarking owner.
+      match /savedPosts/{postId} {
+        allow read, write: if isUser(userId);
+      }
     }
 
     // =========================================================================
-    // 2. PROJECT POSTS (/posts/{postId})
-    // - Feed is readable by everyone for discovery
-    // - Authors can create and delete their own posts
-    // - Authors can edit their own posts and ACCEPT/DECLINE applications
-    // - Non-authors can only like, comment, or submit a new application for themselves
+    // 2. USERNAME UNIQUENESS (/usernames/{handle})
+    // - Doc ID is the lowercase sanitized username handle (e.g. "shreya_sinha").
+    // - Publicly readable for handle availability checks during registration.
+    // - Authenticated users can only claim a handle if it has not been taken,
+    //   binding their UID to that username mapping.
+    // =========================================================================
+    match /usernames/{handle} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // =========================================================================
+    // 3. PROJECT POSTS (/posts/{postId})
+    // - Feed is publicly readable for project discovery across colleges.
+    // - Authors can create and delete their own posts with strict schema validation.
+    // - Owner cannot change the immutable userUid field upon update.
     // =========================================================================
     match /posts/{postId} {
-      // Feed is publicly readable for project discovery
+      // Public feed read for project discovery
       allow read: if true;
 
-      // Create: Authenticated users can create posts with their own UID as author
+      // Create: Authenticated users can publish posts where userUid equals their auth.uid
       allow create: if isAuthenticated() && 
-        request.resource.data.userUid == request.auth.uid;
+        request.resource.data.userUid == request.auth.uid &&
+        isValidPostData(request.resource.data);
 
-      // Delete: Only the post author can delete their post
+      // Delete: Strictly post author only
       allow delete: if isAuthenticated() && 
         resource.data.userUid == request.auth.uid;
 
-      // Update:
-      // Case A: Post author has full edit control (update content, roles, ACCEPT or DECLINE applications)
-      // Case B: Collaborator interactions strictly restricted:
-      //         - Like / Unlike (only 'likes' and 'likedBy' fields modified)
-      //         - Add comment (only 'comments' field modified)
-      //         - Apply to team (only appending a single application, applicantUid must equal auth.uid)
-      //         - NON-OWNERS ARE FORBIDDEN FROM ACCEPTING OR DECLINING APPLICATIONS
-      allow update: if isAuthenticated() && (
-        // Case A: Post Owner
-        resource.data.userUid == request.auth.uid ||
+      // Update: Post author only. Author cannot transfer ownership (userUid is immutable)
+      allow update: if isAuthenticated() && 
+        resource.data.userUid == request.auth.uid &&
+        request.resource.data.userUid == resource.data.userUid &&
+        isValidPostData(request.resource.data);
 
-        // Case B.1: Like / Unlike
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likedBy'])
-        ) ||
+      // -----------------------------------------------------------------------
+      // 3A. LIKES SUBCOLLECTION (/posts/{postId}/likes/{uid})
+      // - Doc ID == auth.uid guarantees exactly one like per user without race conditions.
+      // - Users can only create or delete their own like document. Updates are denied.
+      // - Like counts are computed on read or aggregated.
+      // -----------------------------------------------------------------------
+      match /likes/{uid} {
+        allow read: if true;
+        allow create: if isAuthenticated() && request.auth.uid == uid;
+        allow delete: if isAuthenticated() && request.auth.uid == uid;
+        allow update: if false;
+      }
 
-        // Case B.2: Add comment
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
-        ) ||
+      // -----------------------------------------------------------------------
+      // 3B. COMMENTS SUBCOLLECTION (/posts/{postId}/comments/{commentId})
+      // - Anyone can read comments on public posts.
+      // - Authenticated users can create comments where authorUid == request.auth.uid.
+      // - Enforces comment text size limit (<= 500 characters).
+      // - Only the comment author can delete their comment.
+      // -----------------------------------------------------------------------
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isAuthenticated() && 
+          request.resource.data.authorUid == request.auth.uid &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 &&
+          request.resource.data.text.size() <= 500;
+        allow update: if false;
+        allow delete: if isAuthenticated() && resource.data.authorUid == request.auth.uid;
+      }
 
-        // Case B.3: Submit new application (only post owners can accept/decline)
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['applications']) &&
-          request.resource.data.userUid == resource.data.userUid &&
-          request.resource.data.applications.size() == resource.data.applications.size() + 1
-        )
-      );
+      // -----------------------------------------------------------------------
+      // 3C. APPLICATIONS SUBCOLLECTION (/posts/{postId}/applications/{appId})
+      // - Eliminates the privacy leak of exposing applicant pitches on the public post.
+      // - Read: An applicant can ONLY read their own application.
+      //   The post author can read ALL applications submitted to their post.
+      //   Third parties cannot read any other user's application.
+      // - Create: Applicant creates with applicantUid == auth.uid and status == 'pending'.
+      // - Update: ONLY the post owner can update application status (to 'accepted' or 'declined').
+      // - Delete: Applicant can withdraw their application, or post owner can dismiss it.
+      // -----------------------------------------------------------------------
+      match /applications/{appId} {
+        allow read: if isAuthenticated() && (
+          resource.data.applicantUid == request.auth.uid ||
+          get(/databases/$(database)/documents/posts/$(postId)).data.userUid == request.auth.uid
+        );
+
+        allow create: if isAuthenticated() && 
+          request.resource.data.applicantUid == request.auth.uid &&
+          request.resource.data.status == 'pending' &&
+          request.resource.data.pitch is string &&
+          request.resource.data.pitch.size() <= 1000;
+
+        allow update: if isAuthenticated() && 
+          get(/databases/$(database)/documents/posts/$(postId)).data.userUid == request.auth.uid &&
+          request.resource.data.applicantUid == resource.data.applicantUid &&
+          request.resource.data.status in ['accepted', 'declined', 'pending'];
+
+        allow delete: if isAuthenticated() && (
+          resource.data.applicantUid == request.auth.uid ||
+          get(/databases/$(database)/documents/posts/$(postId)).data.userUid == request.auth.uid
+        );
+      }
     }
 
     // =========================================================================
-    // 3. CHATS & CONVERSATIONS (/chats/{chatId})
-    // - 1-on-1 DMs and group threads readable and writable ONLY by active participants
+    // 4. REAL-TIME CHATS & CONVERSATIONS (/chats/{chatId})
+    // - Direct messages are readable and writable ONLY by active participants.
+    // - GLOBAL_COMMUNITY_CHAT is accessible to all authenticated users.
     // =========================================================================
     match /chats/{chatId} {
       allow read, write: if isAuthenticated() && (
         chatId == 'GLOBAL_COMMUNITY_CHAT' ||
-        (resource != null && isChatParticipant(resource.data)) ||
+        request.auth.uid in resource.data.participants ||
         (resource == null && request.auth.uid in request.resource.data.participants)
       );
 
-      // Message Subcollection (/chats/{chatId}/messages/{messageId})
       match /messages/{messageId} {
         allow read, write: if isAuthenticated() && (
           chatId == 'GLOBAL_COMMUNITY_CHAT' ||
@@ -104,16 +196,19 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // 4. REPORTS (/reports/{reportId})
-    // - Authenticated users can submit reports
-    // - Reports are strictly write-only (no client reads)
+    // 5. VIOLATION REPORTS (/reports/{reportId})
+    // - Authenticated users can submit reports (write-only).
+    // - Reports cannot be read, updated, or deleted from client apps.
     // =========================================================================
     match /reports/{reportId} {
       allow create: if isAuthenticated() && request.resource.data.reporterUid == request.auth.uid;
       allow read, update, delete: if false;
     }
 
-    // Default deny for all other paths
+    // =========================================================================
+    // 6. DEFAULT DENY
+    // - Closes all unspecified collections and document paths.
+    // =========================================================================
     match /{document=**} {
       allow read, write: if false;
     }

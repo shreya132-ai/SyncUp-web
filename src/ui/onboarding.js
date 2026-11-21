@@ -55,7 +55,7 @@ export function renderOnboardingGrid() {
   container.innerHTML = CANDIDATE_SKILLS.map(skill => {
     const isSelected = selectedSkills.includes(skill);
     return `
-      <button type="button" class="onboarding-skill-chip ${isSelected ? 'selected' : ''}" onclick="window.SyncUpUIOnboarding.toggleSkill('${skill}')">
+      <button type="button" class="onboarding-skill-chip ${isSelected ? 'selected' : ''}" data-action="toggle-onboarding-skill" data-skill="${escapeHtml(skill)}">
         <span>${isSelected ? '✓' : '+'}</span> ${escapeHtml(skill)}
       </button>
     `;

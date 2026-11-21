@@ -2,7 +2,7 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Helper functions
+    // Global Storage Security Helper Functions
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -12,26 +12,19 @@ service firebase.storage {
     }
 
     function isUnderMaxSize() {
-      // 5 MB limit (client compresses images to < 70 KB via Canvas)
-      return request.resource.size < 5 * 1024 * 1024;
+      // 500 KB limit enforced for all uploaded media assets
+      return request.resource.size < 500 * 1024;
     }
 
-    // Project post images: public read, authenticated upload with size & content-type checks
-    match /posts/{imageFile} {
+    // User profile avatars: public read, write restricted to own avatars/{uid}.jpg
+    match /avatars/{userId}.jpg {
       allow read: if true;
-      allow create, update: if isAuthenticated() && isImageFile() && isUnderMaxSize();
-      allow delete: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == userId && isImageFile() && isUnderMaxSize();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Legacy or generic project images path
-    match /project_images/{imageFile} {
-      allow read: if true;
-      allow create, update: if isAuthenticated() && isImageFile() && isUnderMaxSize();
-      allow delete: if isAuthenticated();
-    }
-
-    // User profile pictures: public read, owner update
-    match /users/{userId}/{imageFile} {
+    // Project post images: public read, write restricted to own posts/{uid}/... paths
+    match /posts/{userId}/{imageFile=**} {
       allow read: if true;
       allow create, update: if isAuthenticated() && request.auth.uid == userId && isImageFile() && isUnderMaxSize();
       allow delete: if isAuthenticated() && request.auth.uid == userId;
