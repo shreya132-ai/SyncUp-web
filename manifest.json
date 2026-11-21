@@ -1,0 +1,25 @@
+{
+  "name": "SyncUp — Developer Project Collaboration",
+  "short_name": "SyncUp",
+  "description": "Peer-to-peer student developer project collaboration, teammate discovery, and real-time messaging.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0F19",
+  "theme_color": "#064E3B",
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

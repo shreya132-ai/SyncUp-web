@@ -1,0 +1,38 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Global Storage Security Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isImageFile() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isUnderMaxSize() {
+      // 500 KB limit enforced for all uploaded media assets
+      return request.resource.size < 500 * 1024;
+    }
+
+    // User profile avatars: public read, write restricted to own avatars/{uid}.jpg
+    match /avatars/{userId}.jpg {
+      allow read: if true;
+      allow create, update: if isAuthenticated() && request.auth.uid == userId && isImageFile() && isUnderMaxSize();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Project post images: public read, write restricted to own posts/{uid}/... paths
+    match /posts/{userId}/{imageFile=**} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() && request.auth.uid == userId && isImageFile() && isUnderMaxSize();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Default deny for all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
